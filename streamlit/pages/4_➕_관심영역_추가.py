@@ -53,6 +53,14 @@ with tab1:
 # 신규 AOI 추가 탭
 with tab2:
     st.subheader("신규 AOI 추가")
+    # 폴리움 지도 생성
+    m = folium.Map(location=[45.5236, -122.6750], zoom_start=13)
+
+    # 폴리움 지도에 그리기 플러그인 추가
+    draw = Draw(export=True)
+    m.add_child(draw)
+    # 스트림릿에 지도 표시
+    folium_static(m)
     new_aoi_name = st.text_input("AOI 이름을 입력하세요:")
     new_aoi_file = st.file_uploader("새로운 관심영역의 파일을 업로드하세요", type=["geojson"])
     if st.button("AOI 추가"):

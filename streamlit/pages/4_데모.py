@@ -12,7 +12,7 @@ m = folium.Map(location=[45.5236, -122.6750], zoom_start=13)
 # 폴리움 지도에 그리기 플러그인 추가
 draw = Draw(export=True)
 m.add_child(draw)
-
+st.write(draw.last_draw)
 # 스트림릿에 지도 표시
 folium_static(m)
 
