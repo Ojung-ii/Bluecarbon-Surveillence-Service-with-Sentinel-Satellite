@@ -77,4 +77,6 @@ def plotly(df, forecast):
     combined_fig.add_trace(px.scatter(df, x='ds', y='y', title='관측치', color_discrete_sequence=['red']).data[0])
 
     # Display the combined figure using st.plotly_chart()
-    st.plotly_chart(combined_fig)
+    st.plotly_chart(combined_fig, use_container_width = True)
+
+
