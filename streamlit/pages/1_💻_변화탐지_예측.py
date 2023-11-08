@@ -1,6 +1,7 @@
 import streamlit as st
 import folium
 from streamlit_folium import folium_static
+from scipy.stats import norm, gamma, f, chi2
 import json
 import ee
 from datetime import datetime, timedelta
@@ -40,8 +41,8 @@ with col2:
         aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
 
     # 날짜 선택
-    start_date = st.date_input('시작날짜 선택하세요:').strftime('%Y-%m-%d')  # 디폴트로 오늘 날짜가 찍혀 있다.
-    end_date = st.date_input('끝날짜 선택하세요:').strftime('%Y-%m-%d')    # 디폴트로 오늘 날짜가 찍혀 있다.
+    start_date = st.date_input('시작날짜 선택하세요:')  # 디폴트로 오늘 날짜가 찍혀 있다.
+    end_date = st.date_input('끝날짜 선택하세요:')    # 디폴트로 오늘 날짜가 찍혀 있다.
 
     # 분석 실행 버튼
     st.write("")
@@ -70,8 +71,6 @@ with col1:
 st.write("PETER's CODE HERE for Graph~~~~")
 if proceed_button:
     # 시간 앞 6일 뒤 5일 찾아보기
-    start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
-    end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
     start_f = start_date - timedelta(days=6)
     start_b = start_date + timedelta(days=5)
     end_f = end_date - timedelta(days=6)
@@ -103,7 +102,7 @@ if proceed_button:
     m1 = 5 # 걍 해둠ㅋㅋ
 
     # Decision threshold alpha/2:
-    dt = f.ppf(0.0005, 2*m, 2*m)
+    dt = f.ppf(0.0005, 2*m1, 2*m1)
 
     # LRT statistics.
     q1 = im1.divide(im2)
