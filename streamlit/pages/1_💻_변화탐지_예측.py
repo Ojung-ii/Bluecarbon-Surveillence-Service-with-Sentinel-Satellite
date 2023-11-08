@@ -2,7 +2,9 @@ import streamlit as st
 import folium
 from streamlit_folium import folium_static
 import json
-
+import ee
+from datetime import datetime, timedelta
+import IPython.display as disp
 # 페이지 설정과 제목
 st.set_page_config(page_title="변화탐지_예측", page_icon="👀", layout="wide")
 st.title("변화탐지 예측")
@@ -38,8 +40,8 @@ with col2:
         aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
 
     # 날짜 선택
-    start_date = st.date_input('시작날짜 선택하세요:')  # 디폴트로 오늘 날짜가 찍혀 있다.
-    end_date = st.date_input('끝날짜 선택하세요:')    # 디폴트로 오늘 날짜가 찍혀 있다.
+    start_date = st.date_input('시작날짜 선택하세요:').strftime('%Y-%m-%d')  # 디폴트로 오늘 날짜가 찍혀 있다.
+    end_date = st.date_input('끝날짜 선택하세요:').strftime('%Y-%m-%d')    # 디폴트로 오늘 날짜가 찍혀 있다.
 
     # 분석 실행 버튼
     st.write("")
@@ -66,3 +68,65 @@ with col1:
 
 # 그래프 영역
 st.write("PETER's CODE HERE for Graph~~~~")
+if proceed_button:
+    # 시간 앞 6일 뒤 5일 찾아보기
+    start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+    start_f = start_date - timedelta(days=6)
+    start_b = start_date + timedelta(days=5)
+    end_f = end_date - timedelta(days=6)
+    end_b = end_date + timedelta(days=5)
+    # SAR load
+
+    ffa_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') 
+                        .filterBounds(aoi) 
+                        .filterDate(ee.Date(start_f), ee.Date(start_b)) 
+                        .first() 
+                        .clip(aoi))
+    ffb_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') 
+                        .filterBounds(aoi) 
+                        .filterDate(ee.Date(end_f), ee.Date(end_b)) 
+                        .first() 
+                        .clip(aoi))
+    im1 = ee.Image(ffa_fl).select('VV').clip(aoi)
+    im2 = ee.Image(ffb_fl).select('VV').clip(aoi)
+    ratio = im1.divide(im2)
+    # ffa_fa에 대한 min, max 같은 통계값
+    hist = ratio.reduceRegion(ee.Reducer.fixedHistogram(0, 5, 500), aoi).get('VV').getInfo()
+    mean = ratio.reduceRegion(ee.Reducer.mean(), aoi).get('VV').getInfo()
+    variance = ratio.reduceRegion(ee.Reducer.variance(), aoi).get('VV').getInfo()
+    v_min = ratio.select('VV').reduceRegion(
+        ee.Reducer.min(), aoi).get('VV').getInfo()
+    v_max = ratio.select('VV').reduceRegion(
+        ee.Reducer.max(), aoi).get('VV').getInfo()
+
+    m1 = 5 # 걍 해둠ㅋㅋ
+
+    # Decision threshold alpha/2:
+    dt = f.ppf(0.0005, 2*m, 2*m)
+
+    # LRT statistics.
+    q1 = im1.divide(im2)
+    q2 = im2.divide(im1)
+
+    # Change map with 0 = no change, 1 = decrease, 2 = increase in intensity.
+    c_map = im1.multiply(0).where(q2.lt(dt), 1)
+    c_map = c_map.where(q1.lt(dt), 2)
+
+    # Mask no-change pixels.
+    c_map = c_map.updateMask(c_map.gt(0))
+
+    # Display map with red for increase and blue for decrease in intensity.
+    location = aoi.centroid().coordinates().getInfo()[::-1]
+    mp = folium.Map(
+        location=location, tiles='Stamen Toner',
+        zoom_start=14)
+    folium.TileLayer('OpenStreetMap').add_to(mp)
+    mp.add_ee_layer(ratio,
+                    {'min': v_min, 'max': v_max, 'palette': ['black', 'white']}, 'Ratio')
+    mp.add_ee_layer(c_map,
+                    {'min': 0, 'max': 2, 'palette': ['black', 'blue', 'red']},
+                    'Change Map')
+    mp.add_child(folium.LayerControl())
+
+    disp.display(mp)
