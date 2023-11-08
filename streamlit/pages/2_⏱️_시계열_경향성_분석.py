@@ -80,4 +80,7 @@ if proceed_button:
     forecast,forecast_df,df,m = sar_func.prophet_process(df)
     sar_func.plotly(df,forecast)
     fig2 = m.plot_components(forecast)
+
+    # Display the modified components plot using st.pyplot()
     st.pyplot(fig2)
+    
