@@ -2,6 +2,13 @@ import streamlit as st
 import folium
 from streamlit_folium import folium_static
 import json
+import ee
+import pandas as pd
+from prophet import Prophet
+import sar_func
+
+start_date = '2017-01-01'
+end_date = '2023-03-31'
 
 # page setting and title
 st.set_page_config(page_title="변화탐지_예측", page_icon="👀")
@@ -28,7 +35,7 @@ with col2:
 
 # left section : visualize mapping with polygon
 with col1:
-    # 지도 초기화 (대한민국 중심 위치로 설정)
+    # 지도 초기화 (대한민국 중심 위치로 설정)x``
     m = folium.Map(location=[36.5, 127.5], zoom_start=7)
     
    # 선택된 관심 지역이 있을 경우에만 해당 지역 폴리곤 표시
@@ -46,4 +53,14 @@ with col1:
     folium_static(m)
 
 # 여기는 그래프 넣기
-st.write("STEVE's CODE HERE for Graph~~~~")
+# st.write("STEVE's CODE HERE for Graph~~~~")
+# st.write(aoi)
+if aoi:
+    parse_aoi = sar_func.create_ee_polygon_from_geojson(aoi)
+    start_date = '2017-01-01'
+    end_date = '2023-03-01'
+    df = sar_func.calculateRVI(parse_aoi,start_date,end_date)
+    forecast,forecast_df,df,m = sar_func.prophet_process(df)
+    sar_func.plotly(df,forecast)
+    fig2 = m.plot_components(forecast)
+    st.pyplot(fig2)
