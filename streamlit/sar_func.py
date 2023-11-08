@@ -5,6 +5,7 @@ import streamlit as st
 import plotly.express as px
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
+import folium
 
 # Earth Engine API 초기화
 ee.Initialize()
@@ -75,3 +76,15 @@ def plotly(df, forecast):
 
     # Display the combined figure using st.plotly_chart()
     st.plotly_chart(combined_fig, use_container_width = True)
+
+
+# Define a method for displaying Earth Engine image tiles to folium map.
+def add_ee_layer(self, ee_image_object, vis_params, name):
+    map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
+    folium.raster_layers.TileLayer(
+        tiles = map_id_dict['tile_fetcher'].url_format,
+        attr = 'Map Data &copy; <a href="https://earthengine.google.com/">Google Earth Engine</a>',
+        name = name,
+        overlay = True,
+        control = True
+    ).add_to(self)
