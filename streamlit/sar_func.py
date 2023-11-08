@@ -88,3 +88,50 @@ def add_ee_layer(self, ee_image_object, vis_params, name):
         overlay = True,
         control = True
     ).add_to(self)
+
+# Reclassifies values in directional change maps.
+def dmap_iter(current, prev):
+    
+    prev = ee.Dictionary(prev)
+    j = ee.Number(prev.get('j'))
+    image = ee.Image(current)
+    avimg = ee.Image(prev.get('avimg'))
+    diff = image.subtract(avimg)
+    # Get positive/negative definiteness.
+    posd = ee.Image(diff.select(0).gt(0).And(det(diff).gt(0)))
+    negd = ee.Image(diff.select(0).lt(0).And(det(diff).gt(0)))
+    bmap = ee.Image(prev.get('bmap'))
+    bmapj = bmap.select(j)
+    dmap = ee.Image.constant(ee.List.sequence(1, 3))
+    bmapj = bmapj.where(bmapj, dmap.select(2))
+    bmapj = bmapj.where(bmapj.And(posd), dmap.select(0))
+    bmapj = bmapj.where(bmapj.And(negd), dmap.select(1))
+    bmap = bmap.addBands(bmapj, overwrite=True)
+    # Update avimg with provisional means.
+    i = ee.Image(prev.get('i')).add(1)
+    avimg = avimg.add(image.subtract(avimg).divide(i))
+    # Reset avimg to current image and set i=1 if change occurred.
+    avimg = avimg.where(bmapj, image)
+    i = i.where(bmapj, 1)
+    return ee.Dictionary({'avimg': avimg, 'bmap': bmap, 'j': j.add(1), 'i': i})
+
+def change_maps(im_list, median=False, alpha=0.01):
+    """Calculates thematic change maps."""
+    k = im_list.length()
+    # Pre-calculate the P value array.
+    pv_arr = ee.List(p_values(im_list))
+    # Filter P values for change maps.
+    cmap = ee.Image(im_list.get(0)).select(0).multiply(0)
+    bmap = ee.Image.constant(ee.List.repeat(0,k.subtract(1))).add(cmap)
+    alpha = ee.Image.constant(alpha)
+    first = ee.Dictionary({'i': 1, 'alpha': alpha, 'median': median,
+                           'cmap': cmap, 'smap': cmap, 'fmap': cmap, 'bmap': bmap})
+    result = ee.Dictionary(pv_arr.iterate(filter_i, first))
+    # Post-process bmap for change direction.
+    bmap =  ee.Image(result.get('bmap'))
+    avimg = ee.Image(im_list.get(0))
+    j = ee.Number(0)
+    i = ee.Image.constant(1)
+    first = ee.Dictionary({'avimg': avimg, 'bmap': bmap, 'j': j, 'i': i})
+    dmap = ee.Dictionary(im_list.slice(1).iterate(dmap_iter, first)).get('bmap')
+    return ee.Dictionary(result.set('bmap', dmap))

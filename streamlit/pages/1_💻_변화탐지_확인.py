@@ -6,7 +6,11 @@ import json
 import ee
 from datetime import datetime, timedelta
 import IPython.display as disp
+
+# Google Earth Engine 초기화
+ee.Initialize()
 # 페이지 설정과 제목
+
 st.set_page_config(page_title="변화탐지_예측", page_icon="👀", layout="wide")
 st.title("변화탐지 예측")
 st.write("---"*20)
@@ -69,6 +73,7 @@ with col1:
 
 # 그래프 영역
 st.write("PETER's CODE HERE for Graph~~~~")
+
 if proceed_button:
     # 시간 앞 6일 뒤 5일 찾아보기
     start_f = start_date - timedelta(days=6)
