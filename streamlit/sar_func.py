@@ -3,6 +3,8 @@ import pandas as pd
 from prophet import Prophet
 import streamlit as st
 import plotly.express as px
+import plotly.graph_objs as go
+from plotly.subplots import make_subplots
 
 # Earth Engine API 초기화
 ee.Initialize()
@@ -55,19 +57,14 @@ def prophet_process(df):
     m.fit(df)
 
     # 미래 날짜 프레임을 만들고 예측을 진행합니다.
-    future = m.make_future_dataframe(periods=365)
+    future = m.make_future_dataframe(periods=12,freq='M')
     forecast = m.predict(future) 
 
     # 예측 결과를 가져옵니다.
     forecasted_value = forecast.iloc[-1]['yhat']  # 예측된 값을 가져옴
-    print(f"Forecasted mean NDVI for the next period: {forecasted_value}")
-
     # 예측 결과를 데이터프레임에 추가합니다.
     forecast_df = df.append({'ds': future.iloc[-1]['ds'], 'y': forecasted_value}, ignore_index=True)
     return forecast,forecast_df,df,m
-
-import plotly.graph_objs as go
-from plotly.subplots import make_subplots
 
 def plotly(df, forecast):
     # Create a Plotly Express figure for both forecast and observed data
@@ -77,4 +74,4 @@ def plotly(df, forecast):
     combined_fig.add_trace(px.scatter(df, x='ds', y='y', title='관측치', color_discrete_sequence=['red']).data[0])
 
     # Display the combined figure using st.plotly_chart()
-    st.plotly_chart(combined_fig)
+    st.plotly_chart(combined_fig, use_container_width = True)
