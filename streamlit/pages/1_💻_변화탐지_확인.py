@@ -6,13 +6,13 @@ import json
 import ee
 from datetime import datetime, timedelta
 import IPython.display as disp
-
+from sar_func import create_ee_polygon_from_geojson
 # Google Earth Engine 초기화
 ee.Initialize()
 # 페이지 설정과 제목
 
-st.set_page_config(page_title="변화탐지_예측", page_icon="👀", layout="wide")
-st.title("변화탐지 예측")
+st.set_page_config(page_title="SAR 변화탐지 확인", page_icon="👀", layout="wide")
+st.title("👀 SAR 변화탐지 확인")
 st.write("---"*20)
 
 # 'aoi.geojson' 파일 로드
@@ -43,7 +43,8 @@ with col2:
     else:
         # 기존 관심 지역 선택
         aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
-
+        aoi = create_ee_polygon_from_geojson(aoi)
+        
     # 날짜 선택
     start_date = st.date_input('시작날짜 선택하세요:')  # 디폴트로 오늘 날짜가 찍혀 있다.
     end_date = st.date_input('끝날짜 선택하세요:')    # 디폴트로 오늘 날짜가 찍혀 있다.
@@ -72,8 +73,6 @@ with col1:
     folium_static(m)
 
 # 그래프 영역
-st.write("PETER's CODE HERE for Graph~~~~")
-
 if proceed_button:
     # 시간 앞 6일 뒤 5일 찾아보기
     start_f = start_date - timedelta(days=6)
@@ -107,7 +106,7 @@ if proceed_button:
     m1 = 5 # 걍 해둠ㅋㅋ
 
     # Decision threshold alpha/2:
-    dt = f.ppf(0.0005, 2*m1, 2*m1)
+    dt = f.ppf(0.0005, 2*m1)
 
     # LRT statistics.
     q1 = im1.divide(im2)
@@ -134,3 +133,4 @@ if proceed_button:
     mp.add_child(folium.LayerControl())
 
     disp.display(mp)
+    
