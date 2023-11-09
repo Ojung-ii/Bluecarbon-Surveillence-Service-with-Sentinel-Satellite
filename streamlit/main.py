@@ -38,7 +38,7 @@ def launch() :
         # api_key = st.text_input("Enter token", value='anything~', placeholder="Enter google earth engine toekn", type="password")
         
         # proceed_button = st.button('Proceed',use_container_width=True)
-        
+        pass
         
   
 # launch
