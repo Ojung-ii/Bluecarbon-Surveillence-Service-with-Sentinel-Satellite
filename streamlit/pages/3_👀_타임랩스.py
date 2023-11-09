@@ -1,10 +1,9 @@
 import streamlit as st
 import geemap
 import ee
-from timelapse_func import create_sentinel1_timelapse, create_sentinel2_timelapse
+from timelapse_func import create_sentinel1_timelapse, create_sentinel2_timelapse,long_running_task
 import json
 from sar_func import create_ee_polygon_from_geojson
-
 # Google Earth Engine 초기화
 ee.Initialize()
 
@@ -35,7 +34,6 @@ start_date = st.text_input('시작 날짜 (YYYYMMDD 형식)', value='20200101')
 end_date = st.text_input('종료 날짜 (YYYYMMDD 형식)', value='20200131')
 frequency = st.selectbox('빈도 선택', options=['day', 'month', 'quarter', 'year'])
 
-
 # '새로운 관심영역 넣기'가 선택되면 파일 업로드 기능 활성화
 if selected_name == "새로운 관심영역 넣기":
     uploaded_file = st.file_uploader("GeoJSON 파일을 업로드하세요", type=['geojson'])
@@ -52,14 +50,14 @@ else:
 formatted_start_date = format_date(int(start_date))
 formatted_end_date = format_date(int(end_date))
 
-
 if st.button('타임랩스 생성'):
     with st.spinner('타임랩스를 생성하는 중입니다...'):
         output_gif = './timelapse.gif'  # 타임랩스를 저장할 경로와 파일명
         if dataset == 'Sentinel-1':
-            create_sentinel1_timelapse(aoi, start_date, end_date, frequency, output_gif)
+            create_sentinel1_timelapse(aoi, start_date, end_date, frequency, output_gif)    
+            st.image(output_gif, caption=f'{dataset} 타임랩스', use_column_width=True)
         elif dataset == 'Sentinel-2':
             create_sentinel2_timelapse(aoi, start_date, end_date, frequency, output_gif)
-
-        st.image(output_gif, caption=f'{dataset} 타임랩스', use_column_width=True)
-
+            st.image(output_gif, caption=f'{dataset} 타임랩스', use_column_width=True)
+        
+        
