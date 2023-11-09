@@ -65,9 +65,9 @@ with col1:
 
     # Streamlit 앱에 지도 표시
     folium_static(m)
-# 여기는 그래프 넣기
-# st.write("STEVE's CODE HERE for Graph~~~~")
-# st.write(aoi)
+
+
+
 if proceed_button:
     st.write("-----"*20)
     st.markdown("""

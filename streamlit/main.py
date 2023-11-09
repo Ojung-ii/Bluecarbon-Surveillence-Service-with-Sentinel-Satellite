@@ -34,11 +34,11 @@ def launch() :
         st.image("logo/mainpage_logo_wh.gif",  use_column_width="always")
         
     with st.sidebar:
-        # 전달.
-        api_key = st.text_input("Enter token", value='anything~', placeholder="Enter google earth engine toekn", type="password")
+        # # 전달.
+        # api_key = st.text_input("Enter token", value='anything~', placeholder="Enter google earth engine toekn", type="password")
         
-        proceed_button = st.button('Proceed',use_container_width=True)
-        
+        # proceed_button = st.button('Proceed',use_container_width=True)
+        pass
         
   
 # launch
