@@ -1,17 +1,19 @@
 import streamlit as st
 import folium
 from streamlit_folium import folium_static
+from scipy.stats import norm, gamma, f, chi2
 import json
 import ee
 from datetime import datetime, timedelta
 import IPython.display as disp
-from sar_func import create_ee_polygon_from_geojson, add_ee_layer
-from scipy.stats import chi2
 
+# Google Earth Engine 초기화
+ee.Initialize()
 # 페이지 설정과 제목
-st.set_page_config(page_title="변화탐지 확인", page_icon="👀", layout="wide")
-st.title("변화탐지 확인")
-st.write("---" * 20)
+
+st.set_page_config(page_title="변화탐지_예측", page_icon="👀", layout="wide")
+st.title("변화탐지 예측")
+st.write("---"*20)
 
 # 'aoi.geojson' 파일 로드
 with open('aoi.geojson', 'r', encoding="utf-8") as f:
@@ -43,8 +45,8 @@ with col2:
         aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
 
     # 날짜 선택
-    start_date = st.date_input('시작날짜 선택하세요:')
-    end_date = st.date_input('끝날짜 선택하세요:')
+    start_date = st.date_input('시작날짜 선택하세요:')  # 디폴트로 오늘 날짜가 찍혀 있다.
+    end_date = st.date_input('끝날짜 선택하세요:')    # 디폴트로 오늘 날짜가 찍혀 있다.
 
     # 분석 실행 버튼
     st.write("")
@@ -69,29 +71,17 @@ with col1:
     # Streamlit 앱에 지도 표시
     folium_static(m)
 
-# -------------------------- 변화탐지 분석 실행 -----------------------------
-# 분석 실행 버튼이 눌렸을 때 실행될 로직
-if proceed_button and aoi:
-    st.write("-----"*20)
-    st.markdown("""
-        <h3 style='text-align: center; font-size: 30px;'>⬇️ 변화탐지 분석 결과 </h3>
-        """, unsafe_allow_html=True)
-    # 그래프 영역
-    aoi = create_ee_polygon_from_geojson(aoi)
+# 그래프 영역
+st.write("PETER's CODE HERE for Graph~~~~")
 
+if proceed_button:
     # 시간 앞 6일 뒤 5일 찾아보기
     start_f = start_date - timedelta(days=6)
     start_b = start_date + timedelta(days=5)
     end_f = end_date - timedelta(days=6)
     end_b = end_date + timedelta(days=5)
+    # SAR load
 
-    # EE에 필요한 날짜 형식으로 변환
-    start_f = start_f.strftime('%Y-%m-%d')
-    start_b = start_b.strftime('%Y-%m-%d')
-    end_f = end_f.strftime('%Y-%m-%d')
-    end_b = end_b.strftime('%Y-%m-%d')
-
-    # SAR 이미지 로드 및 처리
     ffa_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') 
                         .filterBounds(aoi) 
                         .filterDate(ee.Date(start_f), ee.Date(start_b)) 
@@ -117,9 +107,8 @@ if proceed_button and aoi:
     m1 = 5 # 걍 해둠ㅋㅋ
 
     # Decision threshold alpha/2:
-    dt = chi2.ppf(0.0005, df=2*m1)
-    # dt = f.ppf(0.0005, 2*m1, 2*m1)
-    
+    dt = f.ppf(0.0005, 2*m1, 2*m1)
+
     # LRT statistics.
     q1 = im1.divide(im2)
     q2 = im2.divide(im1)
@@ -133,25 +122,15 @@ if proceed_button and aoi:
 
     # Display map with red for increase and blue for decrease in intensity.
     location = aoi.centroid().coordinates().getInfo()[::-1]
-
-
-    # Add EE drawing method to folium.
-    folium.Map.add_ee_layer = add_ee_layer
-    
-    # aoi의 중심 좌표 계산
-    aoi_centroid = aoi.centroid().coordinates().getInfo()[::-1]
-
-    # folium.Map 객체 생성 (location은 aoi의 중심 좌표로 설정, zoom_start를 조정하여 줌인)
-    mp = folium.Map(location=aoi_centroid, zoom_start=12)
-    
-    # Earth Engine 레이어 추가
-    mp.add_ee_layer(ratio, {'min': v_min, 'max': v_max, 'palette': ['black', 'white']}, 'Ratio')
-    mp.add_ee_layer(c_map, {'min': 0, 'max': 2, 'palette': ['black', 'blue', 'red']}, 'Change Map')
-
-    # 레이어 컨트롤 추가
-    # 레이어 컨트롤 추가
+    mp = folium.Map(
+        location=location, tiles='Stamen Toner',
+        zoom_start=14)
+    folium.TileLayer('OpenStreetMap').add_to(mp)
+    mp.add_ee_layer(ratio,
+                    {'min': v_min, 'max': v_max, 'palette': ['black', 'white']}, 'Ratio')
+    mp.add_ee_layer(c_map,
+                    {'min': 0, 'max': 2, 'palette': ['black', 'blue', 'red']},
+                    'Change Map')
     mp.add_child(folium.LayerControl())
 
-    # 스트림릿 앱에서 지도 시각화
-    # folium_static 함수에 width 매개변수를 추가하여 스트림릿의 전체 너비에 맞게 조정
-    folium_static(mp, width=1100)  # 스트림릿 너비에 맞게 조정
+    disp.display(mp)
