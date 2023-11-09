@@ -11,8 +11,8 @@ import sar_func
 ee.Initialize()
 # 페이지 설정과 제목
 
-st.set_page_config(page_title="다중 시계열 변화탐지", page_icon="⏱️", layout="wide")
-st.title("⏱️ 다중 시계열 변화탐지")
+st.set_page_config(page_title="시계열 변화탐지 확인", page_icon="⏱️", layout="wide")
+st.title("⏱️ 시계열 변화탐지 확인")
 st.write("---"*20)
 
 # 'aoi.geojson' 파일 로드

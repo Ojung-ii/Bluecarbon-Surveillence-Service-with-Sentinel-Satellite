@@ -6,8 +6,8 @@ import sar_func
 
 
 # 페이지 설정과 제목
-st.set_page_config(page_title="단일 시계열 경향성 분석", page_icon="⏱️", layout = 'wide')
-st.title("⏱️ 단일 시계열 경향성 분석")
+st.set_page_config(page_title="시계열 경향성 분석", page_icon="⏱️", layout = 'wide')
+st.title("⏱️ 시계열 경향성 분석")
 st.write("---"*20)
 
 # 'aoi.geojson' 파일 로드
