@@ -76,23 +76,39 @@ st.write("PETER's CODE HERE for Graph~~~~")
 
 if proceed_button:
     # 시간 앞 6일 뒤 5일 찾아보기
-    start_f = start_date - timedelta(days=6)
-    start_b = start_date + timedelta(days=5)
-    end_f = end_date - timedelta(days=6)
-    end_b = end_date + timedelta(days=5)
-    # SAR load
+    def add_ee_layer(self, ee_image_object, vis_params, name):
+        map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
+        folium.raster_layers.TileLayer(
+            tiles = map_id_dict['tile_fetcher'].url_format,
+            attr = 'Map Data &copy; <a href="https://earthengine.google.com/">Google Earth Engine</a>',
+            name = name,
+            overlay = True,
+            control = True
+    ).add_to(self)
 
+    # Add EE drawing method to folium.
+    folium.Map.add_ee_layer = add_ee_layer
+    aoi = sar_func.create_ee_polygon_from_geojson(aoi)
+    
+    start_f = start_date - timedelta(days=6)
+    end_b = end_date + timedelta(days=5)
+    start_f = start_f.strftime('%Y-%m-%d')
+    end_b = end_b.strftime('%Y-%m-%d')
+    # SAR load
+    def to_ee_date(image):
+        return ee.Date(image.get('date'))
+    
     im_coll = (ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT')
            .filterBounds(aoi)
-           .filterDate(ee.Date('start_f'),ee.Date('end_b'))
+           .filterDate(ee.Date(start_f),ee.Date(end_b))
            .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING'))
            .filter(ee.Filter.eq('relativeOrbitNumber_start', 127))
            .map(lambda img: img.set('date', ee.Date(img.date()).format('YYYYMMdd')))
            .sort('date'))
-    #timelist
+    
     timestamplist = (im_coll.aggregate_array('date')
-                    .map(lambda d: ee.String('T').cat(ee.String(d)))
-                    .getInfo())
+                 .map(lambda d: ee.String('T').cat(ee.String(d)))
+                 .getInfo())
     #clip
     def clip_img(img):
         return ee.Image(img).clip(aoi)
@@ -140,21 +156,24 @@ if proceed_button:
     cmaps = cmaps.updateMask(cmaps.gt(0))
     location = aoi.centroid().coordinates().getInfo()[::-1]
     palette = ['black', 'red', 'cyan', 'yellow']
+    # Define a method for displaying Earth Engine image tiles to folium map.
+ 
+
     mp = folium.Map(location=location, zoom_start=13)
 
     #6달 이하는 전부 계산, 6달부터는 달마다, 1~3년까진 분기마다, 4년부턴 년마다의 변화
-    perd = end_f-start_f
-    if perd<180:
-        for i in range(len(timestamplist)):
+    perd = datetime.strptime(end_b, '%Y-%m-%d')-datetime.strptime(start_f   , '%Y-%m-%d')
+    if perd<timedelta(180):
+        for i in range(1,len(timestamplist)):
             mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
-    elif perd < 365:
-        for i in range(0,len(timestamplist),2):
+    elif perd < timedelta(365):
+        for i in range(1,len(timestamplist),2):
             mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
-    elif perd<1095:
-        for i in range(0,len(timestamplist),3):
+    elif perd<timedelta(1095):
+        for i in range(1,len(timestamplist),3):
             mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
     else:
-        for i in range(perd//365):
+        for i in range(1,perd//365):
             mp.add_ee_layer(cmaps.select(timestamplist[i*30]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i*30])
         mp.add_ee_layer(cmaps.select(timestamplist[-1]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[-1])
     #folium에 추가
