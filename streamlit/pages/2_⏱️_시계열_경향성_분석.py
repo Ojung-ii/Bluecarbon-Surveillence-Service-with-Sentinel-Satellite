@@ -71,7 +71,7 @@ with col1:
 if proceed_button:
     st.write("-----"*20)
     st.markdown("""
-        <h3 style='text-align: center; font-size: 30px;'>⬇️ 시계열 분석 결과 </h3>
+        <h3 style='text-align: center; font-size: 30px;'>⬇️ 시계열 분석 결과 ⬇️</h3>
         """, unsafe_allow_html=True)
     parse_aoi = sar_func.create_ee_polygon_from_geojson(aoi)
     start_date = '2017-01-01'
@@ -83,4 +83,3 @@ if proceed_button:
 
     # Display the modified components plot using st.pyplot()
     st.pyplot(fig2)
-    
