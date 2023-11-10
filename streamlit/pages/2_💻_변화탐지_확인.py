@@ -74,8 +74,6 @@ with col1:
     folium_static(m)
 
 # 그래프 영역
-st.write("PETER's CODE HERE for Graph~~~~")
-
 if proceed_button:
     def add_ee_layer(self, ee_image_object, vis_params, name):
             map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
