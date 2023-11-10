@@ -74,8 +74,6 @@ with col1:
     folium_static(m)
 
 # 그래프 영역
-st.write("PETER's CODE HERE for Graph~~~~")
-
 if proceed_button:
     # 시간 앞 6일 뒤 5일 찾아보기
     start_f = start_date - timedelta(days=6)

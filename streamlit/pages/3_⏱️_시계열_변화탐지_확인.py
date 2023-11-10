@@ -45,8 +45,8 @@ with col2:
         aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
 
     # 날짜 선택
-    start_date = st.date_input('시작날짜 선택하세요:')  # 디폴트로 오늘 날짜가 찍혀 있다.
-    end_date = st.date_input('끝날짜 선택하세요:')    # 디폴트로 오늘 날짜가 찍혀 있다.
+    start_date = st.date_input('시작날짜 선택하세요:')  
+    end_date = st.date_input('끝날짜 선택하세요:')    
 
     # 분석 실행 버튼
     st.write("")
