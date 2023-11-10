@@ -184,7 +184,7 @@ if proceed_button:
             for i in range(1,len(timestamplist),3):
                 mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
         else:
-            for i in range(1,perd//365):
+            for i in range(1,len(timestamplist), 30):
                 mp.add_ee_layer(cmaps.select(timestamplist[i*30]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i*30])
             mp.add_ee_layer(cmaps.select(timestamplist[-1]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[-1])
         #folium에 추가
@@ -192,3 +192,5 @@ if proceed_button:
         
         # 스트림릿에 folium 지도 표시
         folium_static(mp)
+        
+        
