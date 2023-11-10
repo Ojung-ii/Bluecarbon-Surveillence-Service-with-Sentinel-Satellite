@@ -8,7 +8,7 @@ import ee
 from datetime import datetime, timedelta
 import IPython.display as disp
 import sar_func
-
+from scipy.optimize import bisect
 # Google Earth Engine 초기화
 ee.Initialize()
 # 페이지 설정과 제목
@@ -18,8 +18,8 @@ st.title("변화탐지 예측")
 st.write("---"*20)
 
 # 'aoi.geojson' 파일 로드
-with open('aoi.geojson', 'r', encoding="utf-8") as f:
-    geojson_data = json.load(f)
+with open('aoi.geojson', 'r', encoding="utf-8") as ff:
+    geojson_data = json.load(ff)
 
 # 관심 지역 목록
 area_names = [feature['properties']['name'] for feature in geojson_data['features']]
@@ -75,11 +75,28 @@ with col1:
 
 # 그래프 영역
 if proceed_button:
+    def add_ee_layer(self, ee_image_object, vis_params, name):
+            map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
+            folium.raster_layers.TileLayer(
+                tiles = map_id_dict['tile_fetcher'].url_format,
+                attr = 'Map Data &copy; <a href="https://earthengine.google.com/">Google Earth Engine</a>',
+                name = name,
+                overlay = True,
+                control = True
+        ).add_to(self)
+
+        # Add EE drawing method to folium.
+    folium.Map.add_ee_layer = add_ee_layer
+    aoi = sar_func.create_ee_polygon_from_geojson(aoi)
     # 시간 앞 6일 뒤 5일 찾아보기
     start_f = start_date - timedelta(days=6)
     start_b = start_date + timedelta(days=5)
     end_f = end_date - timedelta(days=6)
     end_b = end_date + timedelta(days=5)
+    start_f = start_f.strftime('%Y-%m-%d')
+    end_f = end_f.strftime('%Y-%m-%d')
+    start_b = start_b.strftime('%Y-%m-%d')
+    end_b = end_b.strftime('%Y-%m-%d')
     # SAR load
 
     ffa_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') 
@@ -105,8 +122,7 @@ if proceed_button:
         ee.Reducer.max(), aoi).get('VV').getInfo()
 
     m1 = 5 # 걍 해둠ㅋㅋ
-
-    # Decision threshold alpha/2:
+    # F-분포의 CDF 함수를 정의합니다.
     dt = f.ppf(0.0005, 2*m1, 2*m1)
 
     # LRT statistics.
@@ -123,7 +139,7 @@ if proceed_button:
     # Display map with red for increase and blue for decrease in intensity.
     location = aoi.centroid().coordinates().getInfo()[::-1]
     mp = folium.Map(
-        location=location, tiles='Stamen Toner',
+        location=location,
         zoom_start=14)
     folium.TileLayer('OpenStreetMap').add_to(mp)
     mp.add_ee_layer(ratio,
@@ -133,4 +149,4 @@ if proceed_button:
                     'Change Map')
     mp.add_child(folium.LayerControl())
 
-    disp.display(mp)
+    folium_static(mp)
