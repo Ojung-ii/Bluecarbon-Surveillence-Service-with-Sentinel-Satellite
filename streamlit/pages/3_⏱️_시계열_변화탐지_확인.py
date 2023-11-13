@@ -45,8 +45,8 @@ with col2:
         aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
 
     # 날짜 선택
-    start_date = st.date_input('시작날짜 선택하세요:')  # 디폴트로 오늘 날짜가 찍혀 있다.
-    end_date = st.date_input('끝날짜 선택하세요:')    # 디폴트로 오늘 날짜가 찍혀 있다.
+    start_date = st.date_input('시작날짜 선택하세요:')  
+    end_date = st.date_input('끝날짜 선택하세요:')    
 
     # 분석 실행 버튼
     st.write("")
@@ -184,7 +184,7 @@ if proceed_button:
             for i in range(1,len(timestamplist),3):
                 mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
         else:
-            for i in range(1,perd//365):
+            for i in range(1,len(timestamplist), 30):
                 mp.add_ee_layer(cmaps.select(timestamplist[i*30]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i*30])
             mp.add_ee_layer(cmaps.select(timestamplist[-1]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[-1])
         #folium에 추가
@@ -192,3 +192,5 @@ if proceed_button:
         
         # 스트림릿에 folium 지도 표시
         folium_static(mp)
+        
+        

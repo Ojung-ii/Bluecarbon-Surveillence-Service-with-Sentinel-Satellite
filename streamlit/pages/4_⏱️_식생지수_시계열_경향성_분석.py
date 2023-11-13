@@ -73,6 +73,7 @@ if proceed_button:
     st.markdown("""
         <h3 style='text-align: center; font-size: 30px;'>⬇️ 식생지수 시계열 경향성 분석 결과 ⬇️</h3>
         """, unsafe_allow_html=True)
+    
     parse_aoi = sar_func.create_ee_polygon_from_geojson(aoi)
     start_date = '2017-01-01'
     end_date = '2023-03-01'

@@ -17,7 +17,7 @@ def create_sentinel1_timelapse(roi, start_date, end_date, frequency, output_gif)
     palette='Greys',
     vis_params=None,
     dimensions=(1024, 768),
-    frames_per_second=1,
+    frames_per_second=3,
     crs='EPSG:3857',
     overlay_data=None,
     overlay_color='black',
@@ -48,7 +48,7 @@ def create_sentinel1_timelapse(roi, start_date, end_date, frequency, output_gif)
     colorbar_size=(300, 300),
     loop=0, mp4=False,
     fading=False,
-    orbitProperties_pass='DESCENDING'
+    orbitProperties_pass='ASCENDING'
     )
     return
 
