@@ -66,7 +66,7 @@ def create_sentinel2_timelapse(roi, start_date, end_date, frequency, output_gif)
     end_date=f"{end_date[4:6]}-{end_date[6:]}",
     frequency=frequency,
     date_format=None,
-    bands=['NIR', 'Red', 'Green'],
+    bands=['Red', 'Green', 'Blue'],
     vis_params=None,
     dimensions=(1024, 768),
     frames_per_second=1,

@@ -6,8 +6,8 @@ import sar_func
 
 
 # 페이지 설정과 제목
-st.set_page_config(page_title="시계열 경향성 분석", page_icon="⏱️", layout = 'wide')
-st.title("⏱️ 시계열 경향성 분석")
+st.set_page_config(page_title="식생지수 시계열 경향성 분석", page_icon="⏱️", layout = 'wide')
+st.title("⏱️ 식생지수 시계열 경향성 분석")
 st.write("---"*20)
 
 # 'aoi.geojson' 파일 로드
@@ -71,7 +71,7 @@ with col1:
 if proceed_button:
     st.write("-----"*20)
     st.markdown("""
-        <h3 style='text-align: center; font-size: 30px;'>⬇️ 시계열 분석 결과 ⬇️</h3>
+        <h3 style='text-align: center; font-size: 30px;'>⬇️ 식생지수 시계열 경향성 분석 결과 ⬇️</h3>
         """, unsafe_allow_html=True)
     parse_aoi = sar_func.create_ee_polygon_from_geojson(aoi)
     start_date = '2017-01-01'
