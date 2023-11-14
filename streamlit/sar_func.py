@@ -52,6 +52,40 @@ def calculateRVI(aoi,start_date,end_date):
     df = df.sort_values(by='ds')
     return df
 
+def calculateNDVI(aoi, start_date, end_date):
+    # Sentinel-2 ImageCollection 필터링 및 구름 마스킹 적용
+    sentinel2 = ee.ImageCollection('COPERNICUS/S2') \
+            .filterBounds(aoi) \
+            .filterDate(start_date, end_date) \
+            .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 10)) 
+
+    # NDVI 계산 및 시계열 데이터 생성 함수
+    def calculate_ndvi(image):
+        date = ee.Date(image.get('system:time_start')).format('YYYY-MM-dd')
+        nir = image.select('B8')  # NIR 밴드
+        red = image.select('B4')  # Red 밴드
+        ndvi = nir.subtract(red).divide(nir.add(red)).rename('ndvi')
+        mean_ndvi = ndvi.reduceRegion(
+            reducer=ee.Reducer.mean(),
+            geometry=aoi,
+            scale=10  # 이 값은 필요에 따라 조정할 수 있습니다.
+        ).get('ndvi')
+        return ee.Feature(None, {'ds': date, 'y': mean_ndvi})
+    
+    
+    time_series_ndvi = sentinel2.map(calculate_ndvi)
+    
+    # 결과를 서버측 객체로 변환 (Python 클라이언트로 가져오기 위함)
+    rvi_features = time_series_ndvi.getInfo()['features']
+
+    # 결과를 pandas DataFrame으로 변환
+    df = pd.DataFrame([feat['properties'] for feat in rvi_features])
+
+    # DataFrame을 'Date' 컬럼에 따라 오름차순으로 정렬
+    df = df.sort_values(by='ds')
+    
+    return df
+
 def prophet_process(df):
     # Prophet 모델을 초기화하고 학습시킵니다.
     m = Prophet(yearly_seasonality=True,daily_seasonality=True)
