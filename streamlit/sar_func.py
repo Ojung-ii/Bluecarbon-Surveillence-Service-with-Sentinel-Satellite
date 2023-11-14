@@ -98,7 +98,8 @@ def prophet_process(df):
     # 예측 결과를 가져옵니다.
     forecasted_value = forecast.iloc[-1]['yhat']  # 예측된 값을 가져옴
     # 예측 결과를 데이터프레임에 추가합니다.
-    forecast_df = df.append({'ds': future.iloc[-1]['ds'], 'y': forecasted_value}, ignore_index=True)
+    new_row = pd.DataFrame({'ds': [future.iloc[-1]['ds']], 'y': [forecasted_value]})
+    forecast_df = pd.concat([df, new_row], ignore_index=True)
     return forecast,forecast_df,df,m
 
 def plotly(df, forecast):
@@ -281,12 +282,12 @@ def filter_i(current, prev):
     return ee.Dictionary({'i': i.add(1), 'alpha': alpha, 'median': median,
                           'cmap': result.get('cmap'), 'smap': result.get('smap'),
                           'fmap': result.get('fmap'), 'bmap': result.get('bmap')})
-def chi2cdf(chi2, df):
+def chi2cdf(chi2, df2):
     """Calculates Chi square cumulative distribution function for
        df degrees of freedom using the built-in incomplete gamma
        function gammainc().
     """
-    return ee.Image(chi2.divide(2)).gammainc(ee.Number(df).divide(2))
+    return ee.Image(chi2.divide(2)).gammainc(ee.Number(df2).divide(2))
 
 def det(im):
     """Calculates determinant of 2x2 diagonal covariance matrix."""
