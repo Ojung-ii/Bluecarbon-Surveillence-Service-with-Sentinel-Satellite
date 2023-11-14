@@ -53,7 +53,7 @@ with col2:
     # 분석 실행 버튼
     st.write("")
     proceed_button = st.button("☑️ 타임랩스 생성")
-    
+
 with col1:   
     if proceed_button:
         with st.spinner('타임랩스를 생성하는 중입니다...'):
@@ -65,4 +65,4 @@ with col1:
             elif dataset == 'Sentinel-2':
                 # Pass the formatted dates directly to the function
                 create_sentinel2_timelapse(aoi, formatted_start_date, formatted_end_date, frequency, output_gif)
-                st.image(output_gif, caption=f'{dataset} 타임랩스', use_column_width=True ) #
+                st.image(output_gif, caption=f'{dataset} 타임랩스', use_column_width=True ) 
