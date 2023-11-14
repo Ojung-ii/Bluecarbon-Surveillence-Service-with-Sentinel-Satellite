@@ -56,7 +56,7 @@ with col1:
     # 선택된 관심 지역이 있을 경우에만 해당 지역 폴리곤 표시
     if aoi:
         folium.GeoJson(
-            aoi,
+            aoi,    
             name=selected_name,
             style_function=lambda x: {'fillColor': 'blue', 'color': 'blue'}
         ).add_to(m)
@@ -74,6 +74,9 @@ if proceed_button:
         <h3 style='text-align: center; font-size: 30px;'>⬇️ 식생지수 시계열 경향성 분석 결과 ⬇️</h3>
         """, unsafe_allow_html=True)
     
+    st.markdown("""
+        <h3 style='text-align: center; font-size: 30px;'>RVI</h3>
+        """, unsafe_allow_html=True)
     parse_aoi = sar_func.create_ee_polygon_from_geojson(aoi)
     start_date = '2017-01-01'
     end_date = '2023-03-01'
@@ -84,3 +87,16 @@ if proceed_button:
 
     # Display the modified components plot using st.pyplot()
     st.pyplot(fig2)
+
+    st.markdown("""
+        <h3 style='text-align: center; font-size: 30px;'>NDVI</h3>
+        """, unsafe_allow_html=True)
+    df2 = sar_func.calculateNDVI(parse_aoi,start_date,end_date)
+    forecast2,forecast_df2,df2,m2 = sar_func.prophet_process(df2)
+    sar_func.plotly(df2,forecast2)
+    fig22 = m2.plot_components(forecast2)
+
+    # Display the modified components plot using st.pyplot()
+    st.pyplot(fig22)
+
+
