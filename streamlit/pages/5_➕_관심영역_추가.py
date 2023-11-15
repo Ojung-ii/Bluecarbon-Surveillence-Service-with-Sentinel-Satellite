@@ -30,7 +30,7 @@ tab1, tab2, tab3 = st.tabs(["AOI 조회", "신규 AOI 추가", "AOI 제거"])
 with tab1:
     st.subheader("AOI 조회 및 시각화")
     
-    m = folium.Map(location=[45.5236, -122.6750], zoom_start=13)
+    m = folium.Map(location=[36.6384, 127.6961], zoom_start=7)
     selected_aoi_name = st.selectbox('관심 영역을 선택하세요:', aoi_names)
     selected_aoi = next((feature for feature in geojson_data["features"]
                         if feature["properties"]["name"] == selected_aoi_name), None)
@@ -54,7 +54,7 @@ with tab1:
 with tab2:
     st.subheader("신규 AOI 추가")
     # 폴리움 지도 생성
-    m = folium.Map(location=[45.5236, -122.6750], zoom_start=13)
+    m = folium.Map(location=[36.6384, 127.6961], zoom_start=7)
 
     # 폴리움 지도에 그리기 플러그인 추가
     draw = Draw(export=True)
