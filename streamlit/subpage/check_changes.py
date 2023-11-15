@@ -59,7 +59,7 @@ def app():
         proceed_button = st.button("☑️ 분석 실행")
         
 
-            
+       
     # 왼쪽 섹션: 폴리곤 매핑 시각화
     with col1:
         # 지도 초기화 (대한민국 중심 위치로 설정)
@@ -87,6 +87,7 @@ def app():
 
     # 그래프 영역
     if proceed_button:
+        
         def add_ee_layer(self, ee_image_object, vis_params, name):
                 map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
                 folium.raster_layers.TileLayer(
@@ -160,7 +161,6 @@ def app():
             overlay=True
         ).add_to(mp)
         folium.LayerControl().add_to(m)
-        folium.TileLayer('OpenStreetMap').add_to(mp)
         mp.add_ee_layer(ratio,
                         {'min': v_min, 'max': v_max, 'palette': ['black', 'white']}, 'Ratio')
         mp.add_ee_layer(c_map,
