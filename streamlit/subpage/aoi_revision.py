@@ -8,7 +8,7 @@ import os
 
 def app():
     # 스트림릿 페이지 설정
-    st.title("AOI 업데이트")
+    st.title("📋 AOI 업데이트")
     st.write("---" * 20)
 
     #Vworld

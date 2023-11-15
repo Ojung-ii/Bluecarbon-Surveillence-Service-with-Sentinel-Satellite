@@ -7,7 +7,7 @@ import sar_func
 def app():
     # 페이지 설정과 제목
     # st.set_page_config(page_title="식생지수 시계열 경향성 분석", page_icon="⏱️", layout = 'wide')
-    st.title("⏱️ 식생지수 시계열 경향성 분석")
+    st.title("📈 식생지수 시계열 경향성 분석")
     st.write("---"*20)
 
     #Vworld
