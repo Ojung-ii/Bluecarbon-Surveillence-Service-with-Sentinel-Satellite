@@ -91,9 +91,9 @@ def app():
         aoi = sar_func.create_ee_polygon_from_geojson(aoi)
         # 시간 앞 6일 뒤 5일 찾아보기
         start_f = start_date - timedelta(days=6)
-        start_b = start_date + timedelta(days=6)
+        start_b = start_date + timedelta(days=5)
         end_f = end_date - timedelta(days=6)
-        end_b = end_date + timedelta(days=6)
+        end_b = end_date + timedelta(days=5)
         start_f = start_f.strftime('%Y-%m-%d')
         end_f = end_f.strftime('%Y-%m-%d')
         start_b = start_b.strftime('%Y-%m-%d')
@@ -139,10 +139,9 @@ def app():
 
         # Display map with red for increase and blue for decrease in intensity.
         location = aoi.centroid().coordinates().getInfo()[::-1]
-        tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
-        attr = "Vworld"
-        # --------시각화 -----------
-        mp = folium.Map(location=location, zoom_start=14,tiles=tiles, attr=attr)
+        mp = folium.Map(
+            location=location,
+            zoom_start=14)
         
         folium.TileLayer('OpenStreetMap').add_to(mp)
         mp.add_ee_layer(ratio,
@@ -153,7 +152,8 @@ def app():
         mp.add_child(folium.LayerControl())
 
         folium_static(mp)
-        
+
+
 # launch
 if __name__  == "__main__" :
     app()
