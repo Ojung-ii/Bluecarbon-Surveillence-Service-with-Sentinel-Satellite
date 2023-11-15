@@ -26,7 +26,7 @@ def app():
     area_names.append("새로운 관심영역 넣기")  # 드롭다운 목록에 새 옵션 추가
 
     # 섹션 나누기
-    empty1, col1, col2, empty2 = st.columns([0.1,0.7, 0.4, 0.1])
+    empty1, col1, col2, empty2 = st.columns([0.1,0.5, 0.3, 0.1])
 
     # aoi 초기화
     aoi = None
@@ -73,7 +73,7 @@ def app():
             m.fit_bounds(folium.GeoJson(aoi).get_bounds())
 
         # Streamlit 앱에 지도 표시
-        folium_static(m)
+        folium_static(m, width=600)
 
 
 
