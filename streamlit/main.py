@@ -2,7 +2,7 @@ import streamlit as st
 from streamlit_option_menu import option_menu
 
 # 서브 페이지 임포트
-from pages import 타임랩스 #, 2_💻_변화탐지_확인
+from pages import timelapse, check_changes, check_ts_changes, rvi_ts_analysis, aoi_revision
 
 
 def launch() :
@@ -23,7 +23,7 @@ def launch() :
 
 
     # 옵션 메뉴 
-    v_menu = ["Home", "Timelapse", "Change_detection"]
+    v_menu = ["Home", "타입랩스", "변화탐지 확인", "시계열 변화탐지 확인", "식생지수 시계열 경향성 분석", "관심영역 추가"]
 
     selected = option_menu(
         menu_title="페이지 이름들",
@@ -55,10 +55,20 @@ def launch() :
             # 타임랩스 로고 표시
             st.image("logo/mainpage_logo_wh.gif",  use_column_width="always")
             
-    if selected == "Timelapse":
-        타임랩스.app()
-        
-  
+    if selected == "타입랩스":
+        timelapse.app()
+    if selected == "변화탐지 확인":
+        check_changes.app()
+    if selected == "시계열 변화탐지 확인":
+        check_ts_changes.app()
+    if selected == "식생지수 시계열 경향성 분석":
+        rvi_ts_analysis.app()
+    if selected == "관심영역 추가":
+        aoi_revision.app()               
+
+
+
+
 # launch
 if __name__  == "__main__" :
     launch()

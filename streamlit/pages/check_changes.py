@@ -14,7 +14,7 @@ ee.Initialize()
 # 페이지 설정과 제목
 
 def app():
-    st.set_page_config(page_title="변화탐지_예측", page_icon="👀", layout="wide")
+    # st.set_page_config(page_title="변화탐지_예측", page_icon="👀", layout="wide")
     st.title("변화탐지 예측")
     st.write("---"*20)
 
@@ -152,3 +152,7 @@ def app():
         mp.add_child(folium.LayerControl())
 
         folium_static(mp)
+        
+# launch
+if __name__  == "__main__" :
+    app()

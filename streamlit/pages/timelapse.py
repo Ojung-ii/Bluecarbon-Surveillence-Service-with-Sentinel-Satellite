@@ -67,3 +67,7 @@ def app():
                     # Pass the formatted dates directly to the function
                     create_sentinel2_timelapse(aoi, formatted_start_date, formatted_end_date, frequency, output_gif)
                     st.image(output_gif, caption=f'{dataset} 타임랩스', use_column_width=True ) 
+
+# launch
+if __name__  == "__main__" :
+    app()
