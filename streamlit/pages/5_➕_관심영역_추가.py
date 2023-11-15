@@ -10,6 +10,11 @@ import os
 st.title("AOI 업데이트")
 st.write("---" * 20)
 
+#Vworld
+vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179"
+layer = "Satellite"
+tileType = "jpeg"
+
 # 관심영역 파일 경로 설정
 geojson_path = 'aoi.geojson'
 
@@ -29,8 +34,10 @@ tab1, tab2, tab3 = st.tabs(["AOI 조회", "신규 AOI 추가", "AOI 제거"])
 # AOI 조회 탭
 with tab1:
     st.subheader("AOI 조회 및 시각화")
-    
-    m = folium.Map(location=[45.5236, -122.6750], zoom_start=13)
+    tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
+    attr = "Vworld"
+
+    m = folium.Map(location=[36.6384, 127.6961], zoom_start=7,tiles=tiles, attr=attr)
     selected_aoi_name = st.selectbox('관심 영역을 선택하세요:', aoi_names)
     selected_aoi = next((feature for feature in geojson_data["features"]
                         if feature["properties"]["name"] == selected_aoi_name), None)
@@ -53,8 +60,10 @@ with tab1:
 # 신규 AOI 추가 탭
 with tab2:
     st.subheader("신규 AOI 추가")
-    # 폴리움 지도 생성
-    m = folium.Map(location=[45.5236, -122.6750], zoom_start=13)
+    tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
+    attr = "Vworld"
+
+    m = folium.Map(location=[36.6384, 127.6961], zoom_start=7,tiles=tiles, attr=attr)
 
     # 폴리움 지도에 그리기 플러그인 추가
     draw = Draw(export=True)

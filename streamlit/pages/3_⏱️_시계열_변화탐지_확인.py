@@ -10,7 +10,9 @@ import sar_func
 # Google Earth Engine 초기화
 ee.Initialize()
 # 페이지 설정과 제목
-
+vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179"
+layer = "Satellite"
+tileType = "jpeg"
 st.set_page_config(page_title="시계열 변화탐지 확인", page_icon="⏱️", layout="wide")
 st.title("⏱️ 시계열 변화탐지 확인")
 st.write("---"*20)
@@ -55,9 +57,10 @@ with col2:
     
 # 왼쪽 섹션: 폴리곤 매핑 시각화
 with col1:
-    # 지도 초기화 (대한민국 중심 위치로 설정)
-    m = folium.Map(location=[36.5, 127.5], zoom_start=7)
-
+    tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
+    attr = "Vworld"
+    m = folium.Map(location=[36.5, 127.5], zoom_start=10,tiles=tiles, attr=attr)
+   
     # 선택된 관심 지역이 있을 경우에만 해당 지역 폴리곤 표시
     if aoi:
         folium.GeoJson(
@@ -168,9 +171,10 @@ if proceed_button:
         location = aoi.centroid().coordinates().getInfo()[::-1]
         palette = ['black', 'red', 'cyan', 'yellow']
         # Define a method for displaying Earth Engine image tiles to folium map.
-    
+        tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
+        attr = "Vworld"
         # --------시각화 -----------
-        mp = folium.Map(location=location, zoom_start=15)
+        mp = folium.Map(location=location, zoom_start=14,tiles=tiles, attr=attr)
 
         #6달 이하는 전부 계산, 6달부터는 달마다, 1~3년까진 분기마다, 4년부턴 년마다의 변화
         perd = datetime.strptime(end_b, '%Y-%m-%d')-datetime.strptime(start_f   , '%Y-%m-%d')

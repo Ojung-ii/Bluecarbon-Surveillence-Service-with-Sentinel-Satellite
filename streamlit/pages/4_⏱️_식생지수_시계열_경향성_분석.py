@@ -10,6 +10,11 @@ st.set_page_config(page_title="식생지수 시계열 경향성 분석", page_ic
 st.title("⏱️ 식생지수 시계열 경향성 분석")
 st.write("---"*20)
 
+#Vworld
+vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179"
+layer = "Satellite"
+tileType = "jpeg"
+
 # 'aoi.geojson' 파일 로드
 with open('aoi.geojson', 'r', encoding="utf-8") as f:
     geojson_data = json.load(f)
@@ -51,7 +56,9 @@ with col2:
 # 왼쪽 섹션: 폴리곤 매핑 시각화
 with col1:
     # 지도 초기화 (대한민국 중심 위치로 설정)
-    m = folium.Map(location=[36.5, 127.5], zoom_start=7)
+    tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
+    attr = "Vworld"
+    m = folium.Map(location=[36.5, 127.5], zoom_start=10,tiles=tiles, attr=attr)
 
     # 선택된 관심 지역이 있을 경우에만 해당 지역 폴리곤 표시
     if aoi:
@@ -73,30 +80,36 @@ if proceed_button:
     st.markdown("""
         <h3 style='text-align: center; font-size: 30px;'>⬇️ 식생지수 시계열 경향성 분석 결과 ⬇️</h3>
         """, unsafe_allow_html=True)
+    st.write('')
+    st.write('')
     
-    st.markdown("""
-        <h3 style='text-align: center; font-size: 30px;'>RVI</h3>
-        """, unsafe_allow_html=True)
+    # tab1, tab2 = st.tabs(["RVI", "NDVI"])
+    expander_rvi = st.expander("RVI(SAR) 분석결과", expanded=False)
+    expander_ndvi = st.expander("NDVI(광학) 분석결과", expanded=False)
     parse_aoi = sar_func.create_ee_polygon_from_geojson(aoi)
     start_date = '2017-01-01'
     end_date = '2023-03-01'
-    df = sar_func.calculateRVI(parse_aoi,start_date,end_date)
-    forecast,forecast_df,df,m = sar_func.prophet_process(df)
-    sar_func.plotly(df,forecast)
-    fig2 = m.plot_components(forecast)
 
-    # Display the modified components plot using st.pyplot()
-    st.pyplot(fig2)
+    with expander_rvi:
+        st.markdown("""
+            <h3 style='text-align: center; font-size: 30px;'>RVI</h3>
+            """, unsafe_allow_html=True)
+        df = sar_func.calculateRVI(parse_aoi,start_date,end_date)
+        forecast,forecast_df,df,m = sar_func.prophet_process(df)
+        sar_func.plotly(df,forecast)
+        fig2 = m.plot_components(forecast)
 
-    st.markdown("""
-        <h3 style='text-align: center; font-size: 30px;'>NDVI</h3>
-        """, unsafe_allow_html=True)
-    df2 = sar_func.calculateNDVI(parse_aoi,start_date,end_date)
-    forecast2,forecast_df2,df2,m2 = sar_func.prophet_process(df2)
-    sar_func.plotly(df2,forecast2)
-    fig22 = m2.plot_components(forecast2)
-
-    # Display the modified components plot using st.pyplot()
-    st.pyplot(fig22)
+        # Display the modified components plot using st.pyplot()
+        st.pyplot(fig2)
+    with expander_ndvi:
+        st.markdown("""
+            <h3 style='text-align: center; font-size: 30px;'>NDVI</h3>
+            """, unsafe_allow_html=True)
+        df2 = sar_func.calculateNDVI(parse_aoi,start_date,end_date)
+        forecast2,forecast_df2,df2,m2 = sar_func.prophet_process(df2)
+        sar_func.plotly(df2,forecast2)
+        fig22 = m2.plot_components(forecast2)
+        # Display the modified components plot using st.pyplot()
+        st.pyplot(fig22)
 
 

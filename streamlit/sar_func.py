@@ -31,12 +31,12 @@ def calculateRVI(aoi,start_date,end_date):
         date = ee.Date(image.get('system:time_start')).format('YYYY-MM-dd')
         vv = image.select('VV')
         vh = image.select('VH')
-        rvi = vh.multiply(4).divide(vv.add(vh))
+        rvi = vh.multiply(4).divide(vv.add(vh)).rename('rvi')
         mean_rvi = rvi.reduceRegion(
             reducer=ee.Reducer.mean(),
             geometry=aoi,
             scale=10
-        ).get('VH')
+        ).get('rvi')
         return ee.Feature(None, {'ds': date, 'y': mean_rvi})
 
     # 시계열 RVI 계산
@@ -88,7 +88,7 @@ def calculateNDVI(aoi, start_date, end_date):
 
 def prophet_process(df):
     # Prophet 모델을 초기화하고 학습시킵니다.
-    m = Prophet(yearly_seasonality=True,daily_seasonality=True)
+    m = Prophet(yearly_seasonality=True,daily_seasonality=False,weekly_seasonality=False)
     m.fit(df)
 
     # 미래 날짜 프레임을 만들고 예측을 진행합니다.
