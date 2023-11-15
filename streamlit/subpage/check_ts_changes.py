@@ -63,7 +63,7 @@ def app():
     with col1:
         tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
         attr = "Vworld"
-        m = folium.Map(location=[36.5, 127.5], zoom_start=10)
+        m = folium.Map(location=[36.5, 127.5], zoom_start=10,tiles=tiles, attr=attr)
     
         # 선택된 관심 지역이 있을 경우에만 해당 지역 폴리곤 표시
         if aoi:
@@ -74,7 +74,13 @@ def app():
             ).add_to(m)
             # 지도를 선택된 폴리곤에 맞게 조정
             m.fit_bounds(folium.GeoJson(aoi).get_bounds())
-
+        folium.TileLayer(
+            tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
+            attr='VWorld Hybrid',
+            name='VWorld Hybrid',
+            overlay=True
+        ).add_to(m)
+        folium.LayerControl().add_to(m)
         # Streamlit 앱에 지도 표시
         folium_static(m, width=600)
 
@@ -177,9 +183,13 @@ def app():
             # Define a method for displaying Earth Engine image tiles to folium map.
             tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
             attr = "Vworld"
-            # --------시각화 -----------
-            mp = folium.Map(location=location, zoom_start=14,tiles=tiles, attr=attr)
-
+            mp = folium.Map(location=[36.5, 127.5], zoom_start=10,tiles=tiles, attr=attr)
+            folium.TileLayer(
+            tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
+            attr='VWorld Hybrid',
+            name='VWorld Hybrid',
+            overlay=True
+            ).add_to(mp)
             #6달 이하는 전부 계산, 6달부터는 달마다, 1~3년까진 분기마다, 4년부턴 년마다의 변화
             perd = datetime.strptime(end_b, '%Y-%m-%d')-datetime.strptime(start_f   , '%Y-%m-%d')
             if perd<timedelta(180):

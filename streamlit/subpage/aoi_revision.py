@@ -40,8 +40,14 @@ def app():
             st.subheader("AOI 조회 및 시각화")
             tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
             attr = "Vworld"
-
+            
             m = folium.Map(location=[36.6384, 127.6961], zoom_start=7,tiles=tiles, attr=attr)
+            folium.TileLayer(
+            tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
+            attr='VWorld Hybrid',
+            name='VWorld Hybrid',
+            overlay=True
+            ).add_to(m)
             selected_aoi_name = st.selectbox('관심 영역을 선택하세요:', aoi_names)
             selected_aoi = next((feature for feature in geojson_data["features"]
                                 if feature["properties"]["name"] == selected_aoi_name), None)
@@ -67,13 +73,18 @@ def app():
             tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
             attr = "Vworld"
 
-            m = folium.Map(location=[36.6384, 127.6961], zoom_start=7)
-
+            mp = folium.Map(location=[36.6384, 127.6961], zoom_start=7, tiles=tiles, attr=attr)
+            folium.TileLayer(
+            tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
+            attr='VWorld Hybrid',
+            name='VWorld Hybrid',
+            overlay=True
+            ).add_to(mp)
             # 폴리움 지도에 그리기 플러그인 추가
             draw = Draw(export=True)
             m.add_child(draw)
             # 스트림릿에 지도 표시
-            folium_static(m)
+            folium_static(mp)
             new_aoi_name = st.text_input("AOI 이름을 입력하세요:")
             new_aoi_file = st.file_uploader("새로운 관심영역의 파일을 업로드하세요", type=["geojson"])
             if st.button("AOI 추가"):
