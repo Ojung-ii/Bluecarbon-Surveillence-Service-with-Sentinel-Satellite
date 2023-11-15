@@ -10,7 +10,7 @@ def app():
     # 스트림릿 페이지 설정
     empty1, col0, empty2 = st.columns([0.1,1.0, 0.1])
     with col0:
-        st.title("📋 AOI 업데이트")
+        st.title("📍 AOI 업데이트")
         st.write("---" * 20)
 
    

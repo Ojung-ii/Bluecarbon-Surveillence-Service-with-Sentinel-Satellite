@@ -28,16 +28,16 @@ def launch() :
     selected = option_menu(
         menu_title=None,
         options=v_menu,
-        icons=['house', 'camera-video', "search","clock-history","graph-up", 'file-earmark-diff'],
+        icons=['house', 'camera-video', "search","clock-history","graph-up", 'pin-map'],
         menu_icon="menu-down",
         default_index=0,
         orientation="horizontal",
         styles={
-            "container": {"padding": "1px", "border": "1px solid #ddd", "box-shadow": "0px 2px 2px rgba(0, 0, 0, 0.2)"},
+            "container": {"padding": "1px", "border": "2px solid #f0f6fb"},
             "icon": {"color": "navy", "font-size": "20px", "margin-right": "10px"},
-            "nav-link": {"font-size": "17px", "color": "navy", "background-color": "white",
+            "nav-link": {"font-size": "16px", "color": "navy", "background-color": "#f0f6fb",
                          "--hover-color": "#f2f2f2",  "font-weight": "bold", "margin": "2 0px"},
-            "nav-link-selected": {"background-color": "#e6ebef", "color": "navy", "border": "2px solid"}
+            "nav-link-selected": {"background-color": "#accbea", "color": "navy", "border": "2px solid"}
         }
         )
     if selected == "홈":
