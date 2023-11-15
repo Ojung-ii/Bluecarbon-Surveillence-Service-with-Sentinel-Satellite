@@ -73,30 +73,30 @@ if proceed_button:
     st.markdown("""
         <h3 style='text-align: center; font-size: 30px;'>⬇️ 식생지수 시계열 경향성 분석 결과 ⬇️</h3>
         """, unsafe_allow_html=True)
-    
-    st.markdown("""
-        <h3 style='text-align: center; font-size: 30px;'>RVI</h3>
-        """, unsafe_allow_html=True)
+    expander_rvi = st.expander("RVI", expanded=False)
+    expander_ndvi = st.expander("NDVI", expanded=False)
     parse_aoi = sar_func.create_ee_polygon_from_geojson(aoi)
     start_date = '2017-01-01'
     end_date = '2023-03-01'
-    df = sar_func.calculateRVI(parse_aoi,start_date,end_date)
-    forecast,forecast_df,df,m = sar_func.prophet_process(df)
-    sar_func.plotly(df,forecast)
-    fig2 = m.plot_components(forecast)
 
-    # Display the modified components plot using st.pyplot()
-    st.pyplot(fig2)
+    with expander_rvi:
+        df = sar_func.calculateRVI(parse_aoi,start_date,end_date)
+        forecast,forecast_df,df,m = sar_func.prophet_process(df)
+        sar_func.plotly(df,forecast)
+        fig2 = m.plot_components(forecast)
 
-    st.markdown("""
-        <h3 style='text-align: center; font-size: 30px;'>NDVI</h3>
-        """, unsafe_allow_html=True)
-    df2 = sar_func.calculateNDVI(parse_aoi,start_date,end_date)
-    forecast2,forecast_df2,df2,m2 = sar_func.prophet_process(df2)
-    sar_func.plotly(df2,forecast2)
-    fig22 = m2.plot_components(forecast2)
+        # Display the modified components plot using st.pyplot()
+        st.pyplot(fig2)
+    with expander_ndvi:
+        st.markdown("""
+            <h3 style='text-align: center; font-size: 30px;'>NDVI</h3>
+            """, unsafe_allow_html=True)
+        df2 = sar_func.calculateNDVI(parse_aoi,start_date,end_date)
+        forecast2,forecast_df2,df2,m2 = sar_func.prophet_process(df2)
+        sar_func.plotly(df2,forecast2)
+        fig22 = m2.plot_components(forecast2)
 
-    # Display the modified components plot using st.pyplot()
-    st.pyplot(fig22)
+        # Display the modified components plot using st.pyplot()
+        st.pyplot(fig22)
 
 
