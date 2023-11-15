@@ -10,6 +10,11 @@ st.set_page_config(page_title="식생지수 시계열 경향성 분석", page_ic
 st.title("⏱️ 식생지수 시계열 경향성 분석")
 st.write("---"*20)
 
+#Vworld
+vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179"
+layer = "Satellite"
+tileType = "jpeg"
+
 # 'aoi.geojson' 파일 로드
 with open('aoi.geojson', 'r', encoding="utf-8") as f:
     geojson_data = json.load(f)
@@ -51,7 +56,9 @@ with col2:
 # 왼쪽 섹션: 폴리곤 매핑 시각화
 with col1:
     # 지도 초기화 (대한민국 중심 위치로 설정)
-    m = folium.Map(location=[36.5, 127.5], zoom_start=7)
+    tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
+    attr = "Vworld"
+    m = folium.Map(location=[36.5, 127.5], zoom_start=10,tiles=tiles, attr=attr)
 
     # 선택된 관심 지역이 있을 경우에만 해당 지역 폴리곤 표시
     if aoi:
