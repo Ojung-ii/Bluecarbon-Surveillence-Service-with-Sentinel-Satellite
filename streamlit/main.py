@@ -31,7 +31,13 @@ def launch() :
         icons=['house', 'camera-video', "search","clock-history","graph-up", 'file-earmark-diff'],
         menu_icon="menu-down",
         default_index=0,
-        orientation="horizontal"
+        orientation="horizontal",
+        styles={
+            "container": {"padding": "5px", "border": "1px solid #ddd", "box-shadow": "0px 2px 2px rgba(0, 0, 0, 0.2)"},
+            "icon": {"color": "navy", "font-size": "20px", "margin-right": "8px"},
+            "nav-link": {"font-size": "17px", "color": "black", "background-color": "white", "--hover-color": "#f2f2f2"},
+            "nav-link-selected": {"background-color": "#e6ebef", "color": "navy", "border": "2px solid"}
+        }
         )
     if selected == "홈":
         home.app()
