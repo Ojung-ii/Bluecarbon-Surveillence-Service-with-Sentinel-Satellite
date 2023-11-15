@@ -11,10 +11,10 @@ ee.Initialize()
 
 def app():
     # Streamlit 앱 제목 설정
-    # st.set_page_config(page_title="타임랩스 생성기", page_icon="👀", layout="wide")
-
-    st.title('👀 타임랩스 생성기')
-    st.write("---"*20)
+    empty1, col0, empty2 = st.columns([0.1,1.0, 0.1])
+    with col0:
+        st.title('👀 타임랩스 생성기')
+        st.write("---"*20)
 
     # 'aoi.geojson' 파일 로드
     with open('aoi.geojson', 'r', encoding="utf-8") as f:
@@ -24,7 +24,7 @@ def app():
     area_names = [feature['properties']['name'] for feature in geojson_data['features']]
     area_names.append("새로운 관심영역 넣기")  # 드롭다운 목록에 새 옵션 추가
 
-    col1,col2 = st.columns([0.7,0.3])
+    empty1, col1, col2, empty2 = st.columns([0.1,0.7, 0.4, 0.1])
 
     with col2:
         # User's Input

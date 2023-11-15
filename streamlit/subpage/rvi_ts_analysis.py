@@ -6,9 +6,11 @@ import sar_func
 
 def app():
     # 페이지 설정과 제목
-    # st.set_page_config(page_title="식생지수 시계열 경향성 분석", page_icon="⏱️", layout = 'wide')
-    st.title("📈 식생지수 시계열 경향성 분석")
-    st.write("---"*20)
+    empty1, col0, empty2 = st.columns([0.1,1.0, 0.1])
+    with col0:
+        st.title("📈 식생지수 시계열 경향성 분석")
+        st.write("---"*20)
+ 
 
     #Vworld
     vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179"
@@ -24,7 +26,7 @@ def app():
     area_names.append("새로운 관심영역 넣기")  # 드롭다운 목록에 새 옵션 추가
 
     # 섹션 나누기
-    col1, col2 = st.columns([0.7, 0.3])
+    empty1, col1, col2, empty2 = st.columns([0.1,0.7, 0.4, 0.1])
 
     # aoi 초기화
     aoi = None

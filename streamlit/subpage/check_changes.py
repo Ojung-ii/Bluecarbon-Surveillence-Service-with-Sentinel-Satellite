@@ -14,9 +14,10 @@ ee.Initialize()
 # 페이지 설정과 제목
 
 def app():
-    # st.set_page_config(page_title="변화탐지_예측", page_icon="👀", layout="wide")
-    st.title("🔍 변화탐지 확인")
-    st.write("---"*20)
+    empty1, col0, empty2 = st.columns([0.1,1.0, 0.1])
+    with col0:
+        st.title("🔍 변화탐지 확인")
+        st.write("---"*20)
 
     # 'aoi.geojson' 파일 로드
     with open('aoi.geojson', 'r', encoding="utf-8") as ff:
@@ -27,7 +28,7 @@ def app():
     area_names.append("새로운 관심영역 넣기")  # 드롭다운 목록에 새 옵션 추가
 
     # 섹션 나누기
-    col1, col2 = st.columns([0.7, 0.3])
+    empty1, col1, col2, empty2 = st.columns([0.1,0.7, 0.4, 0.1])
 
     # aoi 초기화
     aoi = None
