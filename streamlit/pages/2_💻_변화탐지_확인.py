@@ -16,7 +16,10 @@ ee.Initialize()
 st.set_page_config(page_title="변화탐지_예측", page_icon="👀", layout="wide")
 st.title("변화탐지 예측")
 st.write("---"*20)
-
+#Vworld
+vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179"
+layer = "Satellite"
+tileType = "jpeg"
 # 'aoi.geojson' 파일 로드
 with open('aoi.geojson', 'r', encoding="utf-8") as ff:
     geojson_data = json.load(ff)
@@ -58,8 +61,10 @@ with col2:
 # 왼쪽 섹션: 폴리곤 매핑 시각화
 with col1:
     # 지도 초기화 (대한민국 중심 위치로 설정)
-    m = folium.Map(location=[36.5, 127.5], zoom_start=7)
-
+    tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
+    attr = "Vworld"
+    m = folium.Map(location=[36.5, 127.5], zoom_start=10,tiles=tiles, attr=attr)
+   
     # 선택된 관심 지역이 있을 경우에만 해당 지역 폴리곤 표시
     if aoi:
         folium.GeoJson(
@@ -90,9 +95,9 @@ if proceed_button:
     aoi = sar_func.create_ee_polygon_from_geojson(aoi)
     # 시간 앞 6일 뒤 5일 찾아보기
     start_f = start_date - timedelta(days=6)
-    start_b = start_date + timedelta(days=5)
+    start_b = start_date + timedelta(days=6)
     end_f = end_date - timedelta(days=6)
-    end_b = end_date + timedelta(days=5)
+    end_b = end_date + timedelta(days=6)
     start_f = start_f.strftime('%Y-%m-%d')
     end_f = end_f.strftime('%Y-%m-%d')
     start_b = start_b.strftime('%Y-%m-%d')
@@ -138,10 +143,13 @@ if proceed_button:
 
     # Display map with red for increase and blue for decrease in intensity.
     location = aoi.centroid().coordinates().getInfo()[::-1]
+    tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
+    attr = "Vworld"
     mp = folium.Map(
         location=location,
-        zoom_start=14)
-    folium.TileLayer('OpenStreetMap').add_to(mp)
+        zoom_start=14,
+        tiles=tiles, attr=attr)
+      
     mp.add_ee_layer(ratio,
                     {'min': v_min, 'max': v_max, 'palette': ['black', 'white']}, 'Ratio')
     mp.add_ee_layer(c_map,
