@@ -88,7 +88,7 @@ def calculateNDVI(aoi, start_date, end_date):
 
 def prophet_process(df):
     # Prophet 모델을 초기화하고 학습시킵니다.
-    m = Prophet(yearly_seasonality=True,daily_seasonality=False,weekly_seasonality=False)
+    m = Prophet(yearly_seasonality=True,daily_seasonality=False,weekly_seasonality=False,holidays_prior_scale=0.01,changepoint_prior_scale=0.01)
     m.fit(df)
 
     # 미래 날짜 프레임을 만들고 예측을 진행합니다.
