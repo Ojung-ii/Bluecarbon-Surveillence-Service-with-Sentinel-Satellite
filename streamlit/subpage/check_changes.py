@@ -15,7 +15,7 @@ ee.Initialize()
 
 def app():
     # st.set_page_config(page_title="변화탐지_예측", page_icon="👀", layout="wide")
-    st.title("변화탐지 예측")
+    st.title("변화탐지 확인")
     st.write("---"*20)
 
     # 'aoi.geojson' 파일 로드

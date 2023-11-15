@@ -64,7 +64,7 @@ def app():
         tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
         attr = "Vworld"
 
-        m = folium.Map(location=[36.6384, 127.6961], zoom_start=7,tiles=tiles, attr=attr)
+        m = folium.Map(location=[36.6384, 127.6961], zoom_start=7)
 
         # 폴리움 지도에 그리기 플러그인 추가
         draw = Draw(export=True)
