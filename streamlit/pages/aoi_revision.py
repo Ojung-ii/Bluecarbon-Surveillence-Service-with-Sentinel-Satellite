@@ -35,10 +35,9 @@ def app():
     # AOI 조회 탭
     with tab1:
         st.subheader("AOI 조회 및 시각화")
-        tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
-        attr = "Vworld"
 
-        m = folium.Map(location=[36.6384, 127.6961], zoom_start=7,tiles=tiles, attr=attr)
+
+        m = folium.Map(location=[36.6384, 127.6961], zoom_start=7)
         selected_aoi_name = st.selectbox('관심 영역을 선택하세요:', aoi_names)
         selected_aoi = next((feature for feature in geojson_data["features"]
                             if feature["properties"]["name"] == selected_aoi_name), None)
@@ -61,10 +60,8 @@ def app():
     # 신규 AOI 추가 탭
     with tab2:
         st.subheader("신규 AOI 추가")
-        tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
-        attr = "Vworld"
 
-        m = folium.Map(location=[36.6384, 127.6961], zoom_start=7,tiles=tiles, attr=attr)
+        m = folium.Map(location=[36.6384, 127.6961], zoom_start=7)
 
         # 폴리움 지도에 그리기 플러그인 추가
         draw = Draw(export=True)

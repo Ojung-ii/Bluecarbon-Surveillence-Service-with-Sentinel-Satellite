@@ -60,11 +60,8 @@ def app():
         
     # 왼쪽 섹션: 폴리곤 매핑 시각화
     with col1:
-        tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
-        attr = "Vworld"
-        m = folium.Map(location=[36.5, 127.5], zoom_start=10,tiles=tiles, attr=attr)
+        m = folium.Map(location=[36.5, 127.5], zoom_start=10)
     
-        # 선택된 관심 지역이 있을 경우에만 해당 지역 폴리곤 표시
         if aoi:
             folium.GeoJson(
                 aoi,
