@@ -96,6 +96,7 @@ def app():
         # tab1, tab2 = st.tabs(["RVI", "NDVI"])
         expander_rvi = st.expander("RVI(SAR) 분석결과", expanded=False)
         expander_ndvi = st.expander("NDVI(광학) 분석결과", expanded=False)
+        expander_wavi = st.expander("WAVI(물조정) 분석결과", expanded=False)
         parse_aoi = sar_func.create_ee_polygon_from_geojson(aoi)
         start_date = '2017-01-01'
         end_date = '2023-03-01'
@@ -122,6 +123,17 @@ def app():
             # Display the modified components plot using st.pyplot()
             st.pyplot(fig22)
 
+        with expander_wavi:
+            st.markdown("""
+                <h3 style='text-align: center; font-size: 30px;'>WAVI</h3>
+                """, unsafe_allow_html=True)
+
+            df3 = sar_func.calculateWAVI(parse_aoi,start_date,end_date)
+            forecast3,forecast_df3,df3,m3 = sar_func.prophet_process(df3)
+            sar_func.plotly(df3,forecast3)
+            fig222 = m3.plot_components(forecast3)
+            # Display the modified components plot using st.pyplot()
+            st.pyplot(fig222)       
 # launch
 if __name__  == "__main__" :
     app()
