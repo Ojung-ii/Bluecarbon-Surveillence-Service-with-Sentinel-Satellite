@@ -85,90 +85,99 @@ def app():
         folium.LayerControl().add_to(m)
         folium_static(m, width=600)
 
+# ---------------------------- 결과  ---------------------------
+
+    empty1, col3, empty2 = st.columns([0.12,0.8, 0.12])
     # 그래프 영역
     if proceed_button:
-        
-        def add_ee_layer(self, ee_image_object, vis_params, name):
-                map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
-                folium.raster_layers.TileLayer(
-                    tiles = map_id_dict['tile_fetcher'].url_format,
-                    attr = 'Map Data &copy; <a href="https://earthengine.google.com/">Google Earth Engine</a>',
-                    name = name,
-                    overlay = True,
-                    control = True
-            ).add_to(self)
+        with col3:
+            st.write("-----"*20)
+            st.markdown("""
+            <h3 style='text-align: center; font-size: 30px;'>⬇️ 변화탐지 결과 ⬇️</h3>
+            """, unsafe_allow_html=True)
+            
+            with st.spinner("변화탐지 분석중"):
+                def add_ee_layer(self, ee_image_object, vis_params, name):
+                        map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
+                        folium.raster_layers.TileLayer(
+                            tiles = map_id_dict['tile_fetcher'].url_format,
+                            attr = 'Map Data &copy; <a href="https://earthengine.google.com/">Google Earth Engine</a>',
+                            name = name,
+                            overlay = True,
+                            control = True
+                    ).add_to(self)
 
-            # Add EE drawing method to folium.
-        folium.Map.add_ee_layer = add_ee_layer
-        aoi = sar_func.create_ee_polygon_from_geojson(aoi)
-        # 시간 앞 6일 뒤 5일 찾아보기
-        start_f = start_date - timedelta(days=6)
-        start_b = start_date + timedelta(days=5)
-        end_f = end_date - timedelta(days=6)
-        end_b = end_date + timedelta(days=5)
-        start_f = start_f.strftime('%Y-%m-%d')
-        end_f = end_f.strftime('%Y-%m-%d')
-        start_b = start_b.strftime('%Y-%m-%d')
-        end_b = end_b.strftime('%Y-%m-%d')
-        # SAR load
+                    # Add EE drawing method to folium.
+                folium.Map.add_ee_layer = add_ee_layer
+                aoi = sar_func.create_ee_polygon_from_geojson(aoi)
+                # 시간 앞 6일 뒤 5일 찾아보기
+                start_f = start_date - timedelta(days=6)
+                start_b = start_date + timedelta(days=5)
+                end_f = end_date - timedelta(days=6)
+                end_b = end_date + timedelta(days=5)
+                start_f = start_f.strftime('%Y-%m-%d')
+                end_f = end_f.strftime('%Y-%m-%d')
+                start_b = start_b.strftime('%Y-%m-%d')
+                end_b = end_b.strftime('%Y-%m-%d')
+                # SAR load
 
-        ffa_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') 
-                            .filterBounds(aoi) 
-                            .filterDate(ee.Date(start_f), ee.Date(start_b)) 
-                            .first() 
-                            .clip(aoi))
-        ffb_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') 
-                            .filterBounds(aoi) 
-                            .filterDate(ee.Date(end_f), ee.Date(end_b)) 
-                            .first() 
-                            .clip(aoi))
-        im1 = ee.Image(ffa_fl).select('VV').clip(aoi)
-        im2 = ee.Image(ffb_fl).select('VV').clip(aoi)
-        ratio = im1.divide(im2)
-        # ffa_fa에 대한 min, max 같은 통계값
-        hist = ratio.reduceRegion(ee.Reducer.fixedHistogram(0, 5, 500), aoi).get('VV').getInfo()
-        mean = ratio.reduceRegion(ee.Reducer.mean(), aoi).get('VV').getInfo()
-        variance = ratio.reduceRegion(ee.Reducer.variance(), aoi).get('VV').getInfo()
-        v_min = ratio.select('VV').reduceRegion(
-            ee.Reducer.min(), aoi).get('VV').getInfo()
-        v_max = ratio.select('VV').reduceRegion(
-            ee.Reducer.max(), aoi).get('VV').getInfo()
+                ffa_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') 
+                                    .filterBounds(aoi) 
+                                    .filterDate(ee.Date(start_f), ee.Date(start_b)) 
+                                    .first() 
+                                    .clip(aoi))
+                ffb_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') 
+                                    .filterBounds(aoi) 
+                                    .filterDate(ee.Date(end_f), ee.Date(end_b)) 
+                                    .first() 
+                                    .clip(aoi))
+                im1 = ee.Image(ffa_fl).select('VV').clip(aoi)
+                im2 = ee.Image(ffb_fl).select('VV').clip(aoi)
+                ratio = im1.divide(im2)
+                # ffa_fa에 대한 min, max 같은 통계값
+                hist = ratio.reduceRegion(ee.Reducer.fixedHistogram(0, 5, 500), aoi).get('VV').getInfo()
+                mean = ratio.reduceRegion(ee.Reducer.mean(), aoi).get('VV').getInfo()
+                variance = ratio.reduceRegion(ee.Reducer.variance(), aoi).get('VV').getInfo()
+                v_min = ratio.select('VV').reduceRegion(
+                    ee.Reducer.min(), aoi).get('VV').getInfo()
+                v_max = ratio.select('VV').reduceRegion(
+                    ee.Reducer.max(), aoi).get('VV').getInfo()
 
-        m1 = 5 # 걍 해둠ㅋㅋ
-        # F-분포의 CDF 함수를 정의합니다.
-        dt = f.ppf(0.0005, 2*m1, 2*m1)
+                m1 = 5 # 걍 해둠ㅋㅋ
+                # F-분포의 CDF 함수를 정의합니다.
+                dt = f.ppf(0.0005, 2*m1, 2*m1)
 
-        # LRT statistics.
-        q1 = im1.divide(im2)
-        q2 = im2.divide(im1)
+                # LRT statistics.
+                q1 = im1.divide(im2)
+                q2 = im2.divide(im1)
 
-        # Change map with 0 = no change, 1 = decrease, 2 = increase in intensity.
-        c_map = im1.multiply(0).where(q2.lt(dt), 1)
-        c_map = c_map.where(q1.lt(dt), 2)
+                # Change map with 0 = no change, 1 = decrease, 2 = increase in intensity.
+                c_map = im1.multiply(0).where(q2.lt(dt), 1)
+                c_map = c_map.where(q1.lt(dt), 2)
 
-        # Mask no-change pixels.
-        c_map = c_map.updateMask(c_map.gt(0))
+                # Mask no-change pixels.
+                c_map = c_map.updateMask(c_map.gt(0))
 
-        # Display map with red for increase and blue for decrease in intensity.
-        location = aoi.centroid().coordinates().getInfo()[::-1]
-        mp = folium.Map(
-            location=location,
-            zoom_start=14, tiles= tiles, attr = attr)
-        folium.TileLayer(
-            tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
-            attr='VWorld Hybrid',
-            name='VWorld Hybrid',
-            overlay=True
-        ).add_to(mp)
-        folium.LayerControl().add_to(m)
-        mp.add_ee_layer(ratio,
-                        {'min': v_min, 'max': v_max, 'palette': ['black', 'white']}, 'Ratio')
-        mp.add_ee_layer(c_map,
-                        {'min': 0, 'max': 2, 'palette': ['black', 'blue', 'red']},
-                        'Change Map')
-        mp.add_child(folium.LayerControl())
+                # Display map with red for increase and blue for decrease in intensity.
+                location = aoi.centroid().coordinates().getInfo()[::-1]
+                mp = folium.Map(
+                    location=location,
+                    zoom_start=14, tiles= tiles, attr = attr)
+                folium.TileLayer(
+                    tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
+                    attr='VWorld Hybrid',
+                    name='VWorld Hybrid',
+                    overlay=True
+                ).add_to(mp)
+                folium.LayerControl().add_to(m)
+                mp.add_ee_layer(ratio,
+                                {'min': v_min, 'max': v_max, 'palette': ['black', 'white']}, 'Ratio')
+                mp.add_ee_layer(c_map,
+                                {'min': 0, 'max': 2, 'palette': ['black', 'blue', 'red']},
+                                'Change Map')
+                mp.add_child(folium.LayerControl())
 
-        folium_static(mp)
+                folium_static(mp,width=970)
 
 
 # launch
