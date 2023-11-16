@@ -92,6 +92,9 @@ def app():
     if proceed_button:
         with col3:
             st.write("-----"*20)
+            st.markdown("""
+            <h3 style='text-align: center; font-size: 30px;'>⬇️  시계열 변화탐지 결과  ⬇️</h3>
+            """, unsafe_allow_html=True)
             with st.spinner("변화탐지 분석중"):
 
                 # 시간 앞 6일 뒤 5일 찾아보기

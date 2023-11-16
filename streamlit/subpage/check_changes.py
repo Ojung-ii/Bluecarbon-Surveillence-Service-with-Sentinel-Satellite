@@ -93,7 +93,7 @@ def app():
         with col3:
             st.write("-----"*20)
             st.markdown("""
-            <h3 style='text-align: center; font-size: 30px;'>⬇️ 변화탐지 결과 ⬇️</h3>
+            <h3 style='text-align: center; font-size: 30px;'>⬇️  변화탐지 결과  ⬇️</h3>
             """, unsafe_allow_html=True)
             
             with st.spinner("변화탐지 분석중"):
