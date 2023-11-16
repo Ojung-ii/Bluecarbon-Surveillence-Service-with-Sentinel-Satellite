@@ -62,14 +62,6 @@ def app():
         attr = "Vworld"
         m = folium.Map(location=[36.5, 127.5], zoom_start=10,tiles=tiles, attr=attr)
 
-        folium.TileLayer(
-            tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
-            attr='VWorld Hybrid',
-            name='VWorld Hybrid',
-            overlay=True
-        ).add_to(m)
-        folium.LayerControl().add_to(m)
-
         # 선택된 관심 지역이 있을 경우에만 해당 지역 폴리곤 표시
         if aoi:
             folium.GeoJson(
@@ -77,9 +69,16 @@ def app():
                 name=selected_name,
                 style_function=lambda x: {'fillColor': 'blue', 'color': 'blue'}
             ).add_to(m)
+
             # 지도를 선택된 폴리곤에 맞게 조정
             m.fit_bounds(folium.GeoJson(aoi).get_bounds())
-
+        folium.TileLayer(
+            tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
+            attr='VWorld Hybrid',
+            name='VWorld Hybrid',
+            overlay=True
+        ).add_to(m)
+        folium.LayerControl().add_to(m)
         # Streamlit 앱에 지도 표시
         folium_static(m, width=600)
 
