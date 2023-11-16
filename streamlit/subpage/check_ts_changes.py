@@ -171,7 +171,7 @@ def app():
                 palette = ['black', 'red', 'cyan', 'yellow']
 
                 # Define a method for displaying Earth Engine image tiles to folium map.
-                mp = folium.Map(location=[36.5, 127.5], zoom_start=10,tiles=tiles, attr=attr)
+                mp = folium.Map(location=location, zoom_start=14,tiles=tiles, attr=attr)
                 folium.TileLayer(
                 tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
                 attr='VWorld Hybrid',
