@@ -93,10 +93,12 @@ def app():
         with col3:
             st.write("-----"*20)
             st.markdown("""
-            <h3 style='text-align: center; font-size: 30px;'>⬇️ 변화탐지 결과 ⬇️</h3>
+            <h3 style='text-align: center; font-size: 30px;'>⬇️  변화탐지 결과  ⬇️</h3>
             """, unsafe_allow_html=True)
             
             with st.spinner("변화탐지 분석중"):
+                st.write('')
+                st.write('')
                 def add_ee_layer(self, ee_image_object, vis_params, name):
                         map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
                         folium.raster_layers.TileLayer(
@@ -170,10 +172,10 @@ def app():
                     overlay=True
                 ).add_to(mp)
                 folium.LayerControl().add_to(m)
-                mp.add_ee_layer(ratio,
-                                {'min': v_min, 'max': v_max, 'palette': ['black', 'white']}, 'Ratio')
+                # mp.add_ee_layer(ratio,
+                #                 {'min': v_min, 'max': v_max, 'palette': ['black', 'white']}, 'Ratio')
                 mp.add_ee_layer(c_map,
-                                {'min': 0, 'max': 2, 'palette': ['black', 'blue', 'red']},
+                                {'min': 0, 'max': 2, 'palette': ['00000000', '#FF000080', '#0000FF80']},  # 변화 없음: 투명, 감소: 반투명 파랑, 증가: 반투명 빨강
                                 'Change Map')
                 mp.add_child(folium.LayerControl())
 
