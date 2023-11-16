@@ -96,7 +96,8 @@ def app():
             <h3 style='text-align: center; font-size: 30px;'>⬇️  시계열 변화탐지 결과  ⬇️</h3>
             """, unsafe_allow_html=True)
             with st.spinner("변화탐지 분석중"):
-
+                st.write('')
+                st.write('')
                 # 시간 앞 6일 뒤 5일 찾아보기
                 def add_ee_layer(self, ee_image_object, vis_params, name):
                     map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
@@ -168,10 +169,11 @@ def app():
                 cmaps = ee.Image.cat(cmap, smap, fmap, bmap).rename(['cmap', 'smap', 'fmap']+timestamplist[1:])
                 cmaps = cmaps.updateMask(cmaps.gt(0))
                 location = aoi.centroid().coordinates().getInfo()[::-1]
-                palette = ['black', 'red', 'cyan', 'yellow']
+                palette = ['00000000', '#FF000080', '#0000FF80']
 
+                
                 # Define a method for displaying Earth Engine image tiles to folium map.
-                mp = folium.Map(location=[36.5, 127.5], zoom_start=10,tiles=tiles, attr=attr)
+                mp = folium.Map(location=location, zoom_start=14,tiles=tiles, attr=attr)
                 folium.TileLayer(
                 tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
                 attr='VWorld Hybrid',
@@ -183,17 +185,17 @@ def app():
                 perd = datetime.strptime(end_b, '%Y-%m-%d')-datetime.strptime(start_f   , '%Y-%m-%d')
                 if perd<timedelta(180):
                     for i in range(1,len(timestamplist)):
-                        mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
+                        mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 2, 'palette': palette}, timestamplist[i])
                 elif perd < timedelta(365):
                     for i in range(1,len(timestamplist),2):
-                        mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
+                        mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 2, 'palette': palette}, timestamplist[i])
                 elif perd<timedelta(1095):
                     for i in range(1,len(timestamplist),3):
-                        mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
+                        mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 2, 'palette': palette}, timestamplist[i])
                 else:
                     for i in range(1,len(timestamplist), 30):
-                        mp.add_ee_layer(cmaps.select(timestamplist[i*30]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i*30])
-                    mp.add_ee_layer(cmaps.select(timestamplist[-1]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[-1])
+                        mp.add_ee_layer(cmaps.select(timestamplist[i*30]), {'min': 0,'max': 2, 'palette': palette}, timestamplist[i*30])
+                    mp.add_ee_layer(cmaps.select(timestamplist[-1]), {'min': 0,'max': 2, 'palette': palette}, timestamplist[-1])
                 
                 #folium에 추가
                 mp.add_child(folium.LayerControl())
