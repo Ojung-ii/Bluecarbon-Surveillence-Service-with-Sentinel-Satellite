@@ -84,7 +84,7 @@ def app():
             ).add_to(mp)
             # 폴리움 지도에 그리기 플러그인 추가
             draw = Draw(export=True)
-            m.add_child(draw)
+            mp.add_child(draw)
             # 스트림릿에 지도 표시
             folium_static(mp)
             new_aoi_name = st.text_input("AOI 이름을 입력하세요:")
