@@ -63,8 +63,8 @@ def app():
     with col1:
         tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
         attr = "Vworld"
-        m = folium.Map(location=[36.5, 127.5], zoom_start=10)
-    
+        m = folium.Map(location=[36.5, 127.5], zoom_start=10,tiles=tiles, attr=attr)
+
         # 선택된 관심 지역이 있을 경우에만 해당 지역 폴리곤 표시
         if aoi:
             folium.GeoJson(
@@ -74,7 +74,13 @@ def app():
             ).add_to(m)
             # 지도를 선택된 폴리곤에 맞게 조정
             m.fit_bounds(folium.GeoJson(aoi).get_bounds())
-
+        folium.TileLayer(
+            tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
+            attr='VWorld Hybrid',
+            name='VWorld Hybrid',
+            overlay=True
+        ).add_to(m)
+        folium.LayerControl().add_to(m)
         # Streamlit 앱에 지도 표시
         folium_static(m, width=600)
 
@@ -121,31 +127,28 @@ def app():
                 return ee.Image(img).clip(aoi)
             im_list = im_coll.toList(im_coll.size())
             im_list = ee.List(im_list.map(clip_img))
-            im_list.length().getInfo()
 
             #select vv
             def selectvv(current):
                 return ee.Image(current).select('VV')
 
             vv_list = im_list.map(selectvv)
-
             location = aoi.centroid().coordinates().getInfo()[::-1]
-
-            #유의수준
             alpha = 0.01
 
-            def omnibus(im_list, m = 4.4):
+            def omnibus(im_list, m4 = 4.4):
                 def log(current):
                     return ee.Image(current).log()
-
                 im_list = ee.List(im_list)
                 k = im_list.length()
                 klogk = k.multiply(k.log())
                 klogk = ee.Image.constant(klogk)
                 sumlogs = ee.ImageCollection(im_list.map(log)).reduce(ee.Reducer.sum())
                 logsum = ee.ImageCollection(im_list).reduce(ee.Reducer.sum()).log()
-                return klogk.add(sumlogs).subtract(logsum.multiply(k)).multiply(-2*m)
+                return klogk.add(sumlogs).subtract(logsum.multiply(k)).multiply(-2*m4)
             
+            k = 26; alpha = 0.01
+
             # Run the algorithm with median filter and at 1% significance.
             result = ee.Dictionary(sar_func.change_maps(im_list, median=True, alpha=0.01))
             # Extract the change maps and export to assets.
@@ -154,31 +157,18 @@ def app():
             fmap = ee.Image(result.get('fmap'))
             bmap = ee.Image(result.get('bmap'))
             cmaps = ee.Image.cat(cmap, smap, fmap, bmap).rename(['cmap', 'smap', 'fmap']+timestamplist[1:])
-
             cmaps = cmaps.updateMask(cmaps.gt(0))
-
-        #    # 결과 지도를 생성
-        #     location = aoi.centroid().coordinates().getInfo()[::-1]
-        #     result_map = folium.Map(location=location, zoom_start=13)
-            
-        #     # 변화탐지 결과 레이어 추가
-        #     # 예시로 cmap 레이어를 추가하는 방법
-        #     result_map.add_ee_layer(cmap, {'min': 0, 'max': 3, 'palette': ['black', 'blue', 'yellow']}, 'Change Map')
-            
-        #     # folium에 레이어 컨트롤 추가
-        #     result_map.add_child(folium.LayerControl())
-
-        #     # 스트림릿에 folium 지도 표시
-        #     folium_static(result_map)
-            
-            
             location = aoi.centroid().coordinates().getInfo()[::-1]
             palette = ['black', 'red', 'cyan', 'yellow']
+
             # Define a method for displaying Earth Engine image tiles to folium map.
-            tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
-            attr = "Vworld"
-            # --------시각화 -----------
-            mp = folium.Map(location=location, zoom_start=14,tiles=tiles, attr=attr)
+            mp = folium.Map(location=[36.5, 127.5], zoom_start=10,tiles=tiles, attr=attr)
+            folium.TileLayer(
+            tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
+            attr='VWorld Hybrid',
+            name='VWorld Hybrid',
+            overlay=True
+            ).add_to(mp)
 
             #6달 이하는 전부 계산, 6달부터는 달마다, 1~3년까진 분기마다, 4년부턴 년마다의 변화
             perd = datetime.strptime(end_b, '%Y-%m-%d')-datetime.strptime(start_f   , '%Y-%m-%d')
@@ -195,6 +185,7 @@ def app():
                 for i in range(1,len(timestamplist), 30):
                     mp.add_ee_layer(cmaps.select(timestamplist[i*30]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i*30])
                 mp.add_ee_layer(cmaps.select(timestamplist[-1]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[-1])
+            
             #folium에 추가
             mp.add_child(folium.LayerControl())
             

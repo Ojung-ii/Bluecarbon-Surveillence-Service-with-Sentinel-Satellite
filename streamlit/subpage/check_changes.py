@@ -12,7 +12,9 @@ from scipy.optimize import bisect
 # Google Earth Engine 초기화
 ee.Initialize()
 # 페이지 설정과 제목
-
+vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179"
+layer = "Satellite"
+tileType = "jpeg"
 def app():
     empty1, col0, empty2 = st.columns([0.1,1.0, 0.1])
     with col0:
@@ -57,11 +59,13 @@ def app():
         proceed_button = st.button("☑️ 분석 실행")
         
 
-            
+       
     # 왼쪽 섹션: 폴리곤 매핑 시각화
     with col1:
         # 지도 초기화 (대한민국 중심 위치로 설정)
-        m = folium.Map(location=[36.5, 127.5], zoom_start=7)
+        tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
+        attr = "Vworld"
+        m = folium.Map(location=[36.5, 127.5], zoom_start=7,tiles=tiles, attr = attr)
 
         # 선택된 관심 지역이 있을 경우에만 해당 지역 폴리곤 표시
         if aoi:
@@ -72,12 +76,18 @@ def app():
             ).add_to(m)
             # 지도를 선택된 폴리곤에 맞게 조정
             m.fit_bounds(folium.GeoJson(aoi).get_bounds())
-
-        # Streamlit 앱에 지도 표시
+        folium.TileLayer(
+            tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
+            attr='VWorld Hybrid',
+            name='VWorld Hybrid',
+            overlay=True
+        ).add_to(m)
+        folium.LayerControl().add_to(m)
         folium_static(m, width=600)
 
     # 그래프 영역
     if proceed_button:
+        
         def add_ee_layer(self, ee_image_object, vis_params, name):
                 map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
                 folium.raster_layers.TileLayer(
@@ -143,9 +153,14 @@ def app():
         location = aoi.centroid().coordinates().getInfo()[::-1]
         mp = folium.Map(
             location=location,
-            zoom_start=14)
-        
-        folium.TileLayer('OpenStreetMap').add_to(mp)
+            zoom_start=14, tiles= tiles, attr = attr)
+        folium.TileLayer(
+            tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
+            attr='VWorld Hybrid',
+            name='VWorld Hybrid',
+            overlay=True
+        ).add_to(mp)
+        folium.LayerControl().add_to(m)
         mp.add_ee_layer(ratio,
                         {'min': v_min, 'max': v_max, 'palette': ['black', 'white']}, 'Ratio')
         mp.add_ee_layer(c_map,
