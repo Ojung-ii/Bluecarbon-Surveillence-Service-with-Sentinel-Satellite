@@ -107,6 +107,19 @@ def calculateWAVI(aoi, start_date, end_date):
             scale=10  # 이 값은 필요에 따라 조정할 수 있습니다.
         ).get('wavi')
         return ee.Feature(None, {'ds': date, 'y': mean_wavi})
+    
+    time_series_ndvi = sentinel2.map(calculate_wavi)
+    
+    # 결과를 서버측 객체로 변환 (Python 클라이언트로 가져오기 위함)
+    rvi_features = time_series_ndvi.getInfo()['features']
+
+    # 결과를 pandas DataFrame으로 변환
+    df = pd.DataFrame([feat['properties'] for feat in rvi_features])
+
+    # DataFrame을 'Date' 컬럼에 따라 오름차순으로 정렬
+    df = df.sort_values(by='ds')
+    
+    return df
 
 
 def prophet_process(df):
