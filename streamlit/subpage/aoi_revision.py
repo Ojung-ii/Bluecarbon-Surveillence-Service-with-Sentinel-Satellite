@@ -60,6 +60,8 @@ def app():
                 else:
                     st.error("선택된 관심 영역을 찾을 수 없습니다.")
                 # Streamlit 앱에 지도 표시
+
+                
             folium_static(m)
         # 신규 AOI 추가 탭
         with tab2:
