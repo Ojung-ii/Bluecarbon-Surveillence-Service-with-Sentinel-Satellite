@@ -40,6 +40,7 @@ def app():
             st.subheader("AOI 조회 및 시각화")
             tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
             attr = "Vworld"
+            
             m = folium.Map(location=[36.6384, 127.6961], zoom_start=7,tiles=tiles, attr=attr)
             folium.TileLayer(
             tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
@@ -64,8 +65,10 @@ def app():
 
                 else:
                     st.error("선택된 관심 영역을 찾을 수 없습니다.")
-                # Streamlit 앱에 지도 표시         
+                # Streamlit 앱에 지도 표시
+
             folium_static(m)
+
         # 신규 AOI 추가 탭
         with tab2:
             st.subheader("신규 AOI 추가")
@@ -112,7 +115,9 @@ def app():
                 st.success(f"'{selected_aoi_name_to_remove}' 이름의 AOI가 성공적으로 제거되었습니다.")
                 aoi_names.remove(selected_aoi_name_to_remove)  # 업데이트된 aoi_names 리스트
                 
-            
+
 # launch
 if __name__  == "__main__" :
     app()
+    
+    
