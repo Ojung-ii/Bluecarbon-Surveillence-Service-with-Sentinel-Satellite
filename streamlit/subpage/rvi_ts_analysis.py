@@ -95,7 +95,7 @@ def app():
         # tab1, tab2 = st.tabs(["RVI", "NDVI"])
         expander_rvi = st.expander("RVI(SAR) 분석결과", expanded=False)
         expander_ndvi = st.expander("NDVI(광학) 분석결과", expanded=False)
-        # expander_wavi = st.expander("WAVI(물조정) 분석결과", expanded=False)
+        expander_wavi = st.expander("WAVI(물조정) 분석결과", expanded=False)
         expander_diff_bg = st.expander("DIFF_BG 분석결과", expanded=False)
         expander_wevi = st.expander("WEVI 분석결과", expanded=False)
         expander_wtdvi = st.expander("WTDVI 분석결과", expanded=False)
@@ -110,8 +110,9 @@ def app():
                 """, unsafe_allow_html=True)
             df = sar_func.calculateRVI(parse_aoi,start_date,end_date)
             forecast,forecast_df,df,m = sar_func.prophet_process(df)
-            sar_func.plotly(df,forecast)
             fig2 = m.plot_components(forecast)
+            sar_func.plotly(df,forecast)
+            
             # Display the modified components plot using st.pyplot()
             st.pyplot(fig2)
         with expander_ndvi:
@@ -120,21 +121,23 @@ def app():
                 """, unsafe_allow_html=True)
             df2 = sar_func.calculateNDVI(parse_aoi,start_date,end_date)
             forecast2,forecast_df2,df2,m2 = sar_func.prophet_process(df2)
-            sar_func.plotly(df2,forecast2)
             fig22 = m2.plot_components(forecast2)
+            sar_func.plotly(df2,forecast2)
+            
             # Display the modified components plot using st.pyplot()
             st.pyplot(fig22)
-        # with expander_wavi:
-        #     st.markdown("""
-        #         <h3 style='text-align: center; font-size: 30px;'>WAVI</h3>
-        #         """, unsafe_allow_html=True)
+        with expander_wavi:
+            st.markdown("""
+                <h3 style='text-align: center; font-size: 30px;'>WAVI</h3>
+                """, unsafe_allow_html=True)
 
-        #     df3 = sar_func.calculateWAVI(parse_aoi,start_date,end_date)
-        #     forecast3,forecast_df3,df3,m3 = sar_func.prophet_process(df3)
-        #     sar_func.plotly(df3,forecast3)
-        #     fig222 = m3.plot_components(forecast3)
-        #     # Display the modified components plot using st.pyplot()
-        #     st.pyplot(fig222)
+            df3 = sar_func.calculateWAVI(parse_aoi,start_date,end_date)
+            forecast3,forecast_df3,df3,m3 = sar_func.prophet_process(df3)
+            fig222 = m3.plot_components(forecast3)
+            sar_func.plotly(df3,forecast3)
+            
+            # Display the modified components plot using st.pyplot()
+            st.pyplot(fig222)
         with expander_diff_bg:
             st.markdown("""
                 <h3 style='text-align: center; font-size: 30px;'>expander_diff_bg</h3>
@@ -142,8 +145,9 @@ def app():
 
             df4 = sar_func.calculateDIFF_BG(parse_aoi,start_date,end_date)
             forecast4,forecast_df3,df4,m4 = sar_func.prophet_process(df4)
-            sar_func.plotly(df4,forecast4)
             fig4 = m4.plot_components(forecast4)
+            sar_func.plotly(df4,forecast4)
+            
             # Display the modified components plot using st.pyplot()
             st.pyplot(fig4)
         with expander_wevi:
@@ -153,8 +157,9 @@ def app():
 
             df5 = sar_func.calculate_WEVI(parse_aoi,start_date,end_date)
             forecast5,forecast_df3,df5,m5 = sar_func.prophet_process(df5)
-            sar_func.plotly(df5,forecast5)
             fig5 = m5.plot_components(forecast5)
+            sar_func.plotly(df5,forecast5)
+            
             # Display the modified components plot using st.pyplot()
             st.pyplot(fig5)
         with expander_wtdvi:
@@ -163,8 +168,9 @@ def app():
                 """, unsafe_allow_html=True)
             df6 = sar_func.calculate_WTDVI(parse_aoi,start_date,end_date)
             forecast6,forecast_df3,df6,m6 = sar_func.prophet_process(df6)
-            sar_func.plotly(df6,forecast6)
             fig6 = m6.plot_components(forecast6)
+            sar_func.plotly(df6,forecast6)
+            
             # Display the modified components plot using st.pyplot()
             st.pyplot(fig6)       
 # launch
