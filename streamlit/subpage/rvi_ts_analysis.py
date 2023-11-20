@@ -154,7 +154,7 @@ def app():
             df5 = sar_func.calculate_WEVI(parse_aoi,start_date,end_date)
             forecast5,forecast_df3,df5,m5 = sar_func.prophet_process(df5)
             sar_func.plotly(df5,forecast5)
-            fig5 = m5.plot_components(forecast3)
+            fig5 = m5.plot_components(forecast5)
             # Display the modified components plot using st.pyplot()
             st.pyplot(fig5)
         with expander_wtdvi:
