@@ -95,7 +95,7 @@ def app():
         # tab1, tab2 = st.tabs(["RVI", "NDVI"])
         expander_rvi = st.expander("RVI(SAR) 분석결과", expanded=False)
         expander_ndvi = st.expander("NDVI(광학) 분석결과", expanded=False)
-        expander_wavi = st.expander("WAVI(물조정) 분석결과", expanded=False)
+        # expander_wavi = st.expander("WAVI(물조정) 분석결과", expanded=False)
         expander_diff_bg = st.expander("DIFF_BG 분석결과", expanded=False)
         expander_wevi = st.expander("WEVI 분석결과", expanded=False)
         expander_wtdvi = st.expander("WTDVI 분석결과", expanded=False)
@@ -124,17 +124,17 @@ def app():
             fig22 = m2.plot_components(forecast2)
             # Display the modified components plot using st.pyplot()
             st.pyplot(fig22)
-        with expander_wavi:
-            st.markdown("""
-                <h3 style='text-align: center; font-size: 30px;'>WAVI</h3>
-                """, unsafe_allow_html=True)
+        # with expander_wavi:
+        #     st.markdown("""
+        #         <h3 style='text-align: center; font-size: 30px;'>WAVI</h3>
+        #         """, unsafe_allow_html=True)
 
-            df3 = sar_func.calculateWAVI(parse_aoi,start_date,end_date)
-            forecast3,forecast_df3,df3,m3 = sar_func.prophet_process(df3)
-            sar_func.plotly(df3,forecast3)
-            fig222 = m3.plot_components(forecast3)
-            # Display the modified components plot using st.pyplot()
-            st.pyplot(fig222)
+        #     df3 = sar_func.calculateWAVI(parse_aoi,start_date,end_date)
+        #     forecast3,forecast_df3,df3,m3 = sar_func.prophet_process(df3)
+        #     sar_func.plotly(df3,forecast3)
+        #     fig222 = m3.plot_components(forecast3)
+        #     # Display the modified components plot using st.pyplot()
+        #     st.pyplot(fig222)
         with expander_diff_bg:
             st.markdown("""
                 <h3 style='text-align: center; font-size: 30px;'>expander_diff_bg</h3>
