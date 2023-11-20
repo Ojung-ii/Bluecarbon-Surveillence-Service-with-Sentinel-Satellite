@@ -25,6 +25,9 @@ def app():
     area_names.append("새로운 관심영역 넣기")  # 드롭다운 목록에 새 옵션 추가
 
     empty1, col1, col2, empty2 = st.columns([0.1,0.5, 0.3, 0.1])
+    with col1:
+
+        st.write(" 타임랩스가 여기에 표시될 예정입니다. 오른쪽의 옵션을 선택하고 '타임랩스 생성' 버튼을 눌러주세요. 👉🏻")
 
     with col2:
         # User's Input
