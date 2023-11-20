@@ -93,105 +93,151 @@ def app():
         with col3:
             st.write("-----"*20)
             st.markdown("""
-            <h3 style='text-align: center; font-size: 30px;'>⬇️  시계열 변화탐지 결과  ⬇️</h3>
+            <h3 style='text-align: center; font-size: 35px;'>⬇️  시계열 변화탐지 결과  ⬇️</h3>
             """, unsafe_allow_html=True)
-            with st.spinner("변화탐지 분석중"):
-                st.write('')
-                st.write('')
-                # 시간 앞 6일 뒤 5일 찾아보기
-                def add_ee_layer(self, ee_image_object, vis_params, name):
-                    map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
-                    folium.raster_layers.TileLayer(
-                        tiles = map_id_dict['tile_fetcher'].url_format,
-                        attr = 'Map Data &copy; <a href="https://earthengine.google.com/">Google Earth Engine</a>',
-                        name = name,
-                        overlay = True,
-                        control = True
-                ).add_to(self)
-
-                # Add EE drawing method to folium.
-                folium.Map.add_ee_layer = add_ee_layer
-                aoi = sar_func.create_ee_polygon_from_geojson(aoi)
-                
-                start_f = start_date - timedelta(days=6)
-                end_b = end_date + timedelta(days=6)
-                start_f = start_f.strftime('%Y-%m-%d')
-                end_b = end_b.strftime('%Y-%m-%d')
-                # SAR load
-                def to_ee_date(image):
-                    return ee.Date(image.get('date'))
-                
-                im_coll = (ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT')
-                    .filterBounds(aoi)
-                    .filterDate(ee.Date(start_f),ee.Date(end_b))
-                    .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING'))
-                    # .filter(ee.Filter.eq('relativeOrbitNumber_start', 127))
-                    .map(lambda img: img.set('date', ee.Date(img.date()).format('YYYYMMdd')))
-                    .sort('date'))
-                
-                timestamplist = (im_coll.aggregate_array('date')
-                            .map(lambda d: ee.String('T').cat(ee.String(d)))
-                            .getInfo())
-                #clip
-                def clip_img(img):
-                    return ee.Image(img).clip(aoi)
-                im_list = im_coll.toList(im_coll.size())
-                im_list = ee.List(im_list.map(clip_img))
-
-                #select vv
-                def selectvv(current):
-                    return ee.Image(current).select('VV')
-
-                vv_list = im_list.map(selectvv)
-                location = aoi.centroid().coordinates().getInfo()[::-1]
-                alpha = 0.01
-                
-                k = 26; alpha = 0.01
-
-                # Run the algorithm with median filter and at 1% significance.
-                result = ee.Dictionary(sar_func.change_maps(im_list, median=True, alpha=0.01))
-                # Extract the change maps and export to assets.
-                cmap = ee.Image(result.get('cmap'))
-                smap = ee.Image(result.get('smap'))
-                fmap = ee.Image(result.get('fmap'))
-                bmap = ee.Image(result.get('bmap'))
-                cmaps = ee.Image.cat(cmap, smap, fmap, bmap).rename(['cmap', 'smap', 'fmap']+timestamplist[1:])
-                cmaps = cmaps.updateMask(cmaps.gt(0))
-                location = aoi.centroid().coordinates().getInfo()[::-1]
-                palette = ['black', 'red', 'cyan', 'yellow']
-
-                
-                # Define a method for displaying Earth Engine image tiles to folium map.
-                mp = folium.Map(location=location, zoom_start=14,tiles=tiles, attr=attr)
-                folium.TileLayer(
-                tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
-                attr='VWorld Hybrid',
-                name='VWorld Hybrid',
-                overlay=True
-                ).add_to(mp)
-
-                #6달 이하는 전부 계산, 6달부터는 달마다, 1~3년까진 분기마다, 4년부턴 년마다의 변화
-                perd = datetime.strptime(end_b, '%Y-%m-%d')-datetime.strptime(start_f   , '%Y-%m-%d')
-                if perd<timedelta(180):
-                    for i in range(1,len(timestamplist)):
-                        mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
-                elif perd < timedelta(365):
-                    for i in range(1,len(timestamplist),2):
-                        mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
-                elif perd<timedelta(1095):
-                    for i in range(1,len(timestamplist),3):
-                        mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
-                else:
-                    for i in range(1,len(timestamplist), 30):
-                        mp.add_ee_layer(cmaps.select(timestamplist[i*30]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i*30])
-                    mp.add_ee_layer(cmaps.select(timestamplist[-1]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[-1])
-                
-                #folium에 추가
-                mp.add_child(folium.LayerControl())
-                
-                # 스트림릿에 folium 지도 표시
-                folium_static(mp,width=970)
             
+            col4, col5  = st.columns([0.9,0.09])
+            
+            with col4 : 
+            
+                with st.spinner("변화탐지 분석중"):
+                    st.write('')
+                    st.write('')
+                    # 시간 앞 6일 뒤 5일 찾아보기
+                    def add_ee_layer(self, ee_image_object, vis_params, name):
+                        map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
+                        folium.raster_layers.TileLayer(
+                            tiles = map_id_dict['tile_fetcher'].url_format,
+                            attr = 'Map Data &copy; <a href="https://earthengine.google.com/">Google Earth Engine</a>',
+                            name = name,
+                            overlay = True,
+                            control = True
+                    ).add_to(self)
+
+                    # Add EE drawing method to folium.
+                    folium.Map.add_ee_layer = add_ee_layer
+                    aoi = sar_func.create_ee_polygon_from_geojson(aoi)
+                    
+                    start_f = start_date - timedelta(days=6)
+                    end_b = end_date + timedelta(days=6)
+                    start_f = start_f.strftime('%Y-%m-%d')
+                    end_b = end_b.strftime('%Y-%m-%d')
+                    # SAR load
+                    def to_ee_date(image):
+                        return ee.Date(image.get('date'))
+                    
+                    im_coll = (ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT')
+                        .filterBounds(aoi)
+                        .filterDate(ee.Date(start_f),ee.Date(end_b))
+                        .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING'))
+                        # .filter(ee.Filter.eq('relativeOrbitNumber_start', 127))
+                        .map(lambda img: img.set('date', ee.Date(img.date()).format('YYYYMMdd')))
+                        .sort('date'))
+                    
+                    timestamplist = (im_coll.aggregate_array('date')
+                                .map(lambda d: ee.String('T').cat(ee.String(d)))
+                                .getInfo())
+                    #clip
+                    def clip_img(img):
+                        return ee.Image(img).clip(aoi)
+                    im_list = im_coll.toList(im_coll.size())
+                    im_list = ee.List(im_list.map(clip_img))
+
+                    #select vv
+                    def selectvv(current):
+                        return ee.Image(current).select('VV')
+
+                    vv_list = im_list.map(selectvv)
+                    location = aoi.centroid().coordinates().getInfo()[::-1]
+                    alpha = 0.01
+                    
+                    k = 26; alpha = 0.01
+
+                    # Run the algorithm with median filter and at 1% significance.
+                    result = ee.Dictionary(sar_func.change_maps(im_list, median=True, alpha=0.01))
+                    # Extract the change maps and export to assets.
+                    cmap = ee.Image(result.get('cmap'))
+                    smap = ee.Image(result.get('smap'))
+                    fmap = ee.Image(result.get('fmap'))
+                    bmap = ee.Image(result.get('bmap'))
+                    cmaps = ee.Image.cat(cmap, smap, fmap, bmap).rename(['cmap', 'smap', 'fmap']+timestamplist[1:])
+                    cmaps = cmaps.updateMask(cmaps.gt(0))
+                    location = aoi.centroid().coordinates().getInfo()[::-1]
+                    palette = ['black', 'red', 'blue', 'yellow']
+
+                    
+                    # Define a method for displaying Earth Engine image tiles to folium map.
+                    mp = folium.Map(location=location, zoom_start=14,tiles=tiles, attr=attr)
+                    folium.TileLayer(
+                    tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
+                    attr='VWorld Hybrid',
+                    name='VWorld Hybrid',
+                    overlay=True
+                    ).add_to(mp)
+
+                    #6달 이하는 전부 계산, 6달부터는 달마다, 1~3년까진 분기마다, 4년부턴 년마다의 변화
+                    perd = datetime.strptime(end_b, '%Y-%m-%d')-datetime.strptime(start_f   , '%Y-%m-%d')
+                    if perd<timedelta(180):
+                        for i in range(1,len(timestamplist)):
+                            mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
+                    elif perd < timedelta(365):
+                        for i in range(1,len(timestamplist),2):
+                            mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
+                    elif perd<timedelta(1095):
+                        for i in range(1,len(timestamplist),3):
+                            mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
+                    else:
+                        for i in range(1,len(timestamplist), 30):
+                            mp.add_ee_layer(cmaps.select(timestamplist[i*30]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i*30])
+                        mp.add_ee_layer(cmaps.select(timestamplist[-1]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[-1])
+                    
+                    #folium에 추가
+                    mp.add_child(folium.LayerControl())
+                    
+                    # 스트림릿에 folium 지도 표시
+                    folium_static(mp,width=970)
+            
+            with col5:
+                st.write("")
+                st.write("")
+                st.markdown("""
+                                <style>
+                                    .legend {
+                                        border: 1px solid #ccc;
+                                        padding: 10px;
+                                        margin-top: 20px;
+                                    }
+                                    .legend-item {
+                                        display: flex;
+                                        align-items: center;
+                                        margin-bottom: 5px;
+                                    }
+                                    .color-box {
+                                        width: 20px;
+                                        height: 20px;
+                                        margin-right: 10px;
+                                    }
+                                    .red { background-color: red; }
+                                    .blue { background-color: blue; }
+                                    .yellow { background-color: yellow; }
+                                </style>
+                                <div class="legend">
+                                    <div class="legend-item">
+                                        <div class="color-box red"></div>
+                                        <span>상승</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="color-box blue"></div>
+                                        <span>하락</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="color-box yellow"></div>
+                                        <span>이상</span>
+                                    </div>
+                                </div>
+                            """, unsafe_allow_html=True)
+                
+                
 # launch
 if __name__  == "__main__" :
     app()
