@@ -6,9 +6,11 @@ import plotly.express as px
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 import folium
+
 # Earth Engine API 초기화
 ee.Initialize()
-# GeoJSON 구조를 사용하여 AOI 설정
+# GeoJSON 구조를 사 용하여 AOI 설정
+
 def create_ee_polygon_from_geojson(gjson):
     coordinates = gjson['geometry']['coordinates']
     aoi = ee.Geometry.Polygon(coordinates)
@@ -45,10 +47,10 @@ def calculateRVI(aoi,start_date,end_date):
     return df
 def calculateNDVI(aoi, start_date, end_date):
     # Sentinel-2 ImageCollection 필터링 및 구름 마스킹 적용
-    sentinel2 = ee.ImageCollection('COPERNICUS/S2_HARMONIZED') \
+    sentinel2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
             .filterBounds(aoi) \
-            .filterDate(start_date, end_date) \
-            .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 30)) 
+            .filterDate(start_date, end_date)\
+            .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 30))
     # NDVI 계산 및 시계열 데이터 생성 함수
     def calculate_ndvi(image):
         date = ee.Date(image.get('system:time_start')).format('YYYY-MM-dd')
@@ -69,6 +71,8 @@ def calculateNDVI(aoi, start_date, end_date):
     rvi_features = time_series_ndvi.getInfo()['features']
     # 결과를 pandas DataFrame으로 변환
     df = pd.DataFrame([feat['properties'] for feat in rvi_features])
+    return df
+
 def calculateWAVI(aoi, start_date, end_date):
     # Sentinel-2 ImageCollection 필터링 및 구름 마스킹 적용
     sentinel2 = ee.ImageCollection('COPERNICUS/S2_HARMONIZED') \
@@ -203,11 +207,13 @@ def prophet_process(df):
     return forecast,forecast_df,df,m
 
 def plotly(df, forecast):
+    forecast = forecast.rename(columns = {'ds':"기간","yhat":"지수"})
+    df = df.rename(columns = {'ds':"기간","y":"지수"})
     # Create a Plotly Express figure for both forecast and observed data
-    combined_fig = px.line(forecast, x='ds', y='yhat', title='예측')
+    combined_fig = px.line(forecast, x='기간', y='지수', title='예측')
     
     # Add observed data to the same figure
-    combined_fig.add_trace(px.scatter(df, x='ds', y='y', title='관측치', color_discrete_sequence=['red']).data[0])
+    combined_fig.add_trace(px.scatter(df, x='기간', y='지수', title='관측치', color_discrete_sequence=['red']).data[0])
     # Display the combined figure using st.plotly_chart()
     st.plotly_chart(combined_fig, use_container_width = True)
 
