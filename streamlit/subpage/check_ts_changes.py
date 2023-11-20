@@ -114,7 +114,7 @@ def app():
                 aoi = sar_func.create_ee_polygon_from_geojson(aoi)
                 
                 start_f = start_date - timedelta(days=6)
-                end_b = end_date + timedelta(days=5)
+                end_b = end_date + timedelta(days=6)
                 start_f = start_f.strftime('%Y-%m-%d')
                 end_b = end_b.strftime('%Y-%m-%d')
                 # SAR load
@@ -145,17 +145,6 @@ def app():
                 vv_list = im_list.map(selectvv)
                 location = aoi.centroid().coordinates().getInfo()[::-1]
                 alpha = 0.01
-
-                def omnibus(im_list, m4 = 4.4):
-                    def log(current):
-                        return ee.Image(current).log()
-                    im_list = ee.List(im_list)
-                    k = im_list.length()
-                    klogk = k.multiply(k.log())
-                    klogk = ee.Image.constant(klogk)
-                    sumlogs = ee.ImageCollection(im_list.map(log)).reduce(ee.Reducer.sum())
-                    logsum = ee.ImageCollection(im_list).reduce(ee.Reducer.sum()).log()
-                    return klogk.add(sumlogs).subtract(logsum.multiply(k)).multiply(-2*m4)
                 
                 k = 26; alpha = 0.01
 
@@ -169,7 +158,7 @@ def app():
                 cmaps = ee.Image.cat(cmap, smap, fmap, bmap).rename(['cmap', 'smap', 'fmap']+timestamplist[1:])
                 cmaps = cmaps.updateMask(cmaps.gt(0))
                 location = aoi.centroid().coordinates().getInfo()[::-1]
-                palette = ['00000000', '#FF000080', '#0000FF80']
+                palette = ['black', 'red', 'cyan', 'yellow']
 
                 
                 # Define a method for displaying Earth Engine image tiles to folium map.
@@ -185,17 +174,17 @@ def app():
                 perd = datetime.strptime(end_b, '%Y-%m-%d')-datetime.strptime(start_f   , '%Y-%m-%d')
                 if perd<timedelta(180):
                     for i in range(1,len(timestamplist)):
-                        mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 2, 'palette': palette}, timestamplist[i])
+                        mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
                 elif perd < timedelta(365):
                     for i in range(1,len(timestamplist),2):
-                        mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 2, 'palette': palette}, timestamplist[i])
+                        mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
                 elif perd<timedelta(1095):
                     for i in range(1,len(timestamplist),3):
-                        mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 2, 'palette': palette}, timestamplist[i])
+                        mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
                 else:
                     for i in range(1,len(timestamplist), 30):
-                        mp.add_ee_layer(cmaps.select(timestamplist[i*30]), {'min': 0,'max': 2, 'palette': palette}, timestamplist[i*30])
-                    mp.add_ee_layer(cmaps.select(timestamplist[-1]), {'min': 0,'max': 2, 'palette': palette}, timestamplist[-1])
+                        mp.add_ee_layer(cmaps.select(timestamplist[i*30]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i*30])
+                    mp.add_ee_layer(cmaps.select(timestamplist[-1]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[-1])
                 
                 #folium에 추가
                 mp.add_child(folium.LayerControl())
