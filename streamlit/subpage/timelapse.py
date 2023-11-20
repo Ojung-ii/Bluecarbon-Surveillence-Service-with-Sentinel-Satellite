@@ -32,7 +32,7 @@ def app():
         selected_name = st.selectbox("관심 지역을 선택하세요:", area_names)
         # 날짜 선택
         start_date = st.date_input('시작날짜 선택하세요:', datetime.date(2020, 1, 1)) 
-        end_date = st.date_input('끝날짜 선택하세요:', datetime.date(2020, 1, 31))
+        end_date = st.date_input('끝날짜 선택하세요:', datetime.date(2023, 1, 31))
         frequency = st.selectbox('빈도 선택', options=['day', 'month', 'quarter', 'year'])
 
         # '새로운 관심영역 넣기'가 선택되면 파일 업로드 기능 활성화

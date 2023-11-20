@@ -94,7 +94,7 @@ def calculateWAVI(aoi, start_date, end_date):
             .filterBounds(aoi) \
             .filterDate(start_date, end_date) \
             .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 10))
-
+    
     # WAVI 계산 및 시계열 데이터 생성 함수
     def calculate_wavi(image):
         date = ee.Date(image.get('system:time_start')).format('YYYY-MM-dd')

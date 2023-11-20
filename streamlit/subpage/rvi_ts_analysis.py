@@ -62,14 +62,6 @@ def app():
         attr = "Vworld"
         m = folium.Map(location=[36.5, 127.5], zoom_start=10,tiles=tiles, attr=attr)
 
-        folium.TileLayer(
-            tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
-            attr='VWorld Hybrid',
-            name='VWorld Hybrid',
-            overlay=True
-        ).add_to(m)
-        folium.LayerControl().add_to(m)
-
         # 선택된 관심 지역이 있을 경우에만 해당 지역 폴리곤 표시
         if aoi:
             folium.GeoJson(
@@ -77,9 +69,16 @@ def app():
                 name=selected_name,
                 style_function=lambda x: {'fillColor': 'blue', 'color': 'blue'}
             ).add_to(m)
+
             # 지도를 선택된 폴리곤에 맞게 조정
             m.fit_bounds(folium.GeoJson(aoi).get_bounds())
-
+        folium.TileLayer(
+            tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
+            attr='VWorld Hybrid',
+            name='VWorld Hybrid',
+            overlay=True
+        ).add_to(m)
+        folium.LayerControl().add_to(m)
         # Streamlit 앱에 지도 표시
         folium_static(m, width=600)
 
@@ -97,6 +96,10 @@ def app():
         expander_rvi = st.expander("RVI(SAR) 분석결과", expanded=False)
         expander_ndvi = st.expander("NDVI(광학) 분석결과", expanded=False)
         expander_wavi = st.expander("WAVI(물조정) 분석결과", expanded=False)
+        expander_diff_bg = st.expander("DIFF_BG 분석결과", expanded=False)
+        expander_wevi = st.expander("WEVI 분석결과", expanded=False)
+        expander_wtdvi = st.expander("WTDVI 분석결과", expanded=False)
+        
         parse_aoi = sar_func.create_ee_polygon_from_geojson(aoi)
         start_date = '2017-01-01'
         end_date = '2023-03-01'
@@ -109,7 +112,6 @@ def app():
             forecast,forecast_df,df,m = sar_func.prophet_process(df)
             sar_func.plotly(df,forecast)
             fig2 = m.plot_components(forecast)
-
             # Display the modified components plot using st.pyplot()
             st.pyplot(fig2)
         with expander_ndvi:
@@ -122,7 +124,6 @@ def app():
             fig22 = m2.plot_components(forecast2)
             # Display the modified components plot using st.pyplot()
             st.pyplot(fig22)
-
         with expander_wavi:
             st.markdown("""
                 <h3 style='text-align: center; font-size: 30px;'>WAVI</h3>
@@ -133,7 +134,39 @@ def app():
             sar_func.plotly(df3,forecast3)
             fig222 = m3.plot_components(forecast3)
             # Display the modified components plot using st.pyplot()
-            st.pyplot(fig222)       
+            st.pyplot(fig222)
+        with expander_diff_bg:
+            st.markdown("""
+                <h3 style='text-align: center; font-size: 30px;'>expander_diff_bg</h3>
+                """, unsafe_allow_html=True)
+
+            df4 = sar_func.calculateDIFF_BG(parse_aoi,start_date,end_date)
+            forecast4,forecast_df3,df4,m4 = sar_func.prophet_process(df4)
+            sar_func.plotly(df4,forecast4)
+            fig4 = m4.plot_components(forecast4)
+            # Display the modified components plot using st.pyplot()
+            st.pyplot(fig4)
+        with expander_wevi:
+            st.markdown("""
+                <h3 style='text-align: center; font-size: 30px;'>expander_wevi</h3>
+                """, unsafe_allow_html=True)
+
+            df5 = sar_func.calculate_WEVI(parse_aoi,start_date,end_date)
+            forecast5,forecast_df3,df5,m5 = sar_func.prophet_process(df5)
+            sar_func.plotly(df5,forecast5)
+            fig5 = m5.plot_components(forecast3)
+            # Display the modified components plot using st.pyplot()
+            st.pyplot(fig5)
+        with expander_wtdvi:
+            st.markdown("""
+                <h3 style='text-align: center; font-size: 30px;'>expander_wtdvi</h3>
+                """, unsafe_allow_html=True)
+            df6 = sar_func.calculate_WTDVI(parse_aoi,start_date,end_date)
+            forecast6,forecast_df3,df6,m6 = sar_func.prophet_process(df6)
+            sar_func.plotly(df6,forecast6)
+            fig6 = m6.plot_components(forecast6)
+            # Display the modified components plot using st.pyplot()
+            st.pyplot(fig6)       
 # launch
 if __name__  == "__main__" :
     app()
