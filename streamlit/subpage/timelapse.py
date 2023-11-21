@@ -30,39 +30,42 @@ def app():
         st.write(" 오른쪽의 옵션을 선택하고 '타임랩스 생성' 버튼을 누르면 타임랩스가 나와요. 👉🏻")
 
     with col2:
-        # User's Input
-        dataset = st.selectbox('데이터셋 선택', ['Sentinel-1', 'Sentinel-2'])
-        selected_name = st.selectbox("관심 지역을 선택하세요:", area_names)
-        # 날짜 선택
-        start_date = st.date_input('시작날짜 선택하세요:', datetime.date(2020, 1, 1)) 
-        end_date = st.date_input('끝날짜 선택하세요:', datetime.date(2023, 1, 31))
-      
+        with st.form("조건 폼"):
+            # User's Input
+            dataset = st.selectbox('데이터셋 선택', ['Sentinel-1', 'Sentinel-2'])
+            selected_name = st.selectbox("관심 지역을 선택하세요:", area_names)
+            # 날짜 선택
+            start_date = st.date_input('시작날짜 선택하세요:', datetime.date(2020, 1, 1)) 
+            end_date = st.date_input('끝날짜 선택하세요:', datetime.date(2023, 1, 31))
+        
 
-        # 주기 선택 및 매핑
-        frequency_options = {'일': 'day', '월': 'month', '분기': 'quarter', '연': 'year'}
-        frequency_label = st.selectbox('빈도 선택', options=list(frequency_options.keys()))
-        frequency = frequency_options[frequency_label]
+            # 주기 선택 및 매핑
+            frequency_options = {'일': 'day', '월': 'month', '분기': 'quarter', '연': 'year'}
+            frequency_label = st.selectbox('빈도 선택', options=list(frequency_options.keys()))
+            frequency = frequency_options[frequency_label]
 
-        # '새로운 관심영역 넣기'가 선택되면 파일 업로드 기능 활성화
-        if selected_name == "새로운 관심영역 넣기":
-            uploaded_file = st.file_uploader("GeoJSON 파일을 업로드하세요", type=['geojson'])
-            if uploaded_file is not None:
-                # 파일 읽기
-                aoi = json.load(uploaded_file)
-        else:
-            # 기존 관심 지역 선택
-            aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
-            
-            aoi = create_ee_polygon_from_geojson(aoi)
+            # '새로운 관심영역 넣기'가 선택되면 파일 업로드 기능 활성화
+            if selected_name == "새로운 관심영역 넣기":
+                uploaded_file = st.file_uploader("GeoJSON 파일을 업로드하세요", type=['geojson'])
+                if uploaded_file is not None:
+                    # 파일 읽기
+                    aoi = json.load(uploaded_file)
+            else:
+                # 기존 관심 지역 선택
+                aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
+                
+                aoi = create_ee_polygon_from_geojson(aoi)
 
-        # Use strftime to format the date as 'YYYYMMDD' for compatibility with geemap functions
-        formatted_start_date = start_date.strftime('%Y%m%d') # Correctly formatted as 'YYYYMMDD'
-        formatted_end_date = end_date.strftime('%Y%m%d') # Correctly formatted as 'YYYYMMDD'
+            # Use strftime to format the date as 'YYYYMMDD' for compatibility with geemap functions
+            formatted_start_date = start_date.strftime('%Y%m%d') # Correctly formatted as 'YYYYMMDD'
+            formatted_end_date = end_date.strftime('%Y%m%d') # Correctly formatted as 'YYYYMMDD'
 
-        # 분석 실행 버튼
-        st.write("")
-        proceed_button = st.button("☑️ 타임랩스 생성")
+            # 분석 실행 버튼
+            st.write("")
+            proceed_button = st.form_submit_button("☑️ 타임랩스 생성")
 
+
+# -------------------------------------- 왼쪽 열 ---------------------------------------
     with col1:   
         if proceed_button:
             with st.spinner('타임랩스를 생성하는 중입니다...'):

@@ -37,26 +37,27 @@ def app():
 
     # 오른쪽 섹션: 입력 선택
     with col2:
-        # 관심 지역 선택
-        selected_name = st.selectbox("관심 지역을 선택하세요:", area_names)
-        
-        # '새로운 관심영역 넣기'가 선택되면 파일 업로드 기능 활성화
-        if selected_name == "새로운 관심영역 넣기":
-            uploaded_file = st.file_uploader("GeoJSON 파일을 업로드하세요", type=['geojson'])
-            if uploaded_file is not None:
-                # 파일 읽기
-                aoi = json.load(uploaded_file)
-        else:
-            # 기존 관심 지역 선택
-            aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
+        with st.form("조건 폼"):
+            # 관심 지역 선택
+            selected_name = st.selectbox("관심 지역을 선택하세요:", area_names)
+            
+            # '새로운 관심영역 넣기'가 선택되면 파일 업로드 기능 활성화
+            if selected_name == "새로운 관심영역 넣기":
+                uploaded_file = st.file_uploader("GeoJSON 파일을 업로드하세요", type=['geojson'])
+                if uploaded_file is not None:
+                    # 파일 읽기
+                    aoi = json.load(uploaded_file)
+            else:
+                # 기존 관심 지역 선택
+                aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
 
-        # 날짜 선택
-        start_date = st.date_input('시작날짜 선택하세요:')  # 디폴트로 오늘 날짜가 찍혀 있다.
-        end_date = st.date_input('끝날짜 선택하세요:')    # 디폴트로 오늘 날짜가 찍혀 있다.
+            # 날짜 선택
+            start_date = st.date_input('시작날짜 선택하세요:')  # 디폴트로 오늘 날짜가 찍혀 있다.
+            end_date = st.date_input('끝날짜 선택하세요:')    # 디폴트로 오늘 날짜가 찍혀 있다.
 
-        # 분석 실행 버튼
-        st.write("")
-        proceed_button = st.button("☑️ 분석 실행")
+            # 분석 실행 버튼
+            st.write("")
+            proceed_button = st.form_submit_button("☑️ 분석 실행")
         
 
        
