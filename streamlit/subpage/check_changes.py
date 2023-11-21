@@ -222,15 +222,6 @@ def app():
                                     </div>
                                 </div>
                             """, unsafe_allow_html=True)
-            
-            col6, empty3 = st.columns([0.8, 0.12])
-            with col6:
-                # Extract and display the date of the first image
-                im1_date = ee.Image(ffa_fl).first().date().format('YYYY-MM-dd').getInfo()
-                im2_date = ee.Image(ffb_fl).first().date().format('YYYY-MM-dd').getInfo()
-                st.write(f"사용된 첫 번째 사진의 날짜: {im1_date}")
-                # Extract and display the date of the second image
-                st.write(f"사용된 두 번째 사진의 날짜: {im2_date}")
 
 
 # launch
