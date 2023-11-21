@@ -1,34 +1,37 @@
 
-import streamlit as st
-import folium
-from streamlit_folium import folium_static
+# 필요한 라이브러리 가져오기
+import streamlit as st # Streamlit 라이브러리
+import folium # Folium 지도 라이브러리
+from streamlit_folium import folium_static # Streamlit에서 Folium을 사용하기 위한 라이브러리
 from scipy.stats import norm, gamma, f, chi2
-import json
-import ee
-from datetime import datetime, timedelta
-import IPython.display as disp
-import sar_func
-from scipy.optimize import bisect
+import json # JSON 데이터 처리를 위한 라이브러리
+import ee  # Google Earth Engine 라이브러리
+from datetime import datetime, timedelta # 날짜 및 시간 처리를 위한 라이브러리
+import IPython.display as disp # IPython 디스플레이 모듈
+import sar_func # SAR 관련 함수 모듈
+from scipy.optimize import bisect # 이진 검색을 위한 라이브러리
 
 # Google Earth Engine 초기화
 ee.Initialize()
 
-# 페이지 설정과 제목
-vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179"
-layer = "Satellite"
-tileType = "jpeg"
+# VWorld 지도 설정
+vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179" # VWorld API 키
+layer = "Satellite" # VWorld 레이어
+tileType = "jpeg" # 타일 유형
 
+# 주요 애플리케이션 함수 정의
 def app():
+    # 페이지 레이아웃 설정
     empty1, col0, empty2 = st.columns([0.1,1.0, 0.1])
     with col0:
-        st.title("🔍 변화탐지 확인")
-        st.write("---"*20)
+        st.title("🔍 변화탐지 확인") # 페이지 제목
+        st.write("---"*20) # 구분선
 
     # 'aoi.geojson' 파일 로드
     with open('aoi.geojson', 'r', encoding="utf-8") as ff:
         geojson_data = json.load(ff)
 
-    # 관심 지역 목록
+    # GeoJSON 파일에서 지역 이름 목록 가져오기
     area_names = [feature['properties']['name'] for feature in geojson_data['features']]
     area_names.append("새로운 관심영역 넣기")  # 드롭다운 목록에 새 옵션 추가
 
@@ -77,6 +80,7 @@ def app():
                 name=selected_name,
                 style_function=lambda x: {'fillColor': 'blue', 'color': 'blue'}
             ).add_to(m)
+            
             # 지도를 선택된 폴리곤에 맞게 조정
             m.fit_bounds(folium.GeoJson(aoi).get_bounds())
         folium.TileLayer(
@@ -89,8 +93,9 @@ def app():
         folium_static(m, width=600)
 
 # ---------------------------- 결과  ---------------------------
-
+    # 페이지 레이아웃 설정
     empty1, col3, empty2 = st.columns([0.12,0.8, 0.12])
+
     # 그래프 영역
     if proceed_button:
         with col3:
@@ -99,8 +104,10 @@ def app():
             <h3 style='text-align: center; font-size: 35px;'>⬇️  변화탐지 결과  ⬇️</h3>
             """, unsafe_allow_html=True)
 
+            # 섹션 나누기
             col4, col5 = st.columns([0.8,0.08])
-            
+
+            # 왼쪽 섹션 : 변화탐지 결과
             with col4 : 
                 with st.spinner("변화탐지 분석중"):
                     st.write('')
@@ -115,10 +122,13 @@ def app():
                                 control = True
                         ).add_to(self)
 
-                        # Add EE drawing method to folium.
+                    # Folium에 Earth Engine 그리기 메서드 추가
                     folium.Map.add_ee_layer = add_ee_layer
+
+                    # GeoJSON 파일에서 추출한 관심 지역을 Earth Engine 폴리곤으로 변환
                     aoi = sar_func.create_ee_polygon_from_geojson(aoi)
-                    # 시간 앞 6일 뒤 5일 찾아보기
+
+                    # 분석 기간 설정: 현재 날짜로부터 6일 전부터 5일 후까지의 기간
                     start_f = start_date - timedelta(days=6)
                     start_b = start_date + timedelta(days=5)
                     end_f = end_date - timedelta(days=6)
@@ -128,7 +138,7 @@ def app():
                     start_b = start_b.strftime('%Y-%m-%d')
                     end_b = end_b.strftime('%Y-%m-%d')
                 
-                    # SAR load
+                    # SAR 데이터 로드
                     ffa_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') 
                                         .filterBounds(aoi) 
                                         .filterDate(ee.Date(start_f), ee.Date(start_b)) 
@@ -143,7 +153,8 @@ def app():
                     im2 = ee.Image(ffb_fl).select('VV').clip(aoi)
                     ratio = im1.divide(im2)
 
-                    # ffa_fa에 대한 min, max 같은 통계값
+                    # Ratio에 대한 통계값 계산
+                    # 히스토그램/평균/분산(최소,최대)
                     hist = ratio.reduceRegion(ee.Reducer.fixedHistogram(0, 5, 500), aoi).get('VV').getInfo()
                     mean = ratio.reduceRegion(ee.Reducer.mean(), aoi).get('VV').getInfo()
                     variance = ratio.reduceRegion(ee.Reducer.variance(), aoi).get('VV').getInfo()
@@ -152,23 +163,22 @@ def app():
                     v_max = ratio.select('VV').reduceRegion(
                         ee.Reducer.max(), aoi).get('VV').getInfo()
 
-                    m1 = 5 # 걍 해둠ㅋㅋ
-                    # F-분포의 CDF 함수를 정의합니다.
+                    m1 = 5 # 임의의 값
+                    # F-분포의 CDF 함수를 정의
                     dt = f.ppf(0.0005, 2*m1, 2*m1)
 
-                    # LRT statistics.
+                    # LRT(Likelihood Ratio Test:우도비 검정) 통계량
                     q1 = im1.divide(im2)
                     q2 = im2.divide(im1)
 
-                    # Change map with 0 = no change, 1 = decrease, 2 = increase in intensity.
+                    # Change map: 0 = 변화 없음, 1 = 강도 감소, 2 = 강도 증가
                     c_map = im1.multiply(0).where(q2.lt(dt), 1)
                     c_map = c_map.where(q1.lt(dt), 2)
 
-                    # Mask no-change pixels.
+                    # 변화 없는(no change) 픽셀 마스크 처리
                     c_map = c_map.updateMask(c_map.gt(0))
 
-
-                    # Display map with red for increase and blue for decrease in intensity.
+                    # 지도에 변화 표시: 증가는 빨강, 감소는 파랑으로 표시
                     location = aoi.centroid().coordinates().getInfo()[::-1]
                     mp = folium.Map(
                         location=location,
@@ -180,15 +190,17 @@ def app():
                         overlay=True
                     ).add_to(mp)
                     folium.LayerControl().add_to(m)
-                    # mp.add_ee_layer(ratio,
-                    #                 {'min': v_min, 'max': v_max, 'palette': ['black', 'white']}, 'Ratio')
+
+                    # 변화 지도 레이어 추가
                     mp.add_ee_layer(c_map,
                                     {'min': 0, 'max': 2, 'palette': ['00000000', '#FF000080', '#0000FF80']},  # 변화 없음: 투명, 감소: 반투명 파랑, 증가: 반투명 빨강
                                     'Change Map')
                     mp.add_child(folium.LayerControl())
 
+                    # 지도를 정적으로 표시
                     folium_static(mp,width=870)
 
+            # 범례 추가
             with col5:
                 st.write('')
                 st.write('')

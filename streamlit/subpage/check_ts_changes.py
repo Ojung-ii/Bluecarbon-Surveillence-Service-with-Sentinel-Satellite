@@ -1,31 +1,35 @@
-import streamlit as st
-import folium
-from streamlit_folium import folium_static
+# 필요한 라이브러리 가져오기
+import streamlit as st  # Streamlit 라이브러리
+import folium  # Folium 지도 라이브러리
+from streamlit_folium import folium_static  # Streamlit에서 Folium을 사용하기 위한 라이브러리
 from scipy.stats import norm, gamma, f, chi2
-import json
-import ee
-from datetime import datetime, timedelta
-import IPython.display as disp
-import sar_func
+import json  # JSON 데이터 처리를 위한 라이브러리
+import ee  # Google Earth Engine 라이브러리
+from datetime import datetime, timedelta  # 날짜 및 시간 처리를 위한 라이브러리
+import IPython.display as disp  # IPython 디스플레이 모듈
+import sar_func  # SAR 관련 함수 모듈
+
 # Google Earth Engine 초기화
 ee.Initialize()
 
+# VWorld 지도 설정
+vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179" # VWorld API 키
+layer = "Satellite" # VWorld 레이어
+tileType = "jpeg"  # 타일 유형
+
+# 주요 애플리케이션 함수 정의
 def app():
-    # 페이지 설정과 제목
-    vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179"
-    layer = "Satellite"
-    tileType = "jpeg"
-    
+    # 페이지 레이아웃 설정
     empty1, col0, empty2 = st.columns([0.1,1.0, 0.1])
     with col0:
-        st.title("⏱️ 시계열 변화탐지 확인")
-        st.write("---"*20)
+        st.title("⏱️ 시계열 변화탐지 확인") # 페이지 제목
+        st.write("---"*20) # 구분선
 
     # 'aoi.geojson' 파일 로드
     with open('aoi.geojson', 'r', encoding="utf-8") as f:
         geojson_data = json.load(f)
 
-    # 관심 지역 목록
+    # GeoJSON 파일에서 지역 이름 목록 가져오기
     area_names = [feature['properties']['name'] for feature in geojson_data['features']]
     area_names.append("새로운 관심영역 넣기")  # 드롭다운 목록에 새 옵션 추가
 
@@ -53,8 +57,8 @@ def app():
                 aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
 
             # 날짜 선택
-            start_date = st.date_input('시작날짜 선택하세요:')  
-            end_date = st.date_input('끝날짜 선택하세요:')    
+            start_date = st.date_input('시작날짜 선택하세요:') # 디폴트: 오늘 날짜
+            end_date = st.date_input('끝날짜 선택하세요:') # 디폴트: 오늘 날짜
 
             # 분석 실행 버튼
             st.write("")
@@ -63,6 +67,7 @@ def app():
         
     # 왼쪽 섹션: 폴리곤 매핑 시각화
     with col1:
+        # 지도 초기화 (대한민국 중심 위치로 설정)
         tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
         attr = "Vworld"
         m = folium.Map(location=[36.5, 127.5], zoom_start=10,tiles=tiles, attr=attr)
@@ -74,6 +79,7 @@ def app():
                 name=selected_name,
                 style_function=lambda x: {'fillColor': 'blue', 'color': 'blue'}
             ).add_to(m)
+
             # 지도를 선택된 폴리곤에 맞게 조정
             m.fit_bounds(folium.GeoJson(aoi).get_bounds())
         folium.TileLayer(
@@ -83,14 +89,15 @@ def app():
             overlay=True
         ).add_to(m)
         folium.LayerControl().add_to(m)
+
         # Streamlit 앱에 지도 표시
         folium_static(m, width=600)
 
 # ---------------------------- 결과  ---------------------------
-
+    # 섹션 나누기
     empty1, col3, empty2 = st.columns([0.12,0.8, 0.12])
     
-    # 그래프 영역
+    # 페이지 레이아웃 설정
     if proceed_button:
         with col3:
             st.write("-----"*20)
@@ -98,14 +105,17 @@ def app():
             <h3 style='text-align: center; font-size: 35px;'>⬇️  시계열 변화탐지 결과  ⬇️</h3>
             """, unsafe_allow_html=True)
             
+            # 섹션 나누기
             col4, col5  = st.columns([0.8,0.08])
-            
+
+            # 왼쪽 섹션: 변화탐지 분석
             with col4 : 
             
                 with st.spinner("변화탐지 분석중"):
                     st.write('')
                     st.write('')
-                    # 시간 앞 6일 뒤 5일 찾아보기
+
+                    # Earth Engine에서 Folium 지도에 레이어 추가하는 메서드
                     def add_ee_layer(self, ee_image_object, vis_params, name):
                         map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
                         folium.raster_layers.TileLayer(
@@ -116,7 +126,7 @@ def app():
                             control = True
                     ).add_to(self)
 
-                    # Add EE drawing method to folium.
+                    # Folium에 Earth Engine 그리기 메서드 추가
                     folium.Map.add_ee_layer = add_ee_layer
                     aoi = sar_func.create_ee_polygon_from_geojson(aoi)
                     
@@ -124,10 +134,11 @@ def app():
                     end_b = end_date + timedelta(days=6)
                     start_f = start_f.strftime('%Y-%m-%d')
                     end_b = end_b.strftime('%Y-%m-%d')
-                    # SAR load
+                   
                     def to_ee_date(image):
                         return ee.Date(image.get('date'))
                     
+                    # Earth Engine에서 SAR 데이터 로드
                     im_coll = (ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT')
                         .filterBounds(aoi)
                         .filterDate(ee.Date(start_f),ee.Date(end_b))
@@ -136,16 +147,18 @@ def app():
                         .map(lambda img: img.set('date', ee.Date(img.date()).format('YYYYMMdd')))
                         .sort('date'))
                     
+                    # 시간 스탬프 리스트 생성
                     timestamplist = (im_coll.aggregate_array('date')
                                 .map(lambda d: ee.String('T').cat(ee.String(d)))
                                 .getInfo())
-                    #clip
+                    
+                    # clip 메서드 정의
                     def clip_img(img):
                         return ee.Image(img).clip(aoi)
                     im_list = im_coll.toList(im_coll.size())
                     im_list = ee.List(im_list.map(clip_img))
 
-                    #select vv
+                    # VV 밴드 선택
                     def selectvv(current):
                         return ee.Image(current).select('VV')
 
@@ -155,9 +168,8 @@ def app():
                     
                     k = 26; alpha = 0.01
 
-                    # Run the algorithm with median filter and at 1% significance.
+                    # 중간값 필터 및 1% 유의수준으로 알고리즘 실행
                     result = ee.Dictionary(sar_func.change_maps(im_list, median=True, alpha=0.01))
-                    # Extract the change maps and export to assets.
                     cmap = ee.Image(result.get('cmap'))
                     smap = ee.Image(result.get('smap'))
                     fmap = ee.Image(result.get('fmap'))
@@ -168,7 +180,7 @@ def app():
                     palette = ['black', 'red', 'blue', 'yellow']
 
                     
-                    # Define a method for displaying Earth Engine image tiles to folium map.
+                    # Folium 지도 생성
                     mp = folium.Map(location=location, zoom_start=14,tiles=tiles, attr=attr)
                     folium.TileLayer(
                     tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
@@ -177,7 +189,7 @@ def app():
                     overlay=True
                     ).add_to(mp)
 
-                    #6달 이하는 전부 계산, 6달부터는 달마다, 1~3년까진 분기마다, 4년부턴 년마다의 변화
+                    # 6달 이하: 전부 계산, 6달~1년: 달, 1~3년: 분기, 4년~: 년마다 변화 탐지
                     perd = datetime.strptime(end_b, '%Y-%m-%d')-datetime.strptime(start_f   , '%Y-%m-%d')
                     if perd<timedelta(180):
                         for i in range(1,len(timestamplist)):
@@ -193,12 +205,13 @@ def app():
                             mp.add_ee_layer(cmaps.select(timestamplist[i*30]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i*30])
                         mp.add_ee_layer(cmaps.select(timestamplist[-1]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[-1])
                     
-                    #folium에 추가
+                    # folium에 추가
                     mp.add_child(folium.LayerControl())
                     
                     # 스트림릿에 folium 지도 표시
                     folium_static(mp,width=870)
             
+            # 범례 및 설명 추가
             with col5:
                 st.write("")
                 st.write("")

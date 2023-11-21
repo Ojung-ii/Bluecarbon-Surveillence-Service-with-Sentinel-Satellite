@@ -7,17 +7,16 @@ import json
 import os
 
 def app():
-    # 스트림릿 페이지 설정
+    # 페이지 레이아웃 설정
     empty1, col0, empty2 = st.columns([0.1,1.0, 0.1])
     with col0:
-        st.title("📍 AOI 업데이트")
-        st.write("---" * 20)
+        st.title("📍 AOI 업데이트") # 페이지 제목
+        st.write("---" * 20) # 구분선
 
-   
-        #Vworld
-        vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179"
-        layer = "Satellite"
-        tileType = "jpeg"
+        # VWorld 지도 설정
+        vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179" # VWorld API 키
+        layer = "Satellite" # VWorld 레이어
+        tileType = "jpeg" # 타일 유형
 
         # 관심영역 파일 경로 설정
         geojson_path = 'aoi.geojson'
