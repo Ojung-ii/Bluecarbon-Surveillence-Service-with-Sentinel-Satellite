@@ -9,12 +9,15 @@ from datetime import datetime, timedelta
 import IPython.display as disp
 import sar_func
 from scipy.optimize import bisect
+
 # Google Earth Engine 초기화
 ee.Initialize()
+
 # 페이지 설정과 제목
 vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179"
 layer = "Satellite"
 tileType = "jpeg"
+
 def app():
     empty1, col0, empty2 = st.columns([0.1,1.0, 0.1])
     with col0:
@@ -59,7 +62,6 @@ def app():
             st.write("")
             proceed_button = st.form_submit_button("☑️ 분석 실행")
         
-
        
     # 왼쪽 섹션: 폴리곤 매핑 시각화
     with col1:
@@ -96,8 +98,8 @@ def app():
             st.markdown("""
             <h3 style='text-align: center; font-size: 35px;'>⬇️  변화탐지 결과  ⬇️</h3>
             """, unsafe_allow_html=True)
-            
-            col4, col5  = st.columns([0.8,0.08])
+
+            col4, col5 = st.columns([0.8,0.08])
             
             with col4 : 
                 with st.spinner("변화탐지 분석중"):
@@ -140,6 +142,7 @@ def app():
                     im1 = ee.Image(ffa_fl).select('VV').clip(aoi)
                     im2 = ee.Image(ffb_fl).select('VV').clip(aoi)
                     ratio = im1.divide(im2)
+
                     # ffa_fa에 대한 min, max 같은 통계값
                     hist = ratio.reduceRegion(ee.Reducer.fixedHistogram(0, 5, 500), aoi).get('VV').getInfo()
                     mean = ratio.reduceRegion(ee.Reducer.mean(), aoi).get('VV').getInfo()
@@ -163,6 +166,7 @@ def app():
 
                     # Mask no-change pixels.
                     c_map = c_map.updateMask(c_map.gt(0))
+
 
                     # Display map with red for increase and blue for decrease in intensity.
                     location = aoi.centroid().coordinates().getInfo()[::-1]
@@ -219,6 +223,7 @@ def app():
                                     </div>
                                 </div>
                             """, unsafe_allow_html=True)
+
 
 # launch
 if __name__  == "__main__" :
