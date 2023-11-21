@@ -36,7 +36,12 @@ def app():
         # 날짜 선택
         start_date = st.date_input('시작날짜 선택하세요:', datetime.date(2020, 1, 1)) 
         end_date = st.date_input('끝날짜 선택하세요:', datetime.date(2023, 1, 31))
-        frequency = st.selectbox('빈도 선택', options=['day', 'month', 'quarter', 'year'])
+      
+
+        # 주기 선택 및 매핑
+        frequency_options = {'일': 'day', '월': 'month', '분기': 'quarter', '연': 'year'}
+        frequency_label = st.selectbox('빈도 선택', options=list(frequency_options.keys()))
+        frequency = frequency_options[frequency_label]
 
         # '새로운 관심영역 넣기'가 선택되면 파일 업로드 기능 활성화
         if selected_name == "새로운 관심영역 넣기":
