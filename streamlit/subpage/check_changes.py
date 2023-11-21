@@ -182,7 +182,7 @@ def app():
                                     'Change Map')
                     mp.add_child(folium.LayerControl())
 
-                    folium_static(mp,width=970)
+                    folium_static(mp,width=870)
 
             with col5:
                 st.write('')

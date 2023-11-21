@@ -96,7 +96,7 @@ def app():
             <h3 style='text-align: center; font-size: 35px;'>⬇️  시계열 변화탐지 결과  ⬇️</h3>
             """, unsafe_allow_html=True)
             
-            col4, col5  = st.columns([0.9,0.09])
+            col4, col5  = st.columns([0.8,0.08])
             
             with col4 : 
             
@@ -195,7 +195,7 @@ def app():
                     mp.add_child(folium.LayerControl())
                     
                     # 스트림릿에 folium 지도 표시
-                    folium_static(mp,width=970)
+                    folium_static(mp,width=870)
             
             with col5:
                 st.write("")
