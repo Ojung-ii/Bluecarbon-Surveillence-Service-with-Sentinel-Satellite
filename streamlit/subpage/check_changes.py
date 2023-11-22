@@ -6,9 +6,9 @@ import json
 import ee  
 from datetime import datetime, timedelta 
 import IPython.display as disp 
-import ts_trend_analysis_func # SAR 관련 함수 모듈
+import check_ts_changes_func # SAR 관련 함수 모듈
 from scipy.optimize import bisect 
-
+import ts_trend_analysis_func
 # Google Earth Engine 초기화
 ee.Initialize()
 
@@ -124,7 +124,7 @@ def app():
                     folium.Map.add_ee_layer = add_ee_layer
 
                     # GeoJSON 파일에서 추출한 관심 지역을 Earth Engine 폴리곤으로 변환
-                    aoi = sar_func.create_ee_polygon_from_geojson(aoi)
+                    aoi = ts_trend_analysis_func.create_ee_polygon_from_geojson(aoi)
 
                     # 분석 기간 설정: 현재 날짜로부터 6일 전부터 5일 후까지의 기간
                     start_f = start_date - timedelta(days=6)

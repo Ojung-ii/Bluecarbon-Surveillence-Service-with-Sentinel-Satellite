@@ -112,7 +112,7 @@ def app():
             st.markdown("""
                 <h3 style='text-align: center; font-size: 30px;'>RVI</h3>
                 """, unsafe_allow_html=True)
-            df = ts_trend_analysis_func.calculateRVI(parse_aoi,start_date,end_date,ts_trend_analysis_func.calculate_rvi)
+            df = ts_trend_analysis_func.calculateRVI(parse_aoi,start_date,end_date)
             forecast,forecast_df,df,m = ts_trend_analysis_func.prophet_process(df)
             fig2 = m.plot_components(forecast)
             ts_trend_analysis_func.plotly(df,forecast)
