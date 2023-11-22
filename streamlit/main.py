@@ -2,7 +2,7 @@ import streamlit as st
 from streamlit_option_menu import option_menu
 
 # 서브 페이지 임포트
-from subpage import home, timelapse, check_changes, check_ts_changes, rvi_ts_analysis, aoi_revision
+from subpage import home, timelapse, check_changes, check_ts_changes, ts_trend_analysis, aoi_revision
 
 
 def launch() :
@@ -49,7 +49,7 @@ def launch() :
     if selected == "시계열 변화탐지 확인":
         check_ts_changes.app()
     if selected == "시계열 경향성 분석":
-        rvi_ts_analysis.app()
+        ts_trend_analysis.app()
     if selected == "관심영역 추가":
         aoi_revision.app()               
 

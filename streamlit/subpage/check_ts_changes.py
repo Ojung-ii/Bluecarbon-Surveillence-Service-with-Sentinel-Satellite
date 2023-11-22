@@ -1,13 +1,12 @@
-# 필요한 라이브러리 가져오기
-import streamlit as st  # Streamlit 라이브러리
-import folium  # Folium 지도 라이브러리
-from streamlit_folium import folium_static  # Streamlit에서 Folium을 사용하기 위한 라이브러리
+import streamlit as st 
+import folium 
+from streamlit_folium import folium_static 
 from scipy.stats import norm, gamma, f, chi2
-import json  # JSON 데이터 처리를 위한 라이브러리
-import ee  # Google Earth Engine 라이브러리
-from datetime import datetime, timedelta  # 날짜 및 시간 처리를 위한 라이브러리
-import IPython.display as disp  # IPython 디스플레이 모듈
-import sar_func  # SAR 관련 함수 모듈
+import json  
+import ee  
+from datetime import datetime, timedelta  
+import IPython.display as disp 
+import sar_func 
 
 # Google Earth Engine 초기화
 ee.Initialize()
@@ -190,20 +189,9 @@ def app():
                     ).add_to(mp)
 
                     # 6달 이하: 전부 계산, 6달~1년: 달, 1~3년: 분기, 4년~: 년마다 변화 탐지
-                    perd = datetime.strptime(end_b, '%Y-%m-%d')-datetime.strptime(start_f   , '%Y-%m-%d')
-                    if perd<timedelta(180):
-                        for i in range(1,len(timestamplist)):
-                            mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
-                    elif perd < timedelta(365):
-                        for i in range(1,len(timestamplist),2):
-                            mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
-                    elif perd<timedelta(1095):
-                        for i in range(1,len(timestamplist),3):
-                            mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
-                    else:
-                        for i in range(1,len(timestamplist), 30):
-                            mp.add_ee_layer(cmaps.select(timestamplist[i*30]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i*30])
-                        mp.add_ee_layer(cmaps.select(timestamplist[-1]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[-1])
+
+                    for i in range(1,len(timestamplist)):
+                        mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
                     
                     # folium에 추가
                     mp.add_child(folium.LayerControl())
