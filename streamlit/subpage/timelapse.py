@@ -3,7 +3,7 @@ import geemap
 import ee
 from timelapse_func import create_sentinel1_timelapse, create_sentinel2_timelapse
 import json
-from sar_func import create_ee_polygon_from_geojson
+from ts_trend_analysis_func import create_ee_polygon_from_geojson
 import datetime
 
 # Google Earth Engine 초기화

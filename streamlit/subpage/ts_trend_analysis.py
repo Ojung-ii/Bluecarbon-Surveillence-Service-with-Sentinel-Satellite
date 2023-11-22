@@ -2,7 +2,7 @@ import streamlit as st
 import folium
 from streamlit_folium import folium_static
 import json
-import sar_func
+import ts_trend_analysis_func
 
 # VWorld 지도 설정
 vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179" # VWorld API 키
@@ -103,7 +103,7 @@ def app():
         expander_wtdvi = st.expander("WTDVI 분석결과", expanded=False)
         
         # Earth Engine에서 관심 지역을 가져오고 Prophet을 사용하여 시계열 분석 실행 및 결과 플로팅
-        parse_aoi = sar_func.create_ee_polygon_from_geojson(aoi)
+        parse_aoi = ts_trend_analysis_func.create_ee_polygon_from_geojson(aoi)
         start_date = '2017-01-01'
         end_date = '2023-03-01'
 
@@ -112,11 +112,10 @@ def app():
             st.markdown("""
                 <h3 style='text-align: center; font-size: 30px;'>RVI</h3>
                 """, unsafe_allow_html=True)
-            df = sar_func.calculateRVI(parse_aoi,start_date,end_date,sar_func.calculate_rvi)
-            forecast,forecast_df,df,m = sar_func.prophet_process(df)
+            df = ts_trend_analysis_func.calculateRVI(parse_aoi,start_date,end_date,ts_trend_analysis_func.calculate_rvi)
+            forecast,forecast_df,df,m = ts_trend_analysis_func.prophet_process(df)
             fig2 = m.plot_components(forecast)
-            sar_func.plotly(df,forecast)
-            
+            ts_trend_analysis_func.plotly(df,forecast)
             # 시계열 결과 플로팅
             st.pyplot(fig2)
 
@@ -125,10 +124,10 @@ def app():
             st.markdown("""
                 <h3 style='text-align: center; font-size: 30px;'>NDVI</h3>
                 """, unsafe_allow_html=True)
-            df2 = sar_func.calculateNDVI(parse_aoi,start_date,end_date)
-            forecast2,forecast_df2,df2,m2 = sar_func.prophet_process(df2)
+            df2 = ts_trend_analysis_func.calculateNDVI(parse_aoi,start_date,end_date)
+            forecast2,forecast_df2,df2,m2 = ts_trend_analysis_func.prophet_process(df2)
             fig22 = m2.plot_components(forecast2)
-            sar_func.plotly(df2,forecast2)
+            ts_trend_analysis_func.plotly(df2,forecast2)
             
             # 시계열 결과 플로팅
             st.pyplot(fig22)
@@ -138,10 +137,10 @@ def app():
             st.markdown("""
                 <h3 style='text-align: center; font-size: 30px;'>WAVI</h3>
                 """, unsafe_allow_html=True)
-            df3 = sar_func.calculateWAVI(parse_aoi,start_date,end_date)
-            forecast3,forecast_df3,df3,m3 = sar_func.prophet_process(df3)
+            df3 = ts_trend_analysis_func.calculateWAVI(parse_aoi,start_date,end_date)
+            forecast3,forecast_df3,df3,m3 = ts_trend_analysis_func.prophet_process(df3)
             fig222 = m3.plot_components(forecast3)
-            sar_func.plotly(df3,forecast3)
+            ts_trend_analysis_func.plotly(df3,forecast3)
             
             # 시계열 결과 플로팅
             st.pyplot(fig222)
@@ -151,10 +150,10 @@ def app():
             st.markdown("""
                 <h3 style='text-align: center; font-size: 30px;'>expander_diff_bg</h3>
                 """, unsafe_allow_html=True)
-            df4 = sar_func.calculateDIFF_BG(parse_aoi,start_date,end_date)
-            forecast4,forecast_df3,df4,m4 = sar_func.prophet_process(df4)
+            df4 = ts_trend_analysis_func.calculateDIFF_BG(parse_aoi,start_date,end_date)
+            forecast4,forecast_df3,df4,m4 = ts_trend_analysis_func.prophet_process(df4)
             fig4 = m4.plot_components(forecast4)
-            sar_func.plotly(df4,forecast4)
+            ts_trend_analysis_func.plotly(df4,forecast4)
             
             # 시계열 결과 플로팅
             st.pyplot(fig4)
@@ -164,10 +163,10 @@ def app():
             st.markdown("""
                 <h3 style='text-align: center; font-size: 30px;'>expander_wevi</h3>
                 """, unsafe_allow_html=True)
-            df5 = sar_func.calculate_WEVI(parse_aoi,start_date,end_date)
-            forecast5,forecast_df3,df5,m5 = sar_func.prophet_process(df5)
+            df5 = ts_trend_analysis_func.calculate_WEVI(parse_aoi,start_date,end_date)
+            forecast5,forecast_df3,df5,m5 = ts_trend_analysis_func.prophet_process(df5)
             fig5 = m5.plot_components(forecast5)
-            sar_func.plotly(df5,forecast5)
+            ts_trend_analysis_func.plotly(df5,forecast5)
             
             # 시계열 결과 플로팅
             st.pyplot(fig5)
@@ -177,10 +176,10 @@ def app():
             st.markdown("""
                 <h3 style='text-align: center; font-size: 30px;'>expander_wtdvi</h3>
                 """, unsafe_allow_html=True)
-            df6 = sar_func.calculate_WTDVI(parse_aoi,start_date,end_date)
-            forecast6,forecast_df3,df6,m6 = sar_func.prophet_process(df6)
+            df6 = ts_trend_analysis_func.calculate_WTDVI(parse_aoi,start_date,end_date)
+            forecast6,forecast_df3,df6,m6 = ts_trend_analysis_func.prophet_process(df6)
             fig6 = m6.plot_components(forecast6)
-            sar_func.plotly(df6,forecast6)
+            ts_trend_analysis_func.plotly(df6,forecast6)
             
             # 시계열 결과 플로팅
             st.pyplot(fig6)      

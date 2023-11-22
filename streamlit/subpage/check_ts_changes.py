@@ -6,7 +6,7 @@ import json
 import ee  
 from datetime import datetime, timedelta  
 import IPython.display as disp 
-import sar_func 
+import ts_trend_analysis_func 
 
 # Google Earth Engine 초기화
 ee.Initialize()
@@ -127,7 +127,7 @@ def app():
 
                     # Folium에 Earth Engine 그리기 메서드 추가
                     folium.Map.add_ee_layer = add_ee_layer
-                    aoi = sar_func.create_ee_polygon_from_geojson(aoi)
+                    aoi = ts_trend_analysis_func.create_ee_polygon_from_geojson(aoi)
                     
                     start_f = start_date - timedelta(days=6)
                     end_b = end_date + timedelta(days=6)
@@ -168,7 +168,7 @@ def app():
                     k = 26; alpha = 0.01
 
                     # 중간값 필터 및 1% 유의수준으로 알고리즘 실행
-                    result = ee.Dictionary(sar_func.change_maps(im_list, median=True, alpha=0.01))
+                    result = ee.Dictionary(ts_trend_analysis_func.change_maps(im_list, median=True, alpha=0.01))
                     cmap = ee.Image(result.get('cmap'))
                     smap = ee.Image(result.get('smap'))
                     fmap = ee.Image(result.get('fmap'))

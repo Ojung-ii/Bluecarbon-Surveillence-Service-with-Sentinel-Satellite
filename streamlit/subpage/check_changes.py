@@ -6,7 +6,7 @@ import json
 import ee  
 from datetime import datetime, timedelta 
 import IPython.display as disp 
-import sar_func # SAR 관련 함수 모듈
+import ts_trend_analysis_func # SAR 관련 함수 모듈
 from scipy.optimize import bisect 
 
 # Google Earth Engine 초기화
