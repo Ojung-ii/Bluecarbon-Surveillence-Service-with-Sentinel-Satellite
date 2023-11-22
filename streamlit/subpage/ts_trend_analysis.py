@@ -102,7 +102,7 @@ def app():
         expander_wevi = st.expander("WEVI 분석결과", expanded=False)
         expander_wtdvi = st.expander("WTDVI 분석결과", expanded=False)
         
-        # # Earth Engine에서 관심 지역을 가져오고 Prophet을 사용하여 시계열 분석 실행 및 결과 플로팅
+        # Earth Engine에서 관심 지역을 가져오고 Prophet을 사용하여 시계열 분석 실행 및 결과 플로팅
         parse_aoi = sar_func.create_ee_polygon_from_geojson(aoi)
         start_date = '2017-01-01'
         end_date = '2023-03-01'

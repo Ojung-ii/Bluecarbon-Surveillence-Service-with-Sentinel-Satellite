@@ -1,15 +1,13 @@
-
-# 필요한 라이브러리 가져오기
-import streamlit as st # Streamlit 라이브러리
-import folium # Folium 지도 라이브러리
-from streamlit_folium import folium_static # Streamlit에서 Folium을 사용하기 위한 라이브러리
+import streamlit as st
+import folium
+from streamlit_folium import folium_static 
 from scipy.stats import norm, gamma, f, chi2
-import json # JSON 데이터 처리를 위한 라이브러리
-import ee  # Google Earth Engine 라이브러리
-from datetime import datetime, timedelta # 날짜 및 시간 처리를 위한 라이브러리
-import IPython.display as disp # IPython 디스플레이 모듈
+import json 
+import ee  
+from datetime import datetime, timedelta 
+import IPython.display as disp 
 import sar_func # SAR 관련 함수 모듈
-from scipy.optimize import bisect # 이진 검색을 위한 라이브러리
+from scipy.optimize import bisect 
 
 # Google Earth Engine 초기화
 ee.Initialize()
@@ -58,8 +56,8 @@ def app():
                 aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
 
             # 날짜 선택
-            start_date = st.date_input('시작날짜 선택하세요:')  # 디폴트로 오늘 날짜가 찍혀 있다.
-            end_date = st.date_input('끝날짜 선택하세요:')    # 디폴트로 오늘 날짜가 찍혀 있다.
+            start_date = st.date_input('시작날짜 선택하세요:') 
+            end_date = st.date_input('끝날짜 선택하세요:')    
 
             # 분석 실행 버튼
             st.write("")
