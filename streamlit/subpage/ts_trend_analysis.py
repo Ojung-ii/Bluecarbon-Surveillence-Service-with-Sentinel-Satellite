@@ -112,7 +112,7 @@ def app():
             st.markdown("""
                 <h3 style='text-align: center; font-size: 30px;'>RVI</h3>
                 """, unsafe_allow_html=True)
-            df = sar_func.calculateRVI(parse_aoi,start_date,end_date)
+            df = sar_func.calculateRVI(parse_aoi,start_date,end_date,sar_func.calculate_rvi)
             forecast,forecast_df,df,m = sar_func.prophet_process(df)
             fig2 = m.plot_components(forecast)
             sar_func.plotly(df,forecast)
