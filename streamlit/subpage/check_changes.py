@@ -281,33 +281,15 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
         col4, empty3 = st.columns([0.8, 0.12])
 
         with col4:
-            # Extract and display the date of the first image
+            # Extract and display the date of image
             im1_date = ee.Image(ffa_fl).date().format('YYYY-MM-dd').getInfo()
             im2_date = ee.Image(ffb_fl).date().format('YYYY-MM-dd').getInfo()
-            st.write(f"사용된 첫 번째 사진의 날짜: {im1_date}")
-            # Extract and display the date of the second image
-            st.write(f"사용된 두 번째 사진의 날짜: {im2_date}")
+            st.write(f"사용된 첫 번째 사진의 날짜: {im1_date}"+"    "+f"사용된 두 번째 사진의 날짜: {im2_date}")
+            
         col5, empty4 = st.columns([0.8,1.2])
         
         with col5:
-            '''
-            mp2 = folium.Map(
-                location=location,
-                zoom_start=14)
-            
-            vis_params = {'min': -20, 'max': 0}
-            
-            layer1 = folium.Map(location=location, zoom_start=14)
-            layer1.add_ee_layer(ffa_fl,vis_params,im1_date)
-            
-            layer2 = folium.Map(location=location, zoom_start=14)
-            layer2.add_ee_layer(ffb_fl,vis_params,im1_date)
-            # Side by Side 플러그인 사용
-            sbs = folium.plugins.SideBySideLayers(layer_left=layer1, layer_right=layer2)
-            layer1.add_to(mp2)
-            layer2.add_to(mp2)
-            mp2.add_child(sbs)
-            '''
+            #계산없이 이미지로 바로 볼 때는 GRD 불러오는 게 좋음
             ffa_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD') 
                                     .filterBounds(aoi) 
                                     .filterDate(ee.Date(start_f), ee.Date(start_b))
@@ -320,11 +302,12 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
                                     .filterDate(ee.Date(end_f), ee.Date(end_b))
                                     .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING')) 
                                     .first()) 
-                                    
+            # VV 뽑기
             ffa_fl = ee.Image(ffa_fl).select('VV').clip(aoi)
             ffb_fl =ee.Image(ffb_fl).select('VV').clip(aoi)
 
-            def add_ee_layer2(ee_image_object, vis_params, name):
+            #영상 tile로 만들기
+            def make_layer(ee_image_object, vis_params, name):
                 map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
                 tile_layer = folium.raster_layers.TileLayer(
                     tiles=map_id_dict['tile_fetcher'].url_format,
@@ -334,14 +317,21 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
                     control=False
                 )
                 return tile_layer
-            mp2 = folium.Map(location=location, zoom_start=14)
-
+            
+            mp2 = folium.Map(location=location, zoom_start=14, tiles= tiles, attr = attr)
+            folium.TileLayer(
+                tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
+                attr='VWorld Hybrid',
+                name='VWorld Hybrid',
+                overlay=True
+            ).add_to(mp)
+            folium.LayerControl().add_to(m)
             # 시각화 매개변수
             vis_params = {'min': -20, 'max': 0}
 
             # 레이어 맹글기
-            ffa_fl_layer = add_ee_layer2(ffa_fl, vis_params, 'Image 1')
-            ffb_fl_layer = add_ee_layer2(ffb_fl, vis_params, 'Image 2')
+            ffa_fl_layer = make_layer(ffa_fl, vis_params, 'Image 1')
+            ffb_fl_layer = make_layer(ffb_fl, vis_params, 'Image 2')
 
             # Side by Side 플러그인 사용을 위해 만든 레이어 sbs에 넣고 mp2에 추가
             sbs = folium.plugins.SideBySideLayers(ffa_fl_layer, ffb_fl_layer)
