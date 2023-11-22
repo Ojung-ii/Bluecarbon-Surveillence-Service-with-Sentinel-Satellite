@@ -249,7 +249,15 @@ def app():
 
                 # 스트림릿에 folium맵 출력
                 folium_static(mp,width=970)
+        col4, empty3 = st.columns([0.8, 0.12])
 
+        with col4:
+            # Extract and display the date of the first image
+            im1_date = ee.Image(ffa_fl).date().format('YYYY-MM-dd').getInfo()
+            im2_date = ee.Image(ffb_fl).date().format('YYYY-MM-dd').getInfo()
+            st.write(f"사용된 첫 번째 사진의 날짜: {im1_date}")
+            # Extract and display the date of the second image
+            st.write(f"사용된 두 번째 사진의 날짜: {im2_date}")
 
 # launch
 if __name__  == "__main__" :
