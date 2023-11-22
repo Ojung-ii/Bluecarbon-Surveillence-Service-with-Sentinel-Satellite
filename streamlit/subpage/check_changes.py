@@ -102,128 +102,153 @@ def app():
             <h3 style='text-align: center; font-size: 35px;'>⬇️  변화탐지 결과  ⬇️</h3>
             """, unsafe_allow_html=True)
 
-            # 섹션 나누기
-            col4, col5 = st.columns([0.8,0.08])
+            st.write('')
+            st.write('')
 
-            # 왼쪽 섹션 : 변화탐지 결과
-            with col4 : 
-                with st.spinner("변화탐지 분석중"):
-                    st.write('')
-                    st.write('')
 
-                    # Folium에 Earth Engine 그리기 메서드 추가
-                    folium.Map.add_ee_layer = check_ts_changes_func.add_ee_layer
-                    # GeoJSON 파일에서 추출한 관심 지역을 Earth Engine 폴리곤으로 변환
-                    aoi = ts_trend_analysis_func.create_ee_polygon_from_geojson(aoi)
 
-                    #위성이 12일 주기인 것을 고려하여 선택된 날짜 앞뒤 6일에 영상이 있는지 확인하기 위해 날짜 더하고 빼주는 코드
-                    start_f = start_date - timedelta(days=6)
-                    start_b = start_date + timedelta(days=5)
-                    end_f = end_date - timedelta(days=6)
-                    end_b = end_date + timedelta(days=5)
-                    start_f = start_f.strftime('%Y-%m-%d')
-                    end_f = end_f.strftime('%Y-%m-%d')
-                    start_b = start_b.strftime('%Y-%m-%d')
-                    end_b = end_b.strftime('%Y-%m-%d')
+            with st.spinner("변화탐지 분석중"):
+
+                # CSS 스타일
+                css_style = """
+                <style>
+                .legend {
+                border: 1px solid #ddd;
+                padding: 10px;
+                background-color: #f9f9f9;
+                font-family: Arial, sans-serif;
+                display: flex;
+                justify-content: space-evenly;
+                }
+
+                .legend-item {
+                display: flex;
+                align-items: center;
+                }
+
+                .color-box {
+                width: 30px;
+                height: 30px;
+                margin-right: 10px;
+                border: 1px solid #000;
+                }
+
+                .description {
+                font-size: 15px;
+                }
+                </style>
+                """
+
+                # HTML 내용
+                html_content = """
+                <div class="legend">
+                <div class="legend-item">
+                    <span class="color-box" style="background-color: red;"></span>
+                    <span class="description">
+                    <strong>반사율 증가:</strong><br>
+                    구조물 또는 식생 증가,<br>
+                    물 면적 감소
+                    </span>
+                </div>
+                <div class="legend-item">
+                    <span class="color-box" style="background-color: blue;"></span>
+                    <span class="description">
+                    <strong>반사율 감소:</strong><br>
+                    구조물 또는 식생 감소, <br>
+                    물 면적 증가
+                    </span>
+                </div>
+                <div class="legend-item">
+                    <span class="color-box" style="background-color: yellow;"></span>
+                    <span class="description">
+                    <strong>반사율 급변:</strong><br>
+                    극적 지형/환경 변화
+                    </span>
+                </div>
+                </div>
+                """
+
+                # Streamlit에 적용
+                st.markdown(css_style, unsafe_allow_html=True)
+                st.markdown(html_content, unsafe_allow_html=True)
+                st.write("")
+                # Folium에 Earth Engine 그리기 메서드 추가
+                folium.Map.add_ee_layer = check_ts_changes_func.add_ee_layer
+                # GeoJSON 파일에서 추출한 관심 지역을 Earth Engine 폴리곤으로 변환
+                aoi = ts_trend_analysis_func.create_ee_polygon_from_geojson(aoi)
+
+                #위성이 12일 주기인 것을 고려하여 선택된 날짜 앞뒤 6일에 영상이 있는지 확인하기 위해 날짜 더하고 빼주는 코드
+                start_f = start_date - timedelta(days=6)
+                start_b = start_date + timedelta(days=5)
+                end_f = end_date - timedelta(days=6)
+                end_b = end_date + timedelta(days=5)
+                start_f = start_f.strftime('%Y-%m-%d')
+                end_f = end_f.strftime('%Y-%m-%d')
+                start_b = start_b.strftime('%Y-%m-%d')
+                end_b = end_b.strftime('%Y-%m-%d')
+            
+                # SAR 데이터(Float) 로드
+                ffa_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') 
+                                    .filterBounds(aoi) 
+                                    .filterDate(ee.Date(start_f), ee.Date(start_b)) 
+                                    .first() 
+                                    .clip(aoi))
+                ffb_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') 
+                                    .filterBounds(aoi) 
+                                    .filterDate(ee.Date(end_f), ee.Date(end_b)) 
+                                    .first() 
+                                    .clip(aoi))
                 
-                    # SAR 데이터(Float) 로드
-                    ffa_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') 
-                                        .filterBounds(aoi) 
-                                        .filterDate(ee.Date(start_f), ee.Date(start_b)) 
-                                        .first() 
-                                        .clip(aoi))
-                    ffb_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') 
-                                        .filterBounds(aoi) 
-                                        .filterDate(ee.Date(end_f), ee.Date(end_b)) 
-                                        .first() 
-                                        .clip(aoi))
-                    
-                    #VH는 거의 없어 VV만으로
-                    im1 = ee.Image(ffa_fl).select('VV').clip(aoi)
-                    im2 = ee.Image(ffb_fl).select('VV').clip(aoi)
-                    ratio = im1.divide(im2)
+                #VH는 거의 없어 VV만으로
+                im1 = ee.Image(ffa_fl).select('VV').clip(aoi)
+                im2 = ee.Image(ffb_fl).select('VV').clip(aoi)
+                ratio = im1.divide(im2)
 
-                    # 두장의 비율 이미지 Ratio에 대한 통계값 계산
-                    # 히스토그램/평균/분산(최소,최대)
-                    hist = ratio.reduceRegion(ee.Reducer.fixedHistogram(0, 5, 500), aoi).get('VV').getInfo()
-                    mean = ratio.reduceRegion(ee.Reducer.mean(), aoi).get('VV').getInfo()
-                    variance = ratio.reduceRegion(ee.Reducer.variance(), aoi).get('VV').getInfo()
-                    v_min = ratio.select('VV').reduceRegion(
-                        ee.Reducer.min(), aoi).get('VV').getInfo()
-                    v_max = ratio.select('VV').reduceRegion(
-                        ee.Reducer.max(), aoi).get('VV').getInfo()
+                # 두장의 비율 이미지 Ratio에 대한 통계값 계산
+                # 히스토그램/평균/분산(최소,최대)
+                hist = ratio.reduceRegion(ee.Reducer.fixedHistogram(0, 5, 500), aoi).get('VV').getInfo()
+                mean = ratio.reduceRegion(ee.Reducer.mean(), aoi).get('VV').getInfo()
+                variance = ratio.reduceRegion(ee.Reducer.variance(), aoi).get('VV').getInfo()
+                v_min = ratio.select('VV').reduceRegion(
+                    ee.Reducer.min(), aoi).get('VV').getInfo()
+                v_max = ratio.select('VV').reduceRegion(
+                    ee.Reducer.max(), aoi).get('VV').getInfo()
 
-                    m1 = 5 # 임의의 값
-                    # F-분포의 CDF 함수를 정의
-                    dt = f.ppf(0.0005, 2*m1, 2*m1)
+                m1 = 5 # 임의의 값
+                # F-분포의 CDF 함수를 정의
+                dt = f.ppf(0.0005, 2*m1, 2*m1)
 
-                    # LRT(Likelihood Ratio Test:우도비 검정) 통계량 계산
-                    q1 = im1.divide(im2)
-                    q2 = im2.divide(im1)
+                # LRT(Likelihood Ratio Test:우도비 검정) 통계량 계산
+                q1 = im1.divide(im2)
+                q2 = im2.divide(im1)
 
-                    # Change map: 0 = 변화 없음, 1 = 강도 감소, 2 = 강도 증가
-                    c_map = im1.multiply(0).where(q2.lt(dt), 1)#먼저 0으로 다 곱하고 감소면 1
-                    c_map = c_map.where(q1.lt(dt), 2)#증가면 2
+                # Change map: 0 = 변화 없음, 1 = 강도 감소, 2 = 강도 증가
+                c_map = im1.multiply(0).where(q2.lt(dt), 1)#먼저 0으로 다 곱하고 감소면 1
+                c_map = c_map.where(q1.lt(dt), 2)#증가면 2
 
-                    # 변화 없는(no change) 픽셀 마스크 처리
-                    c_map = c_map.updateMask(c_map.gt(0))
+                # 변화 없는(no change) 픽셀 마스크 처리
+                c_map = c_map.updateMask(c_map.gt(0))
 
-                    location = aoi.centroid().coordinates().getInfo()[::-1]
-                    mp = folium.Map(
-                        location=location,
-                        zoom_start=14, tiles= tiles, attr = attr)
-                    folium.TileLayer(
-                        tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
-                        attr='VWorld Hybrid',
-                        name='VWorld Hybrid',
-                        overlay=True
-                    ).add_to(mp)
-                    folium.LayerControl().add_to(m)
+                location = aoi.centroid().coordinates().getInfo()[::-1]
+                mp = folium.Map(
+                    location=location,
+                    zoom_start=14, tiles= tiles, attr = attr)
+                folium.TileLayer(
+                    tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
+                    attr='VWorld Hybrid',
+                    name='VWorld Hybrid',
+                    overlay=True
+                ).add_to(mp)
+                folium.LayerControl().add_to(m)
 
-                    # 변화 지도 레이어 추가 
-                    mp.add_ee_layer(c_map,
-                                    {'min': 0, 'max': 2, 'palette': ['00000000', '#FF000080', '#0000FF80']},  # 변화 없음: 투명, 감소: 반투명 파랑, 증가: 반투명 빨강
-                                    'Change Map')
-                    mp.add_child(folium.LayerControl())
+                # 변화 지도 레이어 추가 
+                mp.add_ee_layer(c_map,
+                                {'min': 0, 'max': 2, 'palette': ['00000000', '#FF000080', '#0000FF80']},  # 변화 없음: 투명, 감소: 반투명 파랑, 증가: 반투명 빨강
+                                'Change Map')
+                mp.add_child(folium.LayerControl())
 
-                    # 스트림릿에 folium맵 출력
-                    folium_static(mp,width=870)
-
-            # 범례 추가
-            with col5:
-                st.write('')
-                st.write('')
-                st.markdown("""
-                                <style>
-                                    .legend {
-                                        border: 1px solid #ccc;
-                                        padding: 10px;
-                                        margin-top: 20px;
-                                    }
-                                    .legend-item {
-                                        display: flex;
-                                        align-items: center;
-                                        margin-bottom: 5px;
-                                    }
-                                    .color-box {
-                                        width: 20px;
-                                        height: 20px;
-                                        margin-right: 10px;
-                                    }
-                                    .red { background-color: red; }
-                                    .blue { background-color: blue; }
-                                </style>
-                                <div class="legend">
-                                    <div class="legend-item">
-                                        <div class="color-box red"></div>
-                                        <span>상승</span>
-                                    </div>
-                                    <div class="legend-item">
-                                        <div class="color-box blue"></div>
-                                        <span>하락</span>
-                                    </div>
-                                </div>
-                            """, unsafe_allow_html=True)
+                # 스트림릿에 folium맵 출력
+                folium_static(mp,width=970)
 
 
 # launch
