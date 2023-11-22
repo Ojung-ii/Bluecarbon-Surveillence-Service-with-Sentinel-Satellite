@@ -9,12 +9,13 @@ import folium
 
 # Earth Engine API 초기화
 ee.Initialize()
-# GeoJSON 구조를 사 용하여 AOI 설정
 
+# GeoJSON 구조를 사용하여 AOI 설정
 def create_ee_polygon_from_geojson(gjson):
     coordinates = gjson['geometry']['coordinates']
     aoi = ee.Geometry.Polygon(coordinates)
     return aoi
+
 def calculateRVI(aoi,start_date,end_date):
     # Sentinel-1 ImageCollection 필터링
     sentinel1 = ee.ImageCollection('COPERNICUS/S1_GRD') \
@@ -45,6 +46,7 @@ def calculateRVI(aoi,start_date,end_date):
     # DataFrame을 'Date' 컬럼에 따라 오름차순으로 정렬
     df = df.sort_values(by='ds')
     return df
+
 def calculateNDVI(aoi, start_date, end_date):
     # Sentinel-2 ImageCollection 필터링 및 구름 마스킹 적용
     sentinel2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
@@ -60,13 +62,10 @@ def calculateNDVI(aoi, start_date, end_date):
         mean_ndvi = ndvi.reduceRegion(
             reducer=ee.Reducer.mean(),
             geometry=aoi,
-            scale=10  # 이 값은 필요에 따라 조정할 수 있습니다.
+            scale=10  
         ).get('ndvi')
         return ee.Feature(None, {'ds': date, 'y': mean_ndvi})
-    
-    
     time_series_ndvi = sentinel2.map(calculate_ndvi)
-    
     # 결과를 서버측 객체로 변환 (Python 클라이언트로 가져오기 위함)
     rvi_features = time_series_ndvi.getInfo()['features']
     # 결과를 pandas DataFrame으로 변환
@@ -75,11 +74,10 @@ def calculateNDVI(aoi, start_date, end_date):
 
 def calculateWAVI(aoi, start_date, end_date):
     # Sentinel-2 ImageCollection 필터링 및 구름 마스킹 적용
-    sentinel2 = ee.ImageCollection('COPERNICUS/S2_HARMONIZED') \
+    sentinel2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
             .filterBounds(aoi) \
             .filterDate(start_date, end_date) \
             .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 30))
-    
     # WAVI 계산 및 시계열 데이터 생성 함수
     def calculate_wavi(image):
         date = ee.Date(image.get('system:time_start')).format('YYYY-MM-dd')
@@ -89,23 +87,21 @@ def calculateWAVI(aoi, start_date, end_date):
         mean_wavi = wavi.reduceRegion(
             reducer=ee.Reducer.mean(),
             geometry=aoi,
-            scale=10  # 이 값은 필요에 따라 조정할 수 있습니다.
+            scale=10  
         ).get('wavi')
         return ee.Feature(None, {'ds': date, 'y': mean_wavi})
-    
     time_series_wavi = sentinel2.map(calculate_wavi)
-    
     # 결과를 서버측 객체로 변환 (Python 클라이언트로 가져오기 위함)
     wavi_features = time_series_wavi.getInfo()['features']
     # 결과를 pandas DataFrame으로 변환
     df = pd.DataFrame([feat['properties'] for feat in wavi_features])
     # DataFrame을 'Date' 컬럼에 따라 오름차순으로 정렬
     df = df.sort_values(by='ds')
-    
     return df
+
 def calculateDIFF_BG(aoi, start_date, end_date):
     # Sentinel-2 ImageCollection 필터링 및 구름 마스킹 적용
-    sentinel2 = ee.ImageCollection('COPERNICUS/S2_HARMONIZED') \
+    sentinel2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
             .filterBounds(aoi) \
             .filterDate(start_date, end_date) \
             .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 30))
@@ -119,27 +115,25 @@ def calculateDIFF_BG(aoi, start_date, end_date):
         mean_wavi = diff_bg.reduceRegion(
             reducer=ee.Reducer.mean(),
             geometry=aoi,
-            scale=10  # 이 값은 필요에 따라 조정할 수 있습니다.
+            scale=10  
         ).get('Diff_BG')
         return ee.Feature(None, {'ds': date, 'y': mean_wavi})
-    
     time_series_diff_bg = sentinel2.map(calculate_diff_bg)
-    
     # 결과를 서버측 객체로 변환 (Python 클라이언트로 가져오기 위함)
     diff_bg_features = time_series_diff_bg.getInfo()['features']
     # 결과를 pandas DataFrame으로 변환
     df = pd.DataFrame([feat['properties'] for feat in diff_bg_features])
     # DataFrame을 'Date' 컬럼에 따라 오름차순으로 정렬
     df = df.sort_values(by='ds')
-    
     return df
+
 def calculate_WEVI(aoi, start_date, end_date):
     # Sentinel-2 ImageCollection 필터링 및 구름 마스킹 적용
-    sentinel2 = ee.ImageCollection('COPERNICUS/S2_HARMONIZED') \
+    sentinel2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
             .filterBounds(aoi) \
             .filterDate(start_date, end_date) \
             .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 30))
-    # WAVI 계산 및 시계열 데이터 생성 함수
+    # WEVI 계산 및 시계열 데이터 생성 함수
     def calculate_wevi(image):
         date = ee.Date(image.get('system:time_start')).format('YYYY-MM-dd')
         green = image.select('B3') # 녹색 밴드
@@ -150,10 +144,9 @@ def calculate_WEVI(aoi, start_date, end_date):
         mean_wavi = wevi.reduceRegion(
             reducer=ee.Reducer.mean(),
             geometry=aoi,
-            scale=10  # 이 값은 필요에 따라 조정할 수 있습니다.
+            scale=10  
         ).get('WEVI')
         return ee.Feature(None, {'ds': date, 'y': mean_wavi})
-    
     time_series_diff_bg = sentinel2.map(calculate_wevi)
     # 결과를 서버측 객체로 변환 (Python 클라이언트로 가져오기 위함)
     wevi_features = time_series_diff_bg.getInfo()['features']
@@ -165,11 +158,11 @@ def calculate_WEVI(aoi, start_date, end_date):
 
 def calculate_WTDVI(aoi, start_date, end_date):
     # Sentinel-2 ImageCollection 필터링 및 구름 마스킹 적용
-    sentinel2 = ee.ImageCollection('COPERNICUS/S2_HARMONIZED') \
+    sentinel2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
             .filterBounds(aoi) \
             .filterDate(start_date, end_date) \
             .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 30))
-    # WAVI 계산 및 시계열 데이터 생성 함수
+    # WTDVI 계산 및 시계열 데이터 생성 함수
     def calculate_wtdvi(image):
         green = image.select('B3') # 녹색 밴드
         blue = image.select('B2')  # 파란색 밴드
@@ -178,10 +171,9 @@ def calculate_WTDVI(aoi, start_date, end_date):
         mean_wavi = wtdvi.reduceRegion(
             reducer=ee.Reducer.mean(),
             geometry=aoi,
-            scale=10  # 이 값은 필요에 따라 조정할 수 있습니다.
+            scale=10  
         ).get('WTDVI')
         return ee.Feature(None, {'ds': date, 'y': mean_wavi})
-    
     time_series_diff_bg = sentinel2.map(calculate_wtdvi)
     # 결과를 서버측 객체로 변환 (Python 클라이언트로 가져오기 위함)
     wtdvi_features = time_series_diff_bg.getInfo()['features']
@@ -189,19 +181,19 @@ def calculate_WTDVI(aoi, start_date, end_date):
     df = pd.DataFrame([feat['properties'] for feat in wtdvi_features])
     # DataFrame을 'Date' 컬럼에 따라 오름차순으로 정렬
     df = df.sort_values(by='ds')
-    
     return df
+
 def prophet_process(df):
-    # Prophet 모델을 초기화하고 학습시킵니다.
+    # Prophet
     # m = Prophet(yearly_seasonality=True,daily_seasonality=False,weekly_seasonality=False,holidays_prior_scale=0,changepoint_prior_scale=0.5)
     m = Prophet(yearly_seasonality=True,daily_seasonality=False,weekly_seasonality=False,holidays_prior_scale=0.01,changepoint_prior_scale=0.01)
     m.fit(df)
-    # 미래 날짜 프레임을 만들고 예측을 진행합니다.
+    # future dataframe 생성
     future = m.make_future_dataframe(periods=12,freq='M')
+    # predict
     forecast = m.predict(future) 
-    # 예측 결과를 가져옵니다.
     forecasted_value = forecast.iloc[-1]['yhat']  # 예측된 값을 가져옴
-    # 예측 결과를 데이터프레임에 추가합니다.
+    # 예측 결과를 데이터프레임에 추가
     new_row = pd.DataFrame({'ds': [future.iloc[-1]['ds']], 'y': [forecasted_value]})
     forecast_df = pd.concat([df, new_row], ignore_index=True)
     return forecast,forecast_df,df,m
@@ -209,15 +201,9 @@ def prophet_process(df):
 def plotly(df, forecast):
     forecast = forecast.rename(columns = {'ds':"기간","yhat":"지수"})
     df = df.rename(columns = {'ds':"기간","y":"지수"})
-    # Create a Plotly Express figure for both forecast and observed data
+    # 예측 데이터 그래프 생성
     combined_fig = px.line(forecast, x='기간', y='지수', title='예측')
-    
-    # Add observed data to the same figure
+    # 관측 데이터 그래프 추가
     combined_fig.add_trace(px.scatter(df, x='기간', y='지수', title='관측치', color_discrete_sequence=['red']).data[0])
-    # Display the combined figure using st.plotly_chart()
+    # 생성된 combined_fig 그래프를 st.plotly_chart()를 사용하여 화면에 표시하기
     st.plotly_chart(combined_fig, use_container_width = True)
-
-
-
-
-

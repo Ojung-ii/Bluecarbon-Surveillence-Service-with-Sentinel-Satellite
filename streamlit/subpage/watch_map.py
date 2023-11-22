@@ -14,7 +14,7 @@ def app():
         st.write("---" * 20)
 
         # VWorld 지도 설정
-        vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179" # VWorld API 키
+        vworld_key="3F753587-6509-3D99-8F79-9B82473EAAAF" # VWorld API 키
         layer = "Satellite" # VWorld 레이어
         tileType = "jpeg" # 타일 유형
 
@@ -33,7 +33,7 @@ def app():
 
 
         st.subheader("AOI 조회 및 시각화")
-        tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
+        tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key_2}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
         attr = "Vworld"
         
         m = folium.Map(location=[36.6384, 127.6961], zoom_start=7,tiles=tiles, attr=attr)
