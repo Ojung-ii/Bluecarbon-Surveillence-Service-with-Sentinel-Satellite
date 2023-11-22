@@ -49,7 +49,7 @@ def launch() :
     if selected == "시계열 변화탐지 확인":
         check_ts_changes.app()
     if selected == "시계열 경향성 분석":
-        rvi_ts_analysis.app()
+        ts_trend_analysis.app()
     if selected == "관심영역 추가":
         aoi_revision.app()               
 
