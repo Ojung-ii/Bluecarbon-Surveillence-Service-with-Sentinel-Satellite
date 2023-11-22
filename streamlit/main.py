@@ -2,7 +2,7 @@ import streamlit as st
 from streamlit_option_menu import option_menu
 
 # 서브 페이지 임포트
-from subpage import home, timelapse, check_changes, check_ts_changes, rvi_ts_analysis, aoi_revision
+from subpage import home, timelapse, check_changes, check_ts_changes, ts_trend_analysis, aoi_revision
 
 
 def launch() :
