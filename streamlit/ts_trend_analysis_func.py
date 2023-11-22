@@ -171,7 +171,7 @@ def calculate_WTDVI(aoi, start_date, end_date):
         mean_wavi = wtdvi.reduceRegion(
             reducer=ee.Reducer.mean(),
             geometry=aoi,
-            scale=10  
+            scale=10
         ).get('WTDVI')
         return ee.Feature(None, {'ds': date, 'y': mean_wavi})
     time_series_diff_bg = sentinel2.map(calculate_wtdvi)
@@ -189,7 +189,7 @@ def prophet_process(df):
     m = Prophet(yearly_seasonality=True,daily_seasonality=False,weekly_seasonality=False,holidays_prior_scale=0.01,changepoint_prior_scale=0.01)
     m.fit(df)
     # future dataframe 생성
-    future = m.make_future_dataframe(periods=12,freq='M')
+    future = m.make_future_dataframe(periods=0,freq='M')
     # predict
     forecast = m.predict(future) 
     forecasted_value = forecast.iloc[-1]['yhat']  # 예측된 값을 가져옴
@@ -207,3 +207,47 @@ def plotly(df, forecast):
     combined_fig.add_trace(px.scatter(df, x='기간', y='지수', title='관측치', color_discrete_sequence=['red']).data[0])
     # 생성된 combined_fig 그래프를 st.plotly_chart()를 사용하여 화면에 표시하기
     st.plotly_chart(combined_fig, use_container_width = True)
+
+def ts_analysis(df):
+    # 날짜 컬럼을 datetime 형식으로 변환
+    df['ds'] = pd.to_datetime(df['ds'])
+
+    # 최대값과 최소값의 일자 찾기
+    max_date = df[df['yhat'] == df['yhat'].max()]['ds']
+    min_date = df[df['yhat'] == df['yhat'].min()]['ds']
+
+    # 계절별 경향성 분석
+    # 계절을 구분하기 위한 함수 정의
+    def get_season(month):
+        if month in [3, 4, 5]:
+            return 'Spring'
+        elif month in [6, 7, 8]:
+            return 'Summer'
+        elif month in [9, 10, 11]:
+            return 'Fall'
+        else:
+            return 'Winter'
+
+    # 월별 계절 할당
+    df['season'] = df['ds'].dt.month.apply(get_season)
+
+    # 계절별 평균값 계산
+    seasonal_trend = df.groupby('season')['yhat'].mean()
+
+    # 매월 평균 계산
+    monthly_avg = df.groupby(df['ds'].dt.month)['yhat'].mean()
+
+    # 전체 기간에 대한 평균 yhat 값
+    overall_avg = df['yhat'].mean()
+
+    # 계절별 평균값을 전체 평균값으로 나누어 상대적인 비율 계산
+    seasonal_relative = seasonal_trend / overall_avg
+
+    # 매년 평균값 계산
+    annual_avg = df.groupby(df['ds'].dt.year)['yhat'].mean()
+
+    # 매년 평균값을 전체 평균값으로 나누어 상대적인 비율 계산
+    annual_relative = annual_avg / overall_avg
+
+    return seasonal_relative, annual_relative, max_date, min_date, seasonal_trend, monthly_avg
+    # 상대적인 비율로 계절별 경향성과 매년 평균값 계산
