@@ -33,7 +33,7 @@ def app():
 
 
         st.subheader("AOI 조회 및 시각화")
-        tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key_2}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
+        tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
         attr = "Vworld"
         
         m = folium.Map(location=[36.6384, 127.6961], zoom_start=7,tiles=tiles, attr=attr)
