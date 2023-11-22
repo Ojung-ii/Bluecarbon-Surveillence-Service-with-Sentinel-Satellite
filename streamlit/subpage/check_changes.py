@@ -9,6 +9,7 @@ import IPython.display as disp
 import check_ts_changes_func # 변화탐지 관련 함수 모듈
 from scipy.optimize import bisect 
 import ts_trend_analysis_func
+
 # Google Earth Engine 초기화
 ee.Initialize()
 
@@ -216,12 +217,14 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
                 # SAR 데이터(Float) 로드
                 ffa_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') 
                                     .filterBounds(aoi) 
-                                    .filterDate(ee.Date(start_f), ee.Date(start_b)) 
+                                    .filterDate(ee.Date(start_f), ee.Date(start_b))
+                                    .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING'))
                                     .first() 
                                     .clip(aoi))
                 ffb_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') 
                                     .filterBounds(aoi) 
-                                    .filterDate(ee.Date(end_f), ee.Date(end_b)) 
+                                    .filterDate(ee.Date(end_f), ee.Date(end_b))
+                                    .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING')) 
                                     .first() 
                                     .clip(aoi))
                 
@@ -284,6 +287,71 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
             st.write(f"사용된 첫 번째 사진의 날짜: {im1_date}")
             # Extract and display the date of the second image
             st.write(f"사용된 두 번째 사진의 날짜: {im2_date}")
+        col5, empty4 = st.columns([0.8,1.2])
+        
+        with col5:
+            '''
+            mp2 = folium.Map(
+                location=location,
+                zoom_start=14)
+            
+            vis_params = {'min': -20, 'max': 0}
+            
+            layer1 = folium.Map(location=location, zoom_start=14)
+            layer1.add_ee_layer(ffa_fl,vis_params,im1_date)
+            
+            layer2 = folium.Map(location=location, zoom_start=14)
+            layer2.add_ee_layer(ffb_fl,vis_params,im1_date)
+            # Side by Side 플러그인 사용
+            sbs = folium.plugins.SideBySideLayers(layer_left=layer1, layer_right=layer2)
+            layer1.add_to(mp2)
+            layer2.add_to(mp2)
+            mp2.add_child(sbs)
+            '''
+            ffa_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD') 
+                                    .filterBounds(aoi) 
+                                    .filterDate(ee.Date(start_f), ee.Date(start_b))
+                                    .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING'))
+                                    .first())
+                                    
+                                    
+            ffb_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD') 
+                                    .filterBounds(aoi) 
+                                    .filterDate(ee.Date(end_f), ee.Date(end_b))
+                                    .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING')) 
+                                    .first()) 
+                                    
+            ffa_fl = ee.Image(ffa_fl).select('VV').clip(aoi)
+            ffb_fl =ee.Image(ffb_fl).select('VV').clip(aoi)
+
+            def add_ee_layer2(ee_image_object, vis_params, name):
+                map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
+                tile_layer = folium.raster_layers.TileLayer(
+                    tiles=map_id_dict['tile_fetcher'].url_format,
+                    attr='Map Data &copy; <a href="https://earthengine.google.com/">Google Earth Engine</a>',
+                    name=name,
+                    overlay=True,
+                    control=False
+                )
+                return tile_layer
+            mp2 = folium.Map(location=location, zoom_start=14)
+
+            # 시각화 매개변수
+            vis_params = {'min': -20, 'max': 0}
+
+            # 레이어 맹글기
+            ffa_fl_layer = add_ee_layer2(ffa_fl, vis_params, 'Image 1')
+            ffb_fl_layer = add_ee_layer2(ffb_fl, vis_params, 'Image 2')
+
+            # Side by Side 플러그인 사용을 위해 만든 레이어 sbs에 넣고 mp2에 추가
+            sbs = folium.plugins.SideBySideLayers(ffa_fl_layer, ffb_fl_layer)
+            ffa_fl_layer.add_to(mp2)
+            ffb_fl_layer.add_to(mp2)
+            sbs.add_to(mp2)
+
+            # 스트림릿에 folium맵 출력
+            folium_static(mp2,width=970)
+
 
 # launch
 if __name__  == "__main__" :
