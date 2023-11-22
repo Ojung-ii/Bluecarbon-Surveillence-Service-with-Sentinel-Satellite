@@ -6,7 +6,8 @@ import plotly.express as px
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 import folium
-# Define a method for displaying Earth Engine image tiles to folium map.
+
+# folium맵에 GEE 레이어 추가
 def add_ee_layer(self, ee_image_object, vis_params, name):
     map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
     folium.raster_layers.TileLayer(

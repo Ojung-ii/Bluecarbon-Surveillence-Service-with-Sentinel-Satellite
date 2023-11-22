@@ -6,7 +6,7 @@ import json
 import ee  
 from datetime import datetime, timedelta  
 import IPython.display as disp 
-import ts_trend_analysis_func 
+import sar_func 
 
 # Google Earth Engine 초기화
 ee.Initialize()
@@ -168,7 +168,7 @@ def app():
                     k = 26; alpha = 0.01
 
                     # 중간값 필터 및 1% 유의수준으로 알고리즘 실행
-                    result = ee.Dictionary(ts_trend_analysis_func.change_maps(im_list, median=True, alpha=0.01))
+                    result = ee.Dictionary(sar_func.change_maps(im_list, median=True, alpha=0.01))
                     cmap = ee.Image(result.get('cmap'))
                     smap = ee.Image(result.get('smap'))
                     fmap = ee.Image(result.get('fmap'))
