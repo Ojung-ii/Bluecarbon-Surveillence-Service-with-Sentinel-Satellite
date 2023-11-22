@@ -189,20 +189,9 @@ def app():
                     ).add_to(mp)
 
                     # 6달 이하: 전부 계산, 6달~1년: 달, 1~3년: 분기, 4년~: 년마다 변화 탐지
-                    perd = datetime.strptime(end_b, '%Y-%m-%d')-datetime.strptime(start_f   , '%Y-%m-%d')
-                    if perd<timedelta(180):
-                        for i in range(1,len(timestamplist)):
-                            mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
-                    elif perd < timedelta(365):
-                        for i in range(1,len(timestamplist),2):
-                            mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
-                    elif perd<timedelta(1095):
-                        for i in range(1,len(timestamplist),3):
-                            mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
-                    else:
-                        for i in range(1,len(timestamplist), 30):
-                            mp.add_ee_layer(cmaps.select(timestamplist[i*30]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i*30])
-                        mp.add_ee_layer(cmaps.select(timestamplist[-1]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[-1])
+
+                    for i in range(1,len(timestamplist)):
+                        mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
                     
                     # folium에 추가
                     mp.add_child(folium.LayerControl())
