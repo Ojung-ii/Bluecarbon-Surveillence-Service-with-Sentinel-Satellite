@@ -6,7 +6,7 @@ import json
 import ee  
 from datetime import datetime, timedelta 
 import IPython.display as disp 
-import check_ts_changes_func # SAR 관련 함수 모듈
+import check_ts_changes_func # 변화탐지 관련 함수 모듈
 from scipy.optimize import bisect 
 import ts_trend_analysis_func
 # Google Earth Engine 초기화
@@ -110,23 +110,13 @@ def app():
                 with st.spinner("변화탐지 분석중"):
                     st.write('')
                     st.write('')
-                    def add_ee_layer(self, ee_image_object, vis_params, name):
-                            map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
-                            folium.raster_layers.TileLayer(
-                                tiles = map_id_dict['tile_fetcher'].url_format,
-                                attr = 'Map Data &copy; <a href="https://earthengine.google.com/">Google Earth Engine</a>',
-                                name = name,
-                                overlay = True,
-                                control = True
-                        ).add_to(self)
 
                     # Folium에 Earth Engine 그리기 메서드 추가
-                    folium.Map.add_ee_layer = add_ee_layer
-
+                    folium.Map.add_ee_layer = check_ts_changes_func.add_ee_layer
                     # GeoJSON 파일에서 추출한 관심 지역을 Earth Engine 폴리곤으로 변환
                     aoi = ts_trend_analysis_func.create_ee_polygon_from_geojson(aoi)
 
-                    # 분석 기간 설정: 현재 날짜로부터 6일 전부터 5일 후까지의 기간
+                    #위성이 12일 주기인 것을 고려하여 선택된 날짜 앞뒤 6일에 영상이 있는지 확인하기 위해 날짜 더하고 빼주는 코드
                     start_f = start_date - timedelta(days=6)
                     start_b = start_date + timedelta(days=5)
                     end_f = end_date - timedelta(days=6)
@@ -136,7 +126,7 @@ def app():
                     start_b = start_b.strftime('%Y-%m-%d')
                     end_b = end_b.strftime('%Y-%m-%d')
                 
-                    # SAR 데이터 로드
+                    # SAR 데이터(Float) 로드
                     ffa_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') 
                                         .filterBounds(aoi) 
                                         .filterDate(ee.Date(start_f), ee.Date(start_b)) 
@@ -147,11 +137,13 @@ def app():
                                         .filterDate(ee.Date(end_f), ee.Date(end_b)) 
                                         .first() 
                                         .clip(aoi))
+                    
+                    #VH는 거의 없어 VV만으로
                     im1 = ee.Image(ffa_fl).select('VV').clip(aoi)
                     im2 = ee.Image(ffb_fl).select('VV').clip(aoi)
                     ratio = im1.divide(im2)
 
-                    # Ratio에 대한 통계값 계산
+                    # 두장의 비율 이미지 Ratio에 대한 통계값 계산
                     # 히스토그램/평균/분산(최소,최대)
                     hist = ratio.reduceRegion(ee.Reducer.fixedHistogram(0, 5, 500), aoi).get('VV').getInfo()
                     mean = ratio.reduceRegion(ee.Reducer.mean(), aoi).get('VV').getInfo()
@@ -165,18 +157,17 @@ def app():
                     # F-분포의 CDF 함수를 정의
                     dt = f.ppf(0.0005, 2*m1, 2*m1)
 
-                    # LRT(Likelihood Ratio Test:우도비 검정) 통계량
+                    # LRT(Likelihood Ratio Test:우도비 검정) 통계량 계산
                     q1 = im1.divide(im2)
                     q2 = im2.divide(im1)
 
                     # Change map: 0 = 변화 없음, 1 = 강도 감소, 2 = 강도 증가
-                    c_map = im1.multiply(0).where(q2.lt(dt), 1)
-                    c_map = c_map.where(q1.lt(dt), 2)
+                    c_map = im1.multiply(0).where(q2.lt(dt), 1)#먼저 0으로 다 곱하고 감소면 1
+                    c_map = c_map.where(q1.lt(dt), 2)#증가면 2
 
                     # 변화 없는(no change) 픽셀 마스크 처리
                     c_map = c_map.updateMask(c_map.gt(0))
 
-                    # 지도에 변화 표시: 증가는 빨강, 감소는 파랑으로 표시
                     location = aoi.centroid().coordinates().getInfo()[::-1]
                     mp = folium.Map(
                         location=location,
@@ -189,13 +180,13 @@ def app():
                     ).add_to(mp)
                     folium.LayerControl().add_to(m)
 
-                    # 변화 지도 레이어 추가
+                    # 변화 지도 레이어 추가 
                     mp.add_ee_layer(c_map,
                                     {'min': 0, 'max': 2, 'palette': ['00000000', '#FF000080', '#0000FF80']},  # 변화 없음: 투명, 감소: 반투명 파랑, 증가: 반투명 빨강
                                     'Change Map')
                     mp.add_child(folium.LayerControl())
 
-                    # 지도를 정적으로 표시
+                    # 스트림릿에 folium맵 출력
                     folium_static(mp,width=870)
 
             # 범례 추가

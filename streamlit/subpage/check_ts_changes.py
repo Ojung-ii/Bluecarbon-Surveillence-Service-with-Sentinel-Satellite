@@ -6,15 +6,15 @@ import json
 import ee  
 from datetime import datetime, timedelta  
 import IPython.display as disp 
-import ts_trend_analysis_func 
-import check_ts_changes_func
+import check_ts_changes_func 
+
 # Google Earth Engine 초기화
 ee.Initialize()
 
 # VWorld 지도 설정
-vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179" # VWorld API 키
-layer = "Satellite" # VWorld 레이어
-tileType = "jpeg"  # 타일 유형
+vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179"
+layer = "Satellite" 
+tileType = "jpeg"  
 
 # 주요 애플리케이션 함수 정의
 def app():
@@ -66,12 +66,11 @@ def app():
         
     # 왼쪽 섹션: 폴리곤 매핑 시각화
     with col1:
-        # 지도 초기화 (대한민국 중심 위치로 설정)
         tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
         attr = "Vworld"
         m = folium.Map(location=[36.5, 127.5], zoom_start=10,tiles=tiles, attr=attr)
 
-        # 선택된 관심 지역이 있을 경우에만 해당 지역 폴리곤 표시
+        # 선택된 관심 지역이 있을 경우에 해당 지역 폴리곤 표시
         if aoi:
             folium.GeoJson(
                 aoi,
@@ -115,20 +114,13 @@ def app():
                     st.write('')
 
                     # Earth Engine에서 Folium 지도에 레이어 추가하는 메서드
-                    def add_ee_layer(self, ee_image_object, vis_params, name):
-                        map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
-                        folium.raster_layers.TileLayer(
-                            tiles = map_id_dict['tile_fetcher'].url_format,
-                            attr = 'Map Data &copy; <a href="https://earthengine.google.com/">Google Earth Engine</a>',
-                            name = name,
-                            overlay = True,
-                            control = True
-                    ).add_to(self)
+
 
                     # Folium에 Earth Engine 그리기 메서드 추가
-                    folium.Map.add_ee_layer = add_ee_layer
-                    aoi = ts_trend_analysis_func.create_ee_polygon_from_geojson(aoi)
+                    folium.Map.add_ee_layer = check_ts_changes_func.add_ee_layer
+                    aoi = check_ts_changes_func.create_ee_polygon_from_geojson(aoi)
                     
+                    #위성이 12일 주기인 것을 고려하여 선택된 날짜 앞뒤 6일에 영상이 있는지 확인하기 위해 날짜 더하고 빼주는 코드
                     start_f = start_date - timedelta(days=6)
                     end_b = end_date + timedelta(days=6)
                     start_f = start_f.strftime('%Y-%m-%d')
@@ -142,7 +134,6 @@ def app():
                         .filterBounds(aoi)
                         .filterDate(ee.Date(start_f),ee.Date(end_b))
                         .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING'))
-                        # .filter(ee.Filter.eq('relativeOrbitNumber_start', 127))
                         .map(lambda img: img.set('date', ee.Date(img.date()).format('YYYYMMdd')))
                         .sort('date'))
                     
@@ -151,7 +142,7 @@ def app():
                                 .map(lambda d: ee.String('T').cat(ee.String(d)))
                                 .getInfo())
                     
-                    # clip 메서드 정의
+                    # 원하는 지역 clip
                     def clip_img(img):
                         return ee.Image(img).clip(aoi)
                     im_list = im_coll.toList(im_coll.size())
@@ -188,15 +179,14 @@ def app():
                     overlay=True
                     ).add_to(mp)
 
-                    # 6달 이하: 전부 계산, 6달~1년: 달, 1~3년: 분기, 4년~: 년마다 변화 탐지
-
+                    # 시점별 변화 지도 맵 레이어에 추가
                     for i in range(1,len(timestamplist)):
                         mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
                     
                     # folium에 추가
                     mp.add_child(folium.LayerControl())
                     
-                    # 스트림릿에 folium 지도 표시
+                    # 스트림릿에 folium 지도 출력
                     folium_static(mp,width=870)
             
             # 범례 및 설명 추가

@@ -217,7 +217,6 @@ def plotly(df, forecast):
     # Display the combined figure using st.plotly_chart()
     st.plotly_chart(combined_fig, use_container_width = True)
 
-# 여기서부터 시계열 변화탐지 함수
 
 
 
