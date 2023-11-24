@@ -83,7 +83,7 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
                 aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
 
             # 날짜 선택
-            start_date = st.date_input('시작날짜 선택하세요:') 
+            start_date = st.date_input('시작날짜 선택하세요:')
             end_date = st.date_input('끝날짜 선택하세요:')    
 
             # 분석 실행 버튼
@@ -123,6 +123,7 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
 
     # 그래프 영역
     if proceed_button:
+        k=0
         with col3:
             st.write("-----"*20)
             st.markdown("""
@@ -227,59 +228,65 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
                                     .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING')) 
                                     .first() 
                                     .clip(aoi))
-                
+
                 #VH는 거의 없어 VV만으로
                 im1 = ee.Image(ffa_fl).select('VV').clip(aoi)
                 im2 = ee.Image(ffb_fl).select('VV').clip(aoi)
+                
                 ratio = im1.divide(im2)
-
+            
                 # 두장의 비율 이미지 Ratio에 대한 통계값 계산
                 # 히스토그램/평균/분산(최소,최대)
-                hist = ratio.reduceRegion(ee.Reducer.fixedHistogram(0, 5, 500), aoi).get('VV').getInfo()
-                mean = ratio.reduceRegion(ee.Reducer.mean(), aoi).get('VV').getInfo()
-                variance = ratio.reduceRegion(ee.Reducer.variance(), aoi).get('VV').getInfo()
-                v_min = ratio.select('VV').reduceRegion(
-                    ee.Reducer.min(), aoi).get('VV').getInfo()
-                v_max = ratio.select('VV').reduceRegion(
-                    ee.Reducer.max(), aoi).get('VV').getInfo()
+                try:
+                    hist = ratio.reduceRegion(ee.Reducer.fixedHistogram(0, 5, 500), aoi).get('VV').getInfo()
+                except Exception as e:
+                    st.write("시작날짜 혹은 끝날짜에 해당되는 SAR위성영상이 없습니다.")
+                    k=1
+                if k==0:
+                    mean = ratio.reduceRegion(ee.Reducer.mean(), aoi).get('VV').getInfo()
+                    variance = ratio.reduceRegion(ee.Reducer.variance(), aoi).get('VV').getInfo()
+                    v_min = ratio.select('VV').reduceRegion(
+                        ee.Reducer.min(), aoi).get('VV').getInfo()
+                    v_max = ratio.select('VV').reduceRegion(
+                        ee.Reducer.max(), aoi).get('VV').getInfo()
 
-                m1 = 5 # 임의의 값
-                # F-분포의 CDF 함수를 정의
-                dt = f.ppf(0.0005, 2*m1, 2*m1)
+                    m1 = 5 # 임의의 값
+                    # F-분포의 CDF 함수를 정의
+                    dt = f.ppf(0.0005, 2*m1, 2*m1)
 
-                # LRT(Likelihood Ratio Test:우도비 검정) 통계량 계산
-                q1 = im1.divide(im2)
-                q2 = im2.divide(im1)
+                    # LRT(Likelihood Ratio Test:우도비 검정) 통계량 계산
+                    q1 = im1.divide(im2)
+                    q2 = im2.divide(im1)
 
-                # Change map: 0 = 변화 없음, 1 = 강도 감소, 2 = 강도 증가
-                c_map = im1.multiply(0).where(q2.lt(dt), 1)#먼저 0으로 다 곱하고 감소면 1
-                c_map = c_map.where(q1.lt(dt), 2)#증가면 2
+                    # Change map: 0 = 변화 없음, 1 = 강도 감소, 2 = 강도 증가
+                    c_map = im1.multiply(0).where(q2.lt(dt), 1)#먼저 0으로 다 곱하고 감소면 1
+                    c_map = c_map.where(q1.lt(dt), 2)#증가면 2
 
-                # 변화 없는(no change) 픽셀 마스크 처리
-                c_map = c_map.updateMask(c_map.gt(0))
+                    # 변화 없는(no change) 픽셀 마스크 처리
+                    c_map = c_map.updateMask(c_map.gt(0))
 
-                location = aoi.centroid().coordinates().getInfo()[::-1]
-                mp = folium.Map(
-                    location=location,
-                    zoom_start=14, tiles= tiles, attr = attr)
-                folium.TileLayer(
-                    tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
-                    attr='VWorld Hybrid',
-                    name='VWorld Hybrid',
-                    overlay=True
-                ).add_to(mp)
-                folium.LayerControl().add_to(m)
+                    location = aoi.centroid().coordinates().getInfo()[::-1]
+                    mp = folium.Map(
+                        location=location,
+                        zoom_start=14, tiles= tiles, attr = attr)
+                    folium.TileLayer(
+                        tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
+                        attr='VWorld Hybrid',
+                        name='VWorld Hybrid',
+                        overlay=True
+                    ).add_to(mp)
+                    folium.LayerControl().add_to(m)
 
-                # 변화 지도 레이어 추가 
-                mp.add_ee_layer(c_map,
-                                {'min': 0, 'max': 2, 'palette': ['00000000', '#FF000080', '#0000FF80']},  # 변화 없음: 투명, 감소: 반투명 파랑, 증가: 반투명 빨강
-                                'Change Map')
-                mp.add_child(folium.LayerControl())
+                    # 변화 지도 레이어 추가 
+                    mp.add_ee_layer(c_map,
+                                    {'min': 0, 'max': 2, 'palette': ['00000000', '#FF000080', '#0000FF80']},  # 변화 없음: 투명, 감소: 반투명 파랑, 증가: 반투명 빨강
+                                    'Change Map')
+                    mp.add_child(folium.LayerControl())
 
-                # 스트림릿에 folium맵 출력
-                folium_static(mp,width=970)
+                    # 스트림릿에 folium맵 출력
+                    folium_static(mp,width=970)
         col4, empty3 = st.columns([0.8, 0.12])
-
+    if k==0:
         with col4:
             # Extract and display the date of image
             im1_date = ee.Image(ffa_fl).date().format('YYYY-MM-dd').getInfo()
@@ -303,7 +310,9 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
                                     .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING')) 
                                     .first()) 
             # VV 뽑기
+
             ffa_fl = ee.Image(ffa_fl).select('VV').clip(aoi)
+            
             ffb_fl =ee.Image(ffb_fl).select('VV').clip(aoi)
 
             #영상 tile로 만들기
