@@ -133,70 +133,8 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
             st.write('')
             st.write('')
             with st.spinner("변화탐지 분석중"):
+                
 
-                # CSS 스타일
-                css_style = """
-                <style>
-                .legend {
-                border: 1px solid #ddd;
-                padding: 10px;
-                background-color: #f9f9f9;
-                font-family: Arial, sans-serif;
-                display: flex;
-                justify-content: space-evenly;
-                }
-
-                .legend-item {
-                display: flex;
-                align-items: center;
-                }
-
-                .color-box {
-                width: 30px;
-                height: 30px;
-                margin-right: 10px;
-                border: 1px solid #000;
-                }
-
-                .description {
-                font-size: 15px;
-                }
-                </style>
-                """
-
-                # HTML 내용
-                html_content = """
-                <div class="legend">
-                <div class="legend-item">
-                    <span class="color-box" style="background-color: red;"></span>
-                    <span class="description">
-                    <strong>반사율 증가:</strong><br>
-                    구조물 또는 식생 증가,<br>
-                    물 면적 감소
-                    </span>
-                </div>
-                <div class="legend-item">
-                    <span class="color-box" style="background-color: blue;"></span>
-                    <span class="description">
-                    <strong>반사율 감소:</strong><br>
-                    구조물 또는 식생 감소, <br>
-                    물 면적 증가
-                    </span>
-                </div>
-                <div class="legend-item">
-                    <span class="color-box" style="background-color: yellow;"></span>
-                    <span class="description">
-                    <strong>반사율 급변:</strong><br>
-                    극적 지형/환경 변화
-                    </span>
-                </div>
-                </div>
-                """
-
-                # Streamlit에 적용
-                st.markdown(css_style, unsafe_allow_html=True)
-                st.markdown(html_content, unsafe_allow_html=True)
-                st.write("")
                 # Folium에 Earth Engine 그리기 메서드 추가
                 folium.Map.add_ee_layer = check_ts_changes_func.add_ee_layer
                 # GeoJSON 파일에서 추출한 관심 지역을 Earth Engine 폴리곤으로 변환
@@ -282,7 +220,64 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
 
                     # 스트림릿에 folium맵 출력
                     folium_static(mp,width=970)
-                    
+
+                # ---------------------- 범례 ---------------------- 
+                st.write("")    
+                # CSS 스타일
+                css_style = """
+                <style>
+                .legend {
+                border: 1px solid #ddd;
+                padding: 10px;
+                background-color: #f9f9f9;
+                font-family: Arial, sans-serif;
+                display: flex;
+                justify-content: space-evenly;
+                }
+
+                .legend-item {
+                display: flex;
+                align-items: center;
+                }
+
+                .color-box {
+                width: 30px;
+                height: 30px;
+                margin-right: 10px;
+                border: 1px solid #000;
+                }
+
+                .description {
+                font-size: 15px;
+                }
+                </style>
+                """
+
+                # HTML 내용
+                html_content = """
+                <div class="legend">
+                <div class="legend-item">
+                    <span class="color-box" style="background-color: red;"></span>
+                    <span class="description">
+                    <strong>반사율 증가:</strong><br>
+                    구조물 또는 식생 증가,<br>
+                    물 면적 감소
+                    </span>
+                </div>
+                <div class="legend-item">
+                    <span class="color-box" style="background-color: blue;"></span>
+                    <span class="description">
+                    <strong>반사율 감소:</strong><br>
+                    구조물 또는 식생 감소, <br>
+                    물 면적 증가
+                    </span>
+                </div>
+                """
+
+                # Streamlit에 적용
+                st.markdown(css_style, unsafe_allow_html=True)
+                st.markdown(html_content, unsafe_allow_html=True)
+           
        
                 # ------------- side by side map -------------------------
                 if k==0:
@@ -299,10 +294,10 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
                     im1_date = ee.Image(ffa_fl).date().format('YYYY-MM-dd').getInfo()
                     im2_date = ee.Image(ffb_fl).date().format('YYYY-MM-dd').getInfo()
                     with col4:
-                        st.write(f"사용된 첫 번째 사진의 날짜: {im1_date}")
+                        st.write(f"Before : {im1_date}")
                     with col5 : 
-                        st.write(f"사용된 두 번째 사진의 날짜: {im2_date}")
-                    
+                        st.write(f"After : {im2_date}")
+
 
                     #계산없이 이미지로 바로 볼 때는 GRD 불러오는 게 좋음
                     ffa_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD') 
