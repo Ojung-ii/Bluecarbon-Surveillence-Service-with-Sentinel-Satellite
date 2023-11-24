@@ -3,7 +3,7 @@ import folium
 from streamlit_folium import folium_static
 import json
 import ts_trend_analysis_func
-
+import datetime
 # VWorld 지도 설정
 vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179" # VWorld API 키
 layer = "Satellite" # VWorld 레이어
@@ -71,7 +71,7 @@ def app():
                 aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
 
             # 날짜 선택
-            start_date = st.date_input('시작날짜 선택하세요:').strftime('%Y-%m-%d')   # 디폴트로 오늘 날짜가 찍혀 있다.
+            start_date = st.date_input('시작날짜 선택하세요:',datetime.date(2017, 1, 1))   # 디폴트로 오늘 날짜가 찍혀 있다.
             end_date = st.date_input('끝날짜 선택하세요:').strftime('%Y-%m-%d')     # 디폴트로 오늘 날짜가 찍혀 있다.
 
             

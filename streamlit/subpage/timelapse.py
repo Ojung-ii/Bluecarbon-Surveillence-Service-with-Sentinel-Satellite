@@ -5,7 +5,7 @@ from timelapse_func import create_sentinel1_timelapse, create_sentinel2_timelaps
 import json
 from ts_trend_analysis_func import create_ee_polygon_from_geojson
 import datetime
-
+import time_func
 # Google Earth Engine 초기화
 ee.Initialize()
 
@@ -51,8 +51,8 @@ Sentinel-1(레이더)과 Sentinel-2(광학) 위성 데이터를 활용하여 타
             selected_name = st.selectbox("관심 지역을 선택하세요:", area_names)
 
             # 날짜 선택
-            start_date = st.date_input('시작날짜 선택하세요:', datetime.date(2020, 1, 1)) 
-            end_date = st.date_input('끝날짜 선택하세요:', datetime.date(2023, 1, 31))
+            start_date = st.date_input('시작날짜 선택하세요:',time_func.one_year_ago_f()) 
+            end_date = st.date_input('끝날짜 선택하세요:')
         
             # 주기 선택 및 매핑
             frequency_options = {'일': 'day', '월': 'month', '분기': 'quarter', '연': 'year'}
