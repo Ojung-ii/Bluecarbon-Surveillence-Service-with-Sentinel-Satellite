@@ -84,8 +84,8 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
                 aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
 
             # 날짜 선택
-            start_date = st.date_input('시작날짜 선택하세요:') # 디폴트: 오늘 날짜
-            end_date = st.date_input('끝날짜 선택하세요:') # 디폴트: 오늘 날짜
+            start_date = st.date_input('시작날짜(2015.05 ~) :') # 디폴트: 오늘 날짜
+            end_date = st.date_input('끝날짜(~ 오늘) :') # 디폴트: 오늘 날짜
 
             # 분석 실행 버튼
             st.write("")
@@ -136,72 +136,6 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
 
             
             with st.spinner("변화탐지 분석중"):
-                            # CSS 스타일
-                css_style = """
-                <style>
-                .legend {
-                border: 1px solid #ddd;
-                padding: 10px;
-                background-color: #f9f9f9;
-                font-family: Arial, sans-serif;
-                display: flex;
-                justify-content: space-evenly;
-                }
-
-                .legend-item {
-                display: flex;
-                align-items: center;
-                }
-
-                .color-box {
-                width: 30px;
-                height: 30px;
-                margin-right: 10px;
-                border: 1px solid #000;
-                }
-
-                .description {
-                font-size: 15px;
-                }
-                </style>
-                """
-
-                # HTML 내용
-                html_content = """
-                <div class="legend">
-                <div class="legend-item">
-                    <span class="color-box" style="background-color: red;"></span>
-                    <span class="description">
-                    <strong>반사율 증가:</strong><br>
-                    구조물 또는 식생 증가,<br>
-                    물 면적 감소
-                    </span>
-                </div>
-                <div class="legend-item">
-                    <span class="color-box" style="background-color: blue;"></span>
-                    <span class="description">
-                    <strong>반사율 감소:</strong><br>
-                    구조물 또는 식생 감소, <br>
-                    물 면적 증가
-                    </span>
-                </div>
-                <div class="legend-item">
-                    <span class="color-box" style="background-color: yellow;"></span>
-                    <span class="description">
-                    <strong>반사율 급변:</strong><br>
-                    극적 지형/환경 변화
-                    </span>
-                </div>
-                </div>
-                """
-
-                # Streamlit에 적용
-                st.markdown(css_style, unsafe_allow_html=True)
-                st.markdown(html_content, unsafe_allow_html=True)
-                st.write("")
-                # Earth Engine에서 Folium 지도에 레이어 추가하는 메서드
-
-
                 # Folium에 Earth Engine 그리기 메서드 추가
                 folium.Map.add_ee_layer = check_ts_changes_func.add_ee_layer
                 aoi = ts_trend_analysis_func.create_ee_polygon_from_geojson(aoi)
@@ -274,6 +208,71 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
                 
                 # 스트림릿에 folium 지도 출력
                 folium_static(mp,width=970)
+
+
+                           # CSS 스타일
+                css_style = """
+                <style>
+                .legend {
+                border: 1px solid #ddd;
+                padding: 10px;
+                background-color: #f9f9f9;
+                font-family: Arial, sans-serif;
+                display: flex;
+                justify-content: space-evenly;
+                }
+
+                .legend-item {
+                display: flex;
+                align-items: center;
+                }
+
+                .color-box {
+                width: 30px;
+                height: 30px;
+                margin-right: 10px;
+                border: 1px solid #000;
+                }
+
+                .description {
+                font-size: 15px;
+                }
+                </style>
+                """
+
+                # HTML 내용
+                html_content = """
+                <div class="legend">
+                <div class="legend-item">
+                    <span class="color-box" style="background-color: red;"></span>
+                    <span class="description">
+                    <strong>반사율 증가:</strong><br>
+                    구조물 또는 식생 증가,<br>
+                    물 면적 감소
+                    </span>
+                </div>
+                <div class="legend-item">
+                    <span class="color-box" style="background-color: blue;"></span>
+                    <span class="description">
+                    <strong>반사율 감소:</strong><br>
+                    구조물 또는 식생 감소, <br>
+                    물 면적 증가
+                    </span>
+                </div>
+                <div class="legend-item">
+                    <span class="color-box" style="background-color: yellow;"></span>
+                    <span class="description">
+                    <strong>반사율 급변:</strong><br>
+                    극적 지형/환경 변화
+                    </span>
+                </div>
+                </div>
+                """
+
+                # Streamlit에 적용
+                st.markdown(css_style, unsafe_allow_html=True)
+                st.markdown(html_content, unsafe_allow_html=True)
+                st.write("")
 
 
 # launch
