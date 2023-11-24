@@ -7,6 +7,7 @@ import ee
 from datetime import datetime, timedelta  
 import IPython.display as disp 
 import check_ts_changes_func 
+import ts_trend_analysis_func
 
 # Google Earth Engine 초기화
 ee.Initialize()
@@ -24,7 +25,8 @@ def app():
         st.title("⏱️ 시계열 변화탐지 확인") # 페이지 제목
         st.write("---"*20) # 구분선
         if st.toggle("사용설명서"):
-            st.write('''
+            st.write(
+                '''
 시계열 변화탐지 확인 툴 사용설명서
 이 사용설명서는 Sentinel-1 위성 데이터를 활용하여 지정된 지역의 시계열 변화탐지를 수행하는 Streamlit 웹 애플리케이션 입니다.
 
@@ -202,7 +204,7 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
 
                 # Folium에 Earth Engine 그리기 메서드 추가
                 folium.Map.add_ee_layer = check_ts_changes_func.add_ee_layer
-                aoi = check_ts_changes_func.create_ee_polygon_from_geojson(aoi)
+                aoi = ts_trend_analysis_func.create_ee_polygon_from_geojson(aoi)
                 
                 #위성이 12일 주기인 것을 고려하여 선택된 날짜 앞뒤 6일에 영상이 있는지 확인하기 위해 날짜 더하고 빼주는 코드
                 start_f = start_date - timedelta(days=6)
