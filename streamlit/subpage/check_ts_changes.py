@@ -242,7 +242,7 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
                 location = aoi.centroid().coordinates().getInfo()[::-1]
                 alpha = 0.01
                 
-                k = 26; alpha = 0.01
+                k = 26
 
                 # 중간값 필터 및 1% 유의수준으로 알고리즘 실행
                 result = ee.Dictionary(check_ts_changes_func.change_maps(im_list, median=True, alpha=0.01))
