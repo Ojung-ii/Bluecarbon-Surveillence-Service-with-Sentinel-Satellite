@@ -47,16 +47,16 @@ Sentinel-1(레이더)과 Sentinel-2(광학) 위성 데이터를 활용하여 타
     with col2:
         with st.form("조건 폼"):
             # User's Input
-            dataset = st.selectbox('데이터셋 선택', ['Sentinel-1', 'Sentinel-2'])
-            selected_name = st.selectbox("관심 지역을 선택하세요:", area_names)
+            dataset = st.selectbox('위성영상 선택 :', ['Sentinel-1(레이더)', 'Sentinel-2(광학)'])
+            selected_name = st.selectbox("관심지역 선택 :", area_names)
 
             # 날짜 선택
-            start_date = st.date_input('시작날짜 선택하세요:',time_func.one_year_ago_f()) 
-            end_date = st.date_input('끝날짜 선택하세요:')
-        
+            start_date = st.date_input('시작날짜 (2015.05 ~) :',time_func.one_year_ago_f()) 
+            end_date = st.date_input('끝날짜 (~ 오늘) :') # 디폴트: 오늘 날짜
+                    
             # 주기 선택 및 매핑
             frequency_options = {'일': 'day', '월': 'month', '분기': 'quarter', '연': 'year'}
-            frequency_label = st.selectbox('빈도 선택', options=list(frequency_options.keys()))
+            frequency_label = st.selectbox('빈도 선택 : ', options=list(frequency_options.keys()))
             frequency = frequency_options[frequency_label]
 
             # '새로운 관심영역 넣기'가 선택되면 파일 업로드 기능 활성화

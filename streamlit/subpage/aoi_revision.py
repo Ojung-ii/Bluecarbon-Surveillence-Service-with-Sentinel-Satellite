@@ -10,7 +10,7 @@ def app():
     # 페이지 레이아웃 설정
     empty1, col0, empty2 = st.columns([0.1,1.0, 0.1])
     with col0:
-        st.title("📍 관심 영역 업데이트") # 페이지 제목
+        st.title("📍 관심영역 업데이트") # 페이지 제목
         st.write("---" * 20) # 구분선
 
         # VWorld 지도 설정
@@ -36,7 +36,7 @@ def app():
 
         # 관심영역 조회 탭
         with tab1:
-            st.subheader("관심 영역 조회")
+            st.subheader("관심영역 조회")
             tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
             attr = "Vworld"
             
@@ -47,11 +47,11 @@ def app():
             name='VWorld Hybrid',
             overlay=True
             ).add_to(m)
-            selected_aoi_name = st.selectbox('관심 영역 선택',["조회할 관심영역을 선택하세요."] + aoi_names)
+            selected_aoi_name = st.selectbox('관심영역 선택',["조회할 관심영역을 선택하세요."] + aoi_names)
             selected_aoi = next((feature for feature in geojson_data["features"]
                                 if feature["properties"]["name"] == selected_aoi_name), None)
             
-            if st.button('관심 영역 조회'):
+            if st.button('관심영역 조회'):
             # 선택된 관심 지역이 있을 경우에만 해당 지역 폴리곤 표시
                 if selected_aoi:
                     folium.GeoJson(
@@ -63,57 +63,63 @@ def app():
                     m.fit_bounds(folium.GeoJson(selected_aoi).get_bounds())
 
                 else:
-                    st.error("선택된 관심 영역을 찾을 수 없습니다.")
+                    st.error("선택된 관심영역을 찾을 수 없습니다.")
                 # Streamlit 앱에 지도 표시
 
             folium_static(m)
 
         # 신규 AOI 추가 탭
         with tab2:
-            st.subheader("관심 영역 추가")
-            tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
-            attr = "Vworld"
 
-            mp = folium.Map(location=[36.6384, 127.6961], zoom_start=7, tiles=tiles, attr=attr)
-            folium.TileLayer(
-            tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
-            attr='VWorld Hybrid',
-            name='VWorld Hybrid',
-            overlay=True
-            ).add_to(mp)
+            st.subheader("관심영역 추가")
+            col1,col2 = st.columns([0.7,0.3])            
+            with col1 : 
+                tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
+                attr = "Vworld"
 
-            # 폴리움 지도에 그리기 플러그인 추가
-            draw = Draw(export=True)
-            mp.add_child(draw)
+                mp = folium.Map(location=[36.6384, 127.6961], zoom_start=7, tiles=tiles, attr=attr)
+                folium.TileLayer(
+                tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
+                attr='VWorld Hybrid',
+                name='VWorld Hybrid',
+                overlay=True
+                ).add_to(mp)
 
-            # 스트림릿에 지도 표시
-            folium_static(mp)
-            new_aoi_name = st.text_input("관심 영역 이름을 입력하세요")
-            new_aoi_file = st.file_uploader("새로운 관심 영역의 파일을 업로드하세요", type=["geojson"])
-            if st.button("관심 영역 추가"):
-                if not new_aoi_name:
-                    st.error("관심 영역 이름을 입력해야 합니다.")
-                elif not new_aoi_file:
-                    st.error("새로운 관심 영역 파일을 업로드해야 합니다.")
-                else:
-                    new_aoi_data = json.load(BytesIO(new_aoi_file.getvalue()))
-                    new_aoi_data["features"][0]["properties"]["name"] = new_aoi_name
-                    geojson_data['features'].append(new_aoi_data["features"][0])
-                    with open(geojson_path, 'w', encoding='utf-8') as f:
-                        json.dump(geojson_data, f, ensure_ascii=False, indent=4)
-                    st.success(f"'{new_aoi_name}' 관심영역이 성공적으로 추가되었습니다.")
-                    aoi_names.append(new_aoi_name)  # 업데이트된 aoi_names 리스트
+                # 폴리움 지도에 그리기 플러그인 추가
+                draw = Draw(export=True)
+                mp.add_child(draw)
+
+                # 스트림릿에 지도 표시
+                folium_static(mp)
+                
+            with col2 : 
+                with st.form("aoi 추가 폼") : 
+                    new_aoi_name = st.text_input("관심영역 이름을 입력하세요")
+                    new_aoi_file = st.file_uploader("새로운 관심영역의 파일을 업로드하세요", type=["geojson"])
+                    if st.form_submit_button("관심영역 추가"):
+                        if not new_aoi_name:
+                            st.error("관심영역 이름을 입력해야 합니다.")
+                        elif not new_aoi_file:
+                            st.error("새로운 관심영역 파일을 업로드해야 합니다.")
+                        else:
+                            new_aoi_data = json.load(BytesIO(new_aoi_file.getvalue()))
+                            new_aoi_data["features"][0]["properties"]["name"] = new_aoi_name
+                            geojson_data['features'].append(new_aoi_data["features"][0])
+                            with open(geojson_path, 'w', encoding='utf-8') as f:
+                                json.dump(geojson_data, f, ensure_ascii=False, indent=4)
+                            st.success(f"'{new_aoi_name}' 관심영역이 성공적으로 추가되었습니다.")
+                            aoi_names.append(new_aoi_name)  # 업데이트된 aoi_names 리스트
 
         # AOI 제거 탭
         with tab3:
-            st.subheader("관심 영역 제거")
-            selected_aoi_name_to_remove = st.selectbox('관심 영역 선택', ["제거할 관심영역을 선택하세요."] + aoi_names)
-            if st.button('관심 영역 제거') and selected_aoi_name_to_remove != "제거할 관심영역을 선택하세요.":
+            st.subheader("관심영역 제거")
+            selected_aoi_name_to_remove = st.selectbox('관심영역 선택', ["제거할 관심영역을 선택하세요."] + aoi_names)
+            if st.button('관심영역 제거') and selected_aoi_name_to_remove != "제거할 관심영역을 선택하세요.":
                 geojson_data["features"] = [feature for feature in geojson_data["features"]
                                             if feature["properties"]["name"] != selected_aoi_name_to_remove]
                 with open(geojson_path, 'w', encoding='utf-8') as f:
                     json.dump(geojson_data, f, ensure_ascii=False, indent=4)
-                st.success(f"'{selected_aoi_name_to_remove}' 관심 영역이 성공적으로 제거되었습니다.")
+                st.success(f"'{selected_aoi_name_to_remove}' 관심영역이 성공적으로 제거되었습니다.")
                 aoi_names.remove(selected_aoi_name_to_remove)  # 업데이트된 aoi_names 리스트
                 
 

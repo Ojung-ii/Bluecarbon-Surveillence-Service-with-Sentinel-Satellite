@@ -71,7 +71,7 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
     with col2:
         with st.form("조건 폼"):
             # 관심 지역 선택
-            selected_name = st.selectbox("관심 지역을 선택하세요:", area_names)
+            selected_name = st.selectbox("관심지역 선택 :", area_names)
             
             # '새로운 관심영역 넣기'가 선택되면 파일 업로드 기능 활성화
             if selected_name == "새로운 관심영역 넣기":
@@ -84,9 +84,8 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
                 aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
 
             # 날짜 선택
-            start_date = st.date_input('시작날짜 선택하세요:',time_func.one_month_ago_f())
-            end_date = st.date_input('끝날짜 선택하세요:')    
-
+            start_date = st.date_input('시작날짜 (2015.05 ~) :',time_func.one_month_ago_f()) # 디폴트: 오늘 날짜
+            end_date = st.date_input('끝날짜 (~ 오늘) :') # 디폴트: 오늘 날짜
             # 분석 실행 버튼
             st.write("")
             proceed_button = st.form_submit_button("☑️ 분석 실행")

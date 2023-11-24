@@ -58,7 +58,7 @@ def app():
         with st.form("조건 폼"):
             
             # 관심 지역 선택
-            selected_name = st.selectbox("관심 지역을 선택하세요:", area_names)
+            selected_name = st.selectbox("관심지역 선택 :", area_names)
             
             # '새로운 관심영역 넣기'가 선택되면 파일 업로드 기능 활성화
             if selected_name == "새로운 관심영역 넣기":
@@ -71,9 +71,8 @@ def app():
                 aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
 
             # 날짜 선택
-            start_date = st.date_input('시작날짜 선택하세요:',datetime.date(2017, 1, 1))   # 디폴트로 오늘 날짜가 찍혀 있다.
-            end_date = st.date_input('끝날짜 선택하세요:').strftime('%Y-%m-%d')     # 디폴트로 오늘 날짜가 찍혀 있다.
-
+            start_date = st.date_input('시작날짜 (2015.05 ~) :',datetime.date(2017, 1, 1)) 
+            end_date = st.date_input('끝날짜 (~ 오늘) :') # 디폴트: 오늘 날짜
             
             # 분석 실행 버튼
             st.write("")
