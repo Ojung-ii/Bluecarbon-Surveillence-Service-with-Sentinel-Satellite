@@ -118,11 +118,11 @@ def app():
         st.write('')
         
         # 각각의 식생지수 결과를 볼 수 있는 Expander 생성
-        expander_rvi = st.expander("RVI(SAR) 분석결과", expanded=False)
-        expander_ndvi = st.expander("NDVI(광학) 분석결과", expanded=False)
+        expander_rvi = st.expander("레이더 식생지수 분석결과", expanded=False)
+        expander_ndvi = st.expander("광학 식생지수 분석결과", expanded=False)
         expander_wavi = st.expander("WAVI(물조정) 분석결과", expanded=False)
         expander_diff_bg = st.expander("DIFF_BG 분석결과", expanded=False)
-        expander_wevi = st.expander("WEVI 분석결과", expanded=False)
+        expander_wevi = st.expander("광학 식생지수(물 특화) 분석결과", expanded=False)
         expander_wtdvi = st.expander("WTDVI 분석결과", expanded=False)
         
         # Earth Engine에서 관심 지역을 가져오고 Prophet을 사용하여 시계열 분석 실행 및 결과 플로팅
@@ -131,7 +131,7 @@ def app():
         # RVI
         with expander_rvi:
             st.markdown("""
-                <h3 style='text-align: center; font-size: 30px;'>RVI</h3>
+                <h3 style='text-align: center; font-size: 30px;'>레이더 식생지수</h3>
                 """, unsafe_allow_html=True)
             df = ts_trend_analysis_func.calculateRVI(parse_aoi,start_date,end_date)
             forecast,forecast_df,df,m = ts_trend_analysis_func.prophet_process(df)
@@ -143,7 +143,7 @@ def app():
         # NDVI
         with expander_ndvi:
             st.markdown("""
-                <h3 style='text-align: center; font-size: 30px;'>NDVI</h3>
+                <h3 style='text-align: center; font-size: 30px;'>광학 식생지수</h3>
                 """, unsafe_allow_html=True)
             df2 = ts_trend_analysis_func.calculateNDVI(parse_aoi,start_date,end_date)
             forecast2,forecast_df2,df2,m2 = ts_trend_analysis_func.prophet_process(df2)
@@ -154,64 +154,64 @@ def app():
             st.pyplot(fig22)
 
         # WAVI
-        with expander_wavi:
-            st.markdown("""
-                <h3 style='text-align: center; font-size: 30px;'>WAVI</h3>
-                """, unsafe_allow_html=True)
-            df3 = ts_trend_analysis_func.calculateWAVI(parse_aoi,start_date,end_date)
-            forecast3,forecast_df3,df3,m3 = ts_trend_analysis_func.prophet_process(df3)
-            fig222 = m3.plot_components(forecast3)
-            ts_trend_analysis_func.plotly(df3,forecast3)
+        # with expander_wavi:
+        #     st.markdown("""
+        #         <h3 style='text-align: center; font-size: 30px;'>WAVI</h3>
+        #         """, unsafe_allow_html=True)
+        #     df3 = ts_trend_analysis_func.calculateWAVI(parse_aoi,start_date,end_date)
+        #     forecast3,forecast_df3,df3,m3 = ts_trend_analysis_func.prophet_process(df3)
+        #     fig222 = m3.plot_components(forecast3)
+        #     ts_trend_analysis_func.plotly(df3,forecast3)
             
-            # 시계열 결과 플로팅
-            st.pyplot(fig222)
+        #     # 시계열 결과 플로팅
+        #     st.pyplot(fig222)
 
         # DIFF_BG    
-        with expander_diff_bg:
-            st.markdown("""
-                <h3 style='text-align: center; font-size: 30px;'>expander_diff_bg</h3>
-                """, unsafe_allow_html=True)
-            df4 = ts_trend_analysis_func.calculateDIFF_BG(parse_aoi,start_date,end_date)
-            forecast4,forecast_df3,df4,m4 = ts_trend_analysis_func.prophet_process(df4)
-            fig4 = m4.plot_components(forecast4)
-            ts_trend_analysis_func.plotly(df4,forecast4)
+        # with expander_diff_bg:
+        #     st.markdown("""
+        #         <h3 style='text-align: center; font-size: 30px;'>expander_diff_bg</h3>
+        #         """, unsafe_allow_html=True)
+        #     df4 = ts_trend_analysis_func.calculateDIFF_BG(parse_aoi,start_date,end_date)
+        #     forecast4,forecast_df3,df4,m4 = ts_trend_analysis_func.prophet_process(df4)
+        #     fig4 = m4.plot_components(forecast4)
+        #     ts_trend_analysis_func.plotly(df4,forecast4)
             
-            # 시계열 결과 플로팅
-            st.pyplot(fig4)
+        #     # 시계열 결과 플로팅
+        #     st.pyplot(fig4)
 
         # WEVI
         with expander_wevi:
             st.markdown("""
-                <h3 style='text-align: center; font-size: 30px;'>expander_wevi</h3>
+                <h3 style='text-align: center; font-size: 30px;'>광학 식생지수(물 특화)</h3>
                 """, unsafe_allow_html=True)
             df5 = ts_trend_analysis_func.calculate_WEVI(parse_aoi,start_date,end_date)
             forecast5,forecast_df3,df5,m5 = ts_trend_analysis_func.prophet_process(df5)
             fig5 = m5.plot_components(forecast5)
             ts_trend_analysis_func.plotly(df5,forecast5)
-            lst = ts_trend_analysis_func.ts_analysis(forecast)
-            st.write(lst[0])
-            st.write(lst[1])
-            st.write(lst[2])
-            st.write(lst[3])
-            st.write(lst[4])
-            st.write(lst[5])
+            # lst = ts_trend_analysis_func.ts_analysis(forecast)
+            # st.write(lst[0])
+            # st.write(lst[1])
+            # st.write(lst[2])
+            # st.write(lst[3])
+            # st.write(lst[4])
+            # st.write(lst[5])
 
-            # 시계열 결과 플로팅
-            st.pyplot(fig5)
+            # # 시계열 결과 플로팅
+            # st.pyplot(fig5)
 
-        # WTDVI
-        with expander_wtdvi:
-            st.markdown("""
-                <h3 style='text-align: center; font-size: 30px;'>expander_wtdvi</h3>
-                """, unsafe_allow_html=True)
-            df6 = ts_trend_analysis_func.calculate_WTDVI(parse_aoi,start_date,end_date)
-            forecast6,forecast_df3,df6,m6 = ts_trend_analysis_func.prophet_process(df6)
-            fig6 = m6.plot_components(forecast6)
-            ts_trend_analysis_func.plotly(df6,forecast6)
+        # # WTDVI
+        # with expander_wtdvi:
+        #     st.markdown("""
+        #         <h3 style='text-align: center; font-size: 30px;'>expander_wtdvi</h3>
+        #         """, unsafe_allow_html=True)
+        #     df6 = ts_trend_analysis_func.calculate_WTDVI(parse_aoi,start_date,end_date)
+        #     forecast6,forecast_df3,df6,m6 = ts_trend_analysis_func.prophet_process(df6)
+        #     fig6 = m6.plot_components(forecast6)
+        #     ts_trend_analysis_func.plotly(df6,forecast6)
             
-            # 시계열 결과 플로팅
-            st.pyplot(fig6)      
-             
+        #     # 시계열 결과 플로팅
+        #     st.pyplot(fig6)      
+
 # launch
 if __name__  == "__main__" :
     app()
