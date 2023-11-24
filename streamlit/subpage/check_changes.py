@@ -12,7 +12,7 @@ import ts_trend_analysis_func
 
 # Google Earth Engine 초기화
 ee.Initialize()
-
+k=0
 # VWorld 지도 설정
 vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179" # VWorld API 키
 layer = "Satellite" # VWorld 레이어
