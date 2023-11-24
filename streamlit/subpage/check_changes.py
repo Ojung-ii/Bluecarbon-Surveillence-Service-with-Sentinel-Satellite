@@ -130,12 +130,8 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
             st.markdown("""
             <h3 style='text-align: center; font-size: 35px;'>⬇️  변화탐지 결과  ⬇️</h3>
             """, unsafe_allow_html=True)
-
             st.write('')
             st.write('')
-
-
-
             with st.spinner("변화탐지 분석중"):
 
                 # CSS 스타일
@@ -287,16 +283,18 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
                     # 스트림릿에 folium맵 출력
                     folium_static(mp,width=970)
                     
-        col4, empty3 = st.columns([0.8, 0.12])
+       
+        
         if k==0:
+            col4, empty3 = st.columns([0.8, 0.12])
             with col4:
                 # Extract and display the date of image
                 im1_date = ee.Image(ffa_fl).date().format('YYYY-MM-dd').getInfo()
                 im2_date = ee.Image(ffb_fl).date().format('YYYY-MM-dd').getInfo()
                 st.write(f"사용된 첫 번째 사진의 날짜: {im1_date}"+"    "+f"사용된 두 번째 사진의 날짜: {im2_date}")
                 
-            col5, empty4 = st.columns([0.8,1.2])
             
+            col5, empty4 = st.columns([0.8,1.2])
             with col5:
                 #계산없이 이미지로 바로 볼 때는 GRD 불러오는 게 좋음
                 ffa_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD') 
@@ -311,10 +309,9 @@ GeoJSON 파일은 정확한 지리적 경계를 나타내야 하며, 파일 형�
                                         .filterDate(ee.Date(end_f), ee.Date(end_b))
                                         .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING')) 
                                         .first()) 
-                # VV 뽑기
-
-                ffa_fl = ee.Image(ffa_fl).select('VV').clip(aoi)
                 
+                # VV 뽑기
+                ffa_fl = ee.Image(ffa_fl).select('VV').clip(aoi)
                 ffb_fl =ee.Image(ffb_fl).select('VV').clip(aoi)
 
                 #영상 tile로 만들기
