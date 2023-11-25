@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 import IPython.display as disp 
 import check_ts_changes_func 
 import ts_trend_analysis_func
+import time_func
 
 # Google Earth Engine 초기화
 ee.Initialize()
@@ -71,7 +72,7 @@ def app():
                 aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
 
             # 날짜 선택
-            start_date = st.date_input('시작날짜 선택하세요:') # 디폴트: 오늘 날짜
+            start_date = st.date_input('시작날짜 (2015.05 ~) :',time_func.one_month_ago_f()) # 디폴트: 오늘 날짜
             end_date = st.date_input('끝날짜 선택하세요:') # 디폴트: 오늘 날짜
 
             # 분석 실행 버튼
