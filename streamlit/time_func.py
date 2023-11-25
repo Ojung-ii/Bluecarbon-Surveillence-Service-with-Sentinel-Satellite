@@ -12,10 +12,19 @@ one_year_ago = current_date - datetime.timedelta(days=365)
 one_month_ago = current_date - monthdelta(1)
 
 def current_time():
-    return current_date
+    return current_date.strftime('%Y-%m-%d')
 
 def one_year_ago_f():
-    return one_year_ago
+    return one_year_ago.strftime('%Y-%m-%d')
 
 def one_month_ago_f():
+    return one_month_ago.strftime('%Y-%m-%d')
+
+def current_time_t():
+    return current_date
+
+def one_year_ago_f_t():
+    return one_year_ago
+
+def one_month_ago_f_t():
     return one_month_ago

@@ -63,8 +63,8 @@ def app():
                 aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
 
             # 날짜 선택
-            start_date = st.date_input('시작날짜 (2015.05 ~) :',datetime.date(2017, 1, 1)) 
-            end_date = st.date_input('끝날짜 (~ 오늘) :') # 디폴트: 오늘 날짜
+            start_date = st.date_input('시작날짜 (2015.05 ~) :',datetime.date(2017, 1, 1)).strftime('%Y-%m-%d') 
+            end_date = st.date_input('끝날짜 (~ 오늘) :').strftime('%Y-%m-%d') # 디폴트: 오늘 날짜
             
             # 분석 실행 버튼
             st.write("")

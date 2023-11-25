@@ -50,9 +50,8 @@ Sentinel-1(레이더)과 Sentinel-2(광학) 위성 데이터를 활용하여 타
             selected_name = st.selectbox("관심지역 선택 :", area_names)
 
             # 날짜 선택
-            start_date = st.date_input('시작날짜 (2015.05 ~) :',time_func.one_year_ago_f()) 
-            end_date = st.date_input('끝날짜 (~ 오늘) :') # 디폴트: 오늘 날짜
-                    
+            start_date = st.date_input('시작날짜 (2015.05 ~) :',datetime.date(2020, 1, 1))
+            end_date = st.date_input('끝날짜 (~ 오늘) :',datetime.date(2020, 1, 1))# 디폴트: 오늘 날짜
             # 주기 선택 및 매핑
             frequency_options = {'일': 'day', '월': 'month', '분기': 'quarter', '연': 'year'}
             frequency_label = st.selectbox('빈도 선택 : ', options=list(frequency_options.keys()))
