@@ -50,8 +50,8 @@ Sentinel-1(레이더)과 Sentinel-2(광학) 위성 데이터를 활용하여 타
             selected_name = st.selectbox("관심지역 선택 :", area_names)
 
             # 날짜 선택
-            start_date = st.date_input('시작날짜 (2015.05 ~) :',datetime.date(2020, 1, 1))
-            end_date = st.date_input('끝날짜 (~ 오늘) :',datetime.date(2020, 1, 1))# 디폴트: 오늘 날짜
+            start_date = st.date_input('시작날짜 (2015.05 ~) :',time_func.one_year_ago_f_t())
+            end_date = st.date_input('끝날짜 (~ 오늘) :')# 디폴트: 오늘 날짜
             # 주기 선택 및 매핑
             frequency_options = {'일': 'day', '월': 'month', '분기': 'quarter', '연': 'year'}
             frequency_label = st.selectbox('빈도 선택 : ', options=list(frequency_options.keys()))
@@ -86,13 +86,13 @@ Sentinel-1(레이더)과 Sentinel-2(광학) 위성 데이터를 활용하여 타
                 output_gif = './timelapse.gif'  # 생성된 타임랩스를 저장할 경로와 파일명
                 
                 # Sentinel-1을 선택한 경우
-                if dataset == 'Sentinel-1':
+                if dataset == 'Sentinel-1(레이더)':
                     # create_sentinel1_timelapse 함수에 포맷된 날짜와 다른 필요한 매개변수 전달
                     create_sentinel1_timelapse(aoi, formatted_start_date, formatted_end_date, frequency, output_gif)    
                     st.image(output_gif, caption=f'{dataset} 타임랩스', use_column_width=True)
                 
                 # Sentinel-2를 선택한 경우
-                elif dataset == 'Sentinel-2':
+                elif dataset == 'Sentinel-2(광학)':
                     # create_sentinel2_timelapse 함수에 포맷된 날짜와 다른 필요한 매개변수 전달
                     create_sentinel2_timelapse(aoi, formatted_start_date, formatted_end_date, frequency, output_gif)
                     st.image(output_gif, caption=f'{dataset} 타임랩스', use_column_width=True ) 
