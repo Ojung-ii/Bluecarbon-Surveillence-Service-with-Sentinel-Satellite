@@ -94,12 +94,12 @@ def calculateFAI(aoi, start_date, end_date):
             swir1.subtract(red).multiply(
                 (lambda_nir - lambda_red) / (lambda_swir1 - lambda_red)
             )
-        )
+        ).rename('FAI')
         mean_fai = fai.reduceRegion(
             reducer=ee.Reducer.mean(),
             geometry=aoi,
             scale=10  
-        ).get('ndvi')
+        ).get('FAI')
         return ee.Feature(None, {'ds': date, 'y': mean_fai})
     time_series_ndvi = sentinel2.map(calculate_fai)
     # Convert results to server-side object (to import to Python client)
@@ -226,7 +226,7 @@ def calculate_WTDVI(aoi, start_date, end_date):
 def prophet_process(df):
     # Prophet
     # m = Prophet(yearly_seasonality=True,daily_seasonality=False,weekly_seasonality=False,holidays_prior_scale=0,changepoint_prior_scale=0.5)
-    m = Prophet(yearly_seasonality=True,daily_seasonality=False,weekly_seasonality=False,holidays_prior_scale=0.01,changepoint_prior_scale=0.01)
+    m = Prophet(yearly_seasonality=5,daily_seasonality=0,weekly_seasonality=0,holidays_prior_scale=0,changepoint_prior_scale=0.05)
     m.fit(df)
     # future dataframe 생성
     future = m.make_future_dataframe(periods=0,freq='M')

@@ -111,7 +111,7 @@ def app():
         expander_ndvi = st.expander("광학 식생지수 분석결과(육상 특화)", expanded=False)
         # expander_wavi = st.expander("WAVI(물조정) 분석결과", expanded=False)
         # expander_diff_bg = st.expander("DIFF_BG 분석결과", expanded=False)
-        expander_wevi = st.expander("광학 식생지수 분석결과(수상 특화)", expanded=False)
+        expander_fai = st.expander("광학 식생지수 분석결과(수상 특화)", expanded=False)
         # expander_wtdvi = st.expander("WTDVI 분석결과", expanded=False)
         
         # Use Prophet to run time series analysis and visualize results.
@@ -147,17 +147,6 @@ def app():
             ts_trend_analysis_func.plotly(df2,forecast2)
             
             st.pyplot(fig22)
-        with expander_ndvi:
-            st.markdown("""
-                <h3 style='text-align: center; font-size: 30px;'>광학 식생지수</h3>
-                """, unsafe_allow_html=True)
-            df2 = ts_trend_analysis_func.calculateNDVI(parse_aoi,start_date,end_date)
-            forecast2,forecast_df2,df2,m2 = ts_trend_analysis_func.prophet_process(df2)
-            fig22 = m2.plot_components(forecast2)
-            ts_trend_analysis_func.plotly(df2,forecast2)
-            
-            # Result visualization
-            st.pyplot(fig22)
 
         # WAVI
         # with expander_wavi:
@@ -186,11 +175,11 @@ def app():
         #     st.pyplot(fig4)
 
         # WEVI
-        with expander_wevi:
+        with expander_fai:
             st.markdown("""
                 <h3 style='text-align: center; font-size: 30px;'>광학 식생지수(물 특화)</h3>
                 """, unsafe_allow_html=True)
-            df5 = ts_trend_analysis_func.calculate_WEVI(parse_aoi,start_date,end_date)
+            df5 = ts_trend_analysis_func.calculateFAI(parse_aoi,start_date,end_date)
             forecast5,forecast_df3,df5,m5 = ts_trend_analysis_func.prophet_process(df5)
             fig5 = m5.plot_components(forecast5)
             ts_trend_analysis_func.plotly(df5,forecast5)
