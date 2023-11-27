@@ -1,10 +1,8 @@
 import geemap
 import time
 
-# Sentinel-1 타임랩스 함수
+# Sentinel-1 timelapse function
 def create_sentinel1_timelapse(roi, start_date, end_date, frequency, output_gif):
-    # Sentinel-1 타임랩스 생성 로직
-    # 함수의 나머지 파라미터는 기본값을 사용하거나, 필요에 따라 수정
     geemap.sentinel1_timelapse(
     roi=roi,
     out_gif=output_gif,
@@ -53,10 +51,8 @@ def create_sentinel1_timelapse(roi, start_date, end_date, frequency, output_gif)
     return
 
 
-# Sentinel-2 타임랩스 함수
+# Sentinel-2 timelapse function
 def create_sentinel2_timelapse(roi, start_date, end_date, frequency, output_gif):
-    # Sentinel-2 타임랩스 생성 로직
-    # 함수의 나머지 파라미터는 기본값을 사용하거나, 필요에 따라 수정
     geemap.sentinel2_timelapse(
     roi=roi,
     out_gif=output_gif,
@@ -92,6 +88,6 @@ def create_sentinel2_timelapse(roi, start_date, end_date, frequency, output_gif)
     return
 
 def long_running_task():
-    # 여기서는 예시로 5초 동안 대기하는 작업을 수행
+    # Wait 5 seconds and return the phrase 'Work Done'
     time.sleep(5)
     return "작업 완료!"

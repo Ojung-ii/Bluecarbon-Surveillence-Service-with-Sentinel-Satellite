@@ -1,7 +1,7 @@
 from langchain.llms import LlamaCpp
 from langchain import PromptTemplate, LLMChain
 from langchain.callbacks.manager import CallbackManager
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler # 출력을 스트리밍하는 데 사용
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler 
 from langchain_experimental.agents.agent_toolkits import create_pandas_dataframe_agent
 
 

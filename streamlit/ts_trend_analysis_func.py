@@ -7,17 +7,17 @@ import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 import folium
 
-# Earth Engine API 초기화
+# Earth Engine API initialization
 ee.Initialize()
 
-# GeoJSON 구조를 사용하여 AOI 설정
+# Set up AOI using GeoJSON structure
 def create_ee_polygon_from_geojson(gjson):
     coordinates = gjson['geometry']['coordinates']
     aoi = ee.Geometry.Polygon(coordinates)
     return aoi
 
 def calculateRVI(aoi,start_date,end_date):
-    # Sentinel-1 ImageCollection 필터링
+    # Sentinel-1 ImageCollection filtering
     sentinel1 = ee.ImageCollection('COPERNICUS/S1_GRD') \
             .filterBounds(aoi) \
             .filterDate(start_date, end_date) \
@@ -25,7 +25,7 @@ def calculateRVI(aoi,start_date,end_date):
             .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VV')) \
             .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VH')) \
             .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING'))
-    # RVI 계산 및 시계열 데이터 생성 함수
+    # RVI calculation and time series data frame generation functions
     def calculate_rvi(image):
         date = ee.Date(image.get('system:time_start')).format('YYYY-MM-dd')
         vv = image.select('VV')
@@ -37,27 +37,27 @@ def calculateRVI(aoi,start_date,end_date):
             scale=10
         ).get('rvi')
         return ee.Feature(None, {'ds': date, 'y': mean_rvi})
-    # 시계열 RVI 계산
+    # Calculate RVI.
     time_series_rvi = sentinel1.map(calculate_rvi)
-    # 결과를 서버측 객체로 변환 (Python 클라이언트로 가져오기 위함)
+    # Convert results to server-side objects. (to import to Python client)
     rvi_features = time_series_rvi.getInfo()['features']
-    # 결과를 pandas DataFrame으로 변환
+    # Converting Results to Pandas DataFrame.
     df = pd.DataFrame([feat['properties'] for feat in rvi_features])
-    # DataFrame을 'Date' 컬럼에 따라 오름차순으로 정렬
+    # Sort DataFrame in ascending order according to column 'Date'.
     df = df.sort_values(by='ds')
     return df
 
 def calculateNDVI(aoi, start_date, end_date):
-    # Sentinel-2 ImageCollection 필터링 및 구름 마스킹 적용
+    # Applying filtering and cloud masking to Sentinel-2 Image Collection
     sentinel2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
             .filterBounds(aoi) \
             .filterDate(start_date, end_date)\
             .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 30))
-    # NDVI 계산 및 시계열 데이터 생성 함수
+    # NDVI calculation and time series data frame generation functions
     def calculate_ndvi(image):
         date = ee.Date(image.get('system:time_start')).format('YYYY-MM-dd')
-        nir = image.select('B8')  # NIR 밴드
-        red = image.select('B4')  # Red 밴드
+        nir = image.select('B8')  # NIR(Near-Infrared Spectrometer) vand 
+        red = image.select('B4')  # Red vand
         ndvi = nir.subtract(red).divide(nir.add(red)).rename('ndvi')
         mean_ndvi = ndvi.reduceRegion(
             reducer=ee.Reducer.mean(),
@@ -66,30 +66,30 @@ def calculateNDVI(aoi, start_date, end_date):
         ).get('ndvi')
         return ee.Feature(None, {'ds': date, 'y': mean_ndvi})
     time_series_ndvi = sentinel2.map(calculate_ndvi)
-    # 결과를 서버측 객체로 변환 (Python 클라이언트로 가져오기 위함)
+    # Convert results to server-side object (to import to Python client)
     rvi_features = time_series_ndvi.getInfo()['features']
-    # 결과를 pandas DataFrame으로 변환
+    # Converting Results to Pandas DataFrame.
     df = pd.DataFrame([feat['properties'] for feat in rvi_features])
     return df
 
 def calculateFAI(aoi, start_date, end_date):
-    # Sentinel-2 ImageCollection 필터링 및 구름 마스킹 적용
+    # Applying filtering and cloud masking to Sentinel-2 Image Collection
     sentinel2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
             .filterBounds(aoi) \
             .filterDate(start_date, end_date)\
             .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 30))
-    # NDVI 계산 및 시계열 데이터 생성 함수
+    # NDVI calculation and time series data frame generation functions
     def calculate_fai(image):
         date = ee.Date(image.get('system:time_start')).format('YYYY-MM-dd')
         lambda_nir = 832.8
         lambda_red = 664.6
         lambda_swir1 = 1613.7
 
-        # Sentinel-2 밴드 선택
-        red = image.select('B4')   # Red 밴드
-        nir = image.select('B8')   # NIR 밴드
-        swir1 = image.select('B11') # SWIR1 밴드
-        # FAI 계산
+        # Selecting vand.
+        red = image.select('B4')   # Red vand
+        nir = image.select('B8')   # NIR vand
+        swir1 = image.select('B11') # SWIR1 vand
+        # Calculate FAI
         fai = nir.subtract(red).add(
             swir1.subtract(red).multiply(
                 (lambda_nir - lambda_red) / (lambda_swir1 - lambda_red)
@@ -102,51 +102,52 @@ def calculateFAI(aoi, start_date, end_date):
         ).get('ndvi')
         return ee.Feature(None, {'ds': date, 'y': mean_fai})
     time_series_ndvi = sentinel2.map(calculate_fai)
-    # 결과를 서버측 객체로 변환 (Python 클라이언트로 가져오기 위함)
+    # Convert results to server-side object (to import to Python client)
     rvi_features = time_series_ndvi.getInfo()['features']
-    # 결과를 pandas DataFrame으로 변환
+    # Converting Results to Pandas DataFrame.
     df = pd.DataFrame([feat['properties'] for feat in rvi_features])
     return df
 
 def calculateWAVI(aoi, start_date, end_date):
-    # Sentinel-2 ImageCollection 필터링 및 구름 마스킹 적용
+    # Filter the Sentinel-2 ImageCollection and apply cloud masking
     sentinel2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
             .filterBounds(aoi) \
             .filterDate(start_date, end_date) \
             .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 30))
-    # WAVI 계산 및 시계열 데이터 생성 함수
+    
+    # Function to calculate WAVI and create time series data
     def calculate_wavi(image):
         date = ee.Date(image.get('system:time_start')).format('YYYY-MM-dd')
-        nir = image.select('B8')  # NIR 밴드
-        red = image.select('B4')  # Red 밴드
-        wavi = nir.subtract(red).divide(nir.add(red).add(0.1)).rename('wavi')  # L 값으로 0.1 사용
+        nir = image.select('B8')  # NIR band
+        red = image.select('B4')  # Red band
+        wavi = nir.subtract(red).divide(nir.add(red).add(0.1)).rename('wavi')  # Using L value of 0.1
         mean_wavi = wavi.reduceRegion(
             reducer=ee.Reducer.mean(),
             geometry=aoi,
             scale=10  
         ).get('wavi')
         return ee.Feature(None, {'ds': date, 'y': mean_wavi})
+
     time_series_wavi = sentinel2.map(calculate_wavi)
-    # 결과를 서버측 객체로 변환 (Python 클라이언트로 가져오기 위함)
+    # Convert results to server-side object (to retrieve on Python client)
     wavi_features = time_series_wavi.getInfo()['features']
-    # 결과를 pandas DataFrame으로 변환
+    # Convert results to pandas DataFrame
     df = pd.DataFrame([feat['properties'] for feat in wavi_features])
-    # DataFrame을 'Date' 컬럼에 따라 오름차순으로 정렬
+    # Sort DataFrame by 'Date' column in ascending order
     df = df.sort_values(by='ds')
     return df
 
 def calculateDIFF_BG(aoi, start_date, end_date):
-    # Sentinel-2 ImageCollection 필터링 및 구름 마스킹 적용
+    # Filter the Sentinel-2 ImageCollection and apply cloud masking
     sentinel2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
             .filterBounds(aoi) \
             .filterDate(start_date, end_date) \
             .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 30))
-    # WAVI 계산 및 시계열 데이터 생성 함수
+    # Function to calculate the difference between blue and green bands (Diff(B-G)) and create time series data
     def calculate_diff_bg(image):
         date = ee.Date(image.get('system:time_start')).format('YYYY-MM-dd')
-        # Diff(B-G) 계산을 위한 함수 정의
-        blue = image.select('B2')  # 파란색 밴드
-        green = image.select('B3') # 녹색 밴드
+        blue = image.select('B2')  # Bluse band
+        green = image.select('B3') # Green band
         diff_bg = blue.subtract(green).rename('Diff_BG')
         mean_wavi = diff_bg.reduceRegion(
             reducer=ee.Reducer.mean(),
@@ -155,27 +156,27 @@ def calculateDIFF_BG(aoi, start_date, end_date):
         ).get('Diff_BG')
         return ee.Feature(None, {'ds': date, 'y': mean_wavi})
     time_series_diff_bg = sentinel2.map(calculate_diff_bg)
-    # 결과를 서버측 객체로 변환 (Python 클라이언트로 가져오기 위함)
+    # Convert results to server-side object (to retrieve on Python client)
     diff_bg_features = time_series_diff_bg.getInfo()['features']
-    # 결과를 pandas DataFrame으로 변환
+    # Convert results to pandas DataFrame
     df = pd.DataFrame([feat['properties'] for feat in diff_bg_features])
-    # DataFrame을 'Date' 컬럼에 따라 오름차순으로 정렬
+    # Sort DataFrame by 'Date' column in ascending order
     df = df.sort_values(by='ds')
     return df
 
 def calculate_WEVI(aoi, start_date, end_date):
-    # Sentinel-2 ImageCollection 필터링 및 구름 마스킹 적용
+    # Filter the Sentinel-2 ImageCollection and apply cloud masking
     sentinel2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
             .filterBounds(aoi) \
             .filterDate(start_date, end_date) \
             .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 30))
-    # WEVI 계산 및 시계열 데이터 생성 함수
+    # Function to calculate WEVI (Water-Enhanced Vegetation Index) and create time series data
     def calculate_wevi(image):
         date = ee.Date(image.get('system:time_start')).format('YYYY-MM-dd')
-        green = image.select('B3') # 녹색 밴드
-        red = image.select('B4')   # 적색 밴드
-        blue = image.select('B2')  # 파란색 밴드
-        # 수정된 WEVI 계산
+        green = image.select('B3') # Green band
+        red = image.select('B4')   # Red band
+        blue = image.select('B2')  # Blue band
+        # Modified WEVI calculation
         wevi = green.subtract(red).divide(green.add(red).subtract(red.multiply(6)).add(blue.multiply(7.5)).add(1)).multiply(2.5).rename('WEVI')
         mean_wavi = wevi.reduceRegion(
             reducer=ee.Reducer.mean(),
@@ -183,39 +184,42 @@ def calculate_WEVI(aoi, start_date, end_date):
             scale=10  
         ).get('WEVI')
         return ee.Feature(None, {'ds': date, 'y': mean_wavi})
-    time_series_diff_bg = sentinel2.map(calculate_wevi)
-    # 결과를 서버측 객체로 변환 (Python 클라이언트로 가져오기 위함)
-    wevi_features = time_series_diff_bg.getInfo()['features']
-    # 결과를 pandas DataFrame으로 변환
+    time_series_wevi = sentinel2.map(calculate_wevi)
+    # Convert results to server-side object (to retrieve on Python client)
+    wevi_features = time_series_wevi.getInfo()['features']
+    # Convert results to pandas DataFrame
     df = pd.DataFrame([feat['properties'] for feat in wevi_features])
-    # DataFrame을 'Date' 컬럼에 따라 오름차순으로 정렬
+    # Sort DataFrame by 'Date' column in ascending order
     df = df.sort_values(by='ds')
     return df
 
 def calculate_WTDVI(aoi, start_date, end_date):
-    # Sentinel-2 ImageCollection 필터링 및 구름 마스킹 적용
+    # Filter the Sentinel-2 ImageCollection and apply cloud masking
     sentinel2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
             .filterBounds(aoi) \
             .filterDate(start_date, end_date) \
             .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 30))
-    # WTDVI 계산 및 시계열 데이터 생성 함수
+    
+    # Function to calculate WTDVI (Weighted Difference Vegetation Index) and create time series data
     def calculate_wtdvi(image):
-        green = image.select('B3') # 녹색 밴드
-        blue = image.select('B2')  # 파란색 밴드
         date = ee.Date(image.get('system:time_start')).format('YYYY-MM-dd')
+        green = image.select('B3') # Green band
+        blue = image.select('B2')  # Blue band
+        # Calculation of WTDVI
         wtdvi = green.subtract(blue).divide(ee.Image(green.pow(2).add(blue).add(0.5)).sqrt()).multiply(1.5).rename('WTDVI')
-        mean_wavi = wtdvi.reduceRegion(
+        mean_wtdvi = wtdvi.reduceRegion(
             reducer=ee.Reducer.mean(),
             geometry=aoi,
             scale=10
         ).get('WTDVI')
-        return ee.Feature(None, {'ds': date, 'y': mean_wavi})
-    time_series_diff_bg = sentinel2.map(calculate_wtdvi)
-    # 결과를 서버측 객체로 변환 (Python 클라이언트로 가져오기 위함)
-    wtdvi_features = time_series_diff_bg.getInfo()['features']
-    # 결과를 pandas DataFrame으로 변환
+        return ee.Feature(None, {'ds': date, 'y': mean_wtdvi})
+
+    time_series_wtdvi = sentinel2.map(calculate_wtdvi)
+    # Convert results to server-side object (to retrieve on Python client)
+    wtdvi_features = time_series_wtdvi.getInfo()['features']
+    # Convert results to pandas DataFrame
     df = pd.DataFrame([feat['properties'] for feat in wtdvi_features])
-    # DataFrame을 'Date' 컬럼에 따라 오름차순으로 정렬
+    # Sort DataFrame by 'Date' column in ascending order
     df = df.sort_values(by='ds')
     return df
 
@@ -235,26 +239,28 @@ def prophet_process(df):
     return forecast,forecast_df,df,m
 
 def plotly(df, forecast):
-    forecast = forecast.rename(columns = {'ds':"기간","yhat":"지수"})
-    df = df.rename(columns = {'ds':"기간","y":"지수"})
-    # 예측 데이터 그래프 생성
-    combined_fig = px.line(forecast, x='기간', y='지수', title='예측')
-    # 관측 데이터 그래프 추가
-    combined_fig.add_trace(px.scatter(df, x='기간', y='지수', title='관측치', color_discrete_sequence=['red']).data[0])
-    # 생성된 combined_fig 그래프를 st.plotly_chart()를 사용하여 화면에 표시하기
-    st.plotly_chart(combined_fig, use_container_width = True)
+    # Rename columns in forecast and df for clarity
+    forecast = forecast.rename(columns={'ds': "Period", 'yhat': "Index"})
+    df = df.rename(columns={'ds': "Period", 'y': "Index"})
 
-import pandas as pd
+    # Create a line plot for the forecast data
+    combined_fig = px.line(forecast, x='Period', y='Index', title='Forecast')
+    
+    # Add observational data as scatter plot on the same graph
+    combined_fig.add_trace(px.scatter(df, x='Period', y='Index', title='Observations', color_discrete_sequence=['red']).data[0])
+    
+    # Display the combined figure using Streamlit's plotly_chart function
+    st.plotly_chart(combined_fig, use_container_width=True)
 
 def ts_analysis(df):
-    # 날짜 컬럼을 datetime 형식으로 변환
+    # Convert the date column to datetime format
     df['ds'] = pd.to_datetime(df['ds'])
 
-    # 최대값과 최소값의 일자 찾기
+    # Find the dates of maximum and minimum values
     max_date = df[df['yhat'] == df['yhat'].max()]['ds'].iloc[0]
     min_date = df[df['yhat'] == df['yhat'].min()]['ds'].iloc[0]
 
-    # 계절을 구분하기 위한 함수 정의
+    # Define a function to categorize seasons based on month
     def get_season(month):
         if month in [3, 4, 5]:
             return 'Spring'
@@ -265,28 +271,28 @@ def ts_analysis(df):
         else:
             return 'Winter'
 
-    # 월별 계절 할당
+    # Assign season to each month
     df['season'] = df['ds'].dt.month.apply(get_season)
 
-    # 계절별 평균값 계산
+    # Calculate the average value per season
     seasonal_trend = df.groupby('season')['yhat'].mean()
 
-    # 매월 평균 계산
+    # Calculate the average value per month
     monthly_avg = df.groupby(df['ds'].dt.month)['yhat'].mean()
 
-    # 전체 기간에 대한 평균 yhat 값
+    # Calculate the average yhat value for the entire period
     overall_avg = df['yhat'].mean()
 
-    # 계절별 평균값을 전체 평균값으로 나누어 상대적인 비율 계산
+    # Calculate the relative ratio of seasonal averages to overall average
     seasonal_relative = seasonal_trend / overall_avg
 
-    # 매년 평균값 계산
+    # Calculate the average value per year
     annual_avg = df.groupby(df['ds'].dt.year)['yhat'].mean()
 
-    # 매년 평균값을 전체 평균값으로 나누어 상대적인 비율 계산
+    # Calculate the relative ratio of annual averages to overall average
     annual_relative = annual_avg / overall_avg
 
-    # 매월 평균값을 전체 평균값으로 나누어 상대적인 비율 계산
+    # Calculate the relative ratio of monthly averages to overall average
     monthly_relative = monthly_avg / overall_avg
 
-    return seasonal_relative,annual_relative,monthly_relative, max_date, min_date, seasonal_trend
+    return seasonal_relative, annual_relative, monthly_relative, max_date, min_date, seasonal_trend

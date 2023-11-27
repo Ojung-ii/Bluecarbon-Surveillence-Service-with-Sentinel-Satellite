@@ -7,39 +7,39 @@ import json
 import os
 
 def app():
-    # 페이지 레이아웃 설정
+    # Page layout settings.
     empty1, col0, empty2 = st.columns([0.1,1.0, 0.1])
     with col0:
-        st.title("📍 관심영역 업데이트") # 페이지 제목
-        st.write("---" * 20) # 구분선
+        st.title("📍 관심영역 업데이트") 
+        st.write("---" * 20)
 
-        # VWorld 지도 설정
+        # Set up VWorld Map. 
         vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179" # VWorld API 키
         layer = "Satellite" # VWorld 레이어
         tileType = "jpeg" # 타일 유형
 
-        # 관심영역 파일 경로 설정
+        # Set up the path to the region of interest file.
         geojson_path = 'aoi.geojson'
 
-        # 관심영역 데이터 불러오기 또는 초기화
+        # Importing or initializing region of interest data.
         if os.path.exists(geojson_path):
             with open(geojson_path, 'r', encoding='utf-8') as f:
                 geojson_data = json.load(f)
         else:
             geojson_data = {"type": "FeatureCollection", "features": []}
 
-        # 관심영역 이름 목록 추출
+        # Extract the list of interest names.
         aoi_names = [feature["properties"]["name"] for feature in geojson_data["features"]]
 
-        # 탭 생성
+        # Create a tab.
         tab1, tab2, tab3 = st.tabs(["조회", "추가", "제거"])
 
-        # 관심영역 조회 탭
+        # Interest Area Inquiry
         with tab1:
             st.subheader("관심영역 조회")
             if st.toggle("사용설명서_조회"):
                 st.write(""" 
-조회하고자 하는 관심지역을 선택한 후, '관심 영역 조회' 버튼을 누르면 해당 영역이 지도에 표시됩니다.
+조회하고자 하는 관심영역을 선택한 후, '관심 영역 조회' 버튼을 누르면 해당 영역이 지도에 표시됩니다.
            """)
             tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
             attr = "Vworld"
@@ -55,24 +55,23 @@ def app():
                                 if feature["properties"]["name"] == selected_aoi_name), None)
             
             if st.button('**관심영역 조회**'):
-            # 선택된 관심 지역이 있을 경우에만 해당 지역 폴리곤 표시
+            # Display the local polygon only if there is a selected AOI.
                 if selected_aoi:
                     folium.GeoJson(
                         selected_aoi,
                         name=selected_aoi_name,
                         style_function=lambda x: {'fillColor': 'blue', 'color': 'blue'}
                     ).add_to(m)
-                    # 지도를 선택된 폴리곤에 맞게 조정
+                    # Adjust the map to fit the selected polygon.
                     m.fit_bounds(folium.GeoJson(selected_aoi).get_bounds())
 
                 else:
                     st.error("선택된 관심영역을 찾을 수 없습니다.")
-                # Streamlit 앱에 지도 표시
-
+            # Displaying a Map in a Streamlet
             folium_static(m)
             
 
-        # 신규 AOI 추가 탭
+        # Add New AOI tab
         with tab2:
             st.subheader("관심영역 추가")
             if st.toggle("사용설명서_추가"):
@@ -96,11 +95,11 @@ def app():
                 overlay=True
                 ).add_to(mp)
 
-                # 폴리움 지도에 그리기 플러그인 추가
+                # Adding a Draw Plug-in to a Folium Map.
                 draw = Draw(export=True)
                 mp.add_child(draw)
 
-                # 스트림릿에 지도 표시
+                # Displaying a Map in a Streamlet
                 folium_static(mp)
                 
             with col2 : 
@@ -119,9 +118,9 @@ def app():
                             with open(geojson_path, 'w', encoding='utf-8') as f:
                                 json.dump(geojson_data, f, ensure_ascii=False, indent=4)
                             st.success(f"'{new_aoi_name}' 관심영역이 성공적으로 추가되었습니다.")
-                            aoi_names.append(new_aoi_name)  # 업데이트된 aoi_names 리스트
+                            aoi_names.append(new_aoi_name)  # Updated aoi_names list
 
-        # 관심영역 제거 탭
+        # Remove AOI tab
         with tab3:
             st.subheader("관심영역 제거")
             if st.toggle("사용설명서_제거"):
@@ -136,7 +135,7 @@ def app():
                 with open(geojson_path, 'w', encoding='utf-8') as f:
                     json.dump(geojson_data, f, ensure_ascii=False, indent=4)
                 st.success(f"'{selected_aoi_name_to_remove}' 관심영역이 성공적으로 제거되었습니다.")
-                aoi_names.remove(selected_aoi_name_to_remove)  # 업데이트된 aoi_names 리스트
+                aoi_names.remove(selected_aoi_name_to_remove)  # Updated aoi_names list
                 
 
 # launch

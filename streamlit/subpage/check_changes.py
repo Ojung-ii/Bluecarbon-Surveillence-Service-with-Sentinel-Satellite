@@ -6,31 +6,32 @@ import json
 import ee  
 from datetime import datetime, timedelta 
 import IPython.display as disp 
-import check_ts_changes_func # 변화탐지 관련 함수 모듈
+import check_ts_changes_func 
 from scipy.optimize import bisect 
 import ts_trend_analysis_func
 import time_func
-# Google Earth Engine 초기화
+
+# Google Earth Engine Initialize
 ee.Initialize()
 
-# VWorld 지도 설정
-vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179" # VWorld API 키
-layer = "Satellite" # VWorld 레이어
-tileType = "jpeg" # 타일 유형
+# VWorld map settings
+vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179" # VWorld API key
+layer = "Satellite" # VWorld layer
+tileType = "jpeg" # Tile type
 
-# 주요 애플리케이션 함수 정의
+# Define key application functions
 def app():
     k=0
-    # 페이지 레이아웃 설정
+    # Page layout settings
     empty1, col0, empty2 = st.columns([0.1,1.0, 0.1])
     with col0:
-        st.title("🔍 변화탐지 확인") # 페이지 제목
-        st.write("---"*20) # 구분선
+        st.title("🔍 변화탐지 확인") 
+        st.write("---"*20) # A dividing line
         if st.toggle("사용설명서"):
             st.write("""
-이 사용설명서는 Sentinel-1 위성 데이터를 활용하여 지정된 지역에서 변화탐지를 수행하는 Streamlit 웹입니다.
+이 사용설명서는 Sentinel-1 위성 데이터를 활용하여 지정된 영역에서 변화탐지를 수행하는 Streamlit 웹입니다.
 
-1. 관심 지역 설정
+1. 관심 영역 설정
 2. 날짜 설정
 3. 변화탐지 분석 실행
 4. 결과 확인 및 해석
@@ -39,52 +40,52 @@ def app():
 인터넷 연결 상태에 따라 분석 시간이 달라질 수 있습니다.
                      """)
 
-    # 'aoi.geojson' 파일 로드
+    # 'aoi.geojson' file load
     with open('aoi.geojson', 'r', encoding="utf-8") as ff:
         geojson_data = json.load(ff)
 
-    # GeoJSON 파일에서 지역 이름 목록 가져오기
+    # Importing a list of local names from a GeoJSON file
     area_names = [feature['properties']['name'] for feature in geojson_data['features']]
-    area_names.append("새로운 관심영역 넣기")  # 드롭다운 목록에 새 옵션 추가
+    area_names.append("새로운 관심영역 넣기")  # Add a new option to the drop-down list.
 
-    # 섹션 나누기
+    # Dividing sections
     empty1, col1, col2, empty2 = st.columns([0.1,0.5, 0.3, 0.1])
 
-    # aoi 초기화
+    # Area Of Interest initialization
     aoi = None
 
-    # 오른쪽 섹션: 입력 선택
+    # Input section
     with col2:
         with st.form("조건 폼"):
-            # 관심 지역 선택
-            selected_name = st.selectbox("관심지역 선택 :", area_names)
+            # Select Area of Interest
+            selected_name = st.selectbox("관심영역 선택 :", area_names)
             
-            # '새로운 관심영역 넣기'가 선택되면 파일 업로드 기능 활성화
+            # Enable file upload function when '새로운 관심영역 넣기' is selected
             if selected_name == "새로운 관심영역 넣기":
                 uploaded_file = st.file_uploader("GeoJSON 파일을 업로드하세요", type=['geojson'])
                 if uploaded_file is not None:
-                    # 파일 읽기
                     aoi = json.load(uploaded_file)
             else:
-                # 기존 관심 지역 선택
+                # Select an existing AOI
                 aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
 
-            # 날짜 선택
-            start_date = st.date_input('시작날짜 (2015.05 ~) :',time_func.one_month_ago_f_t()) # 디폴트: 오늘 날짜
-            end_date = st.date_input('끝날짜 (~ 오늘) :') # 디폴트: 오늘 날짜
-            # 분석 실행 버튼
+            # Date Settings
+            start_date = st.date_input('시작날짜 (2015.05 ~) :',time_func.one_month_ago_f_t()) # Default: Today - one month
+            end_date = st.date_input('끝날짜 (~ 오늘) :') # Default: Today
+
+            # Run Analysis button
             st.write("")
             proceed_button = st.form_submit_button("☑️ 분석 실행")
         
        
-    # 왼쪽 섹션: 폴리곤 매핑 시각화
+    # Visualization section
     with col1:
-        # 지도 초기화 (대한민국 중심 위치로 설정)
+        # Map initialization (set as Korea's central location)
         tiles = f"http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/{layer}/{{z}}/{{y}}/{{x}}.{tileType}"
         attr = "Vworld"
         m = folium.Map(location=[36.5, 127.5], zoom_start=7,tiles=tiles, attr = attr)
 
-        # 선택된 관심 지역이 있을 경우에만 해당 지역 폴리곤 표시
+        # Display the local polygon only if there is a selected AOI.
         if aoi:
             folium.GeoJson(
                 aoi,
@@ -92,7 +93,7 @@ def app():
                 style_function=lambda x: {'fillColor': 'blue', 'color': 'blue'}
             ).add_to(m)
             
-            # 지도를 선택된 폴리곤에 맞게 조정
+            # Adjust the map to fit the selected polygon.
             m.fit_bounds(folium.GeoJson(aoi).get_bounds())
         folium.TileLayer(
             tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
@@ -103,11 +104,11 @@ def app():
         folium.LayerControl().add_to(m)
         folium_static(m, width=600)
 
-# ---------------------------- 결과  ---------------------------
-    # 페이지 레이아웃 설정
+# ---------------------------- Result Screen ---------------------------
+    # Page layout settings
     empty1, col3, empty2 = st.columns([0.12,0.8, 0.12])
 
-    # 그래프 영역
+    # Graph section
     if proceed_button:
         k=0
         with col3:
@@ -120,12 +121,12 @@ def app():
             with st.spinner("변화탐지 분석중"):
                 
 
-                # Folium에 Earth Engine 그리기 메서드 추가
+                # Adding a Draw Plug-in to a Folium Map.
                 folium.Map.add_ee_layer = check_ts_changes_func.add_ee_layer
-                # GeoJSON 파일에서 추출한 관심 지역을 Earth Engine 폴리곤으로 변환
+                # Convert AOI extracted from GeoJSON file to Earth Engine polygon
                 aoi = ts_trend_analysis_func.create_ee_polygon_from_geojson(aoi)
 
-                #위성이 12일 주기인 것을 고려하여 선택된 날짜 앞뒤 6일에 영상이 있는지 확인하기 위해 날짜 더하고 빼주는 코드
+                # Calculate the date considering that the satellite(Sentinel-1) is a 12-day cycle
                 start_f = start_date - timedelta(days=6)
                 start_b = start_date + timedelta(days=5)
                 end_f = end_date - timedelta(days=6)
@@ -135,7 +136,7 @@ def app():
                 start_b = start_b.strftime('%Y-%m-%d')
                 end_b = end_b.strftime('%Y-%m-%d')
             
-                # SAR 데이터(Float) 로드
+                # S1_GRD_FLOAT load
                 ffa_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT') 
                                     .filterBounds(aoi) 
                                     .filterDate(ee.Date(start_f), ee.Date(start_b))
@@ -149,42 +150,34 @@ def app():
                                     .first() 
                                     .clip(aoi))
 
-                #VH는 거의 없어 VV만으로
+                # VH band is rarely included. Select and output only VV band
                 im1 = ee.Image(ffa_fl).select('VV').clip(aoi)
                 im2 = ee.Image(ffb_fl).select('VV').clip(aoi)
                 
                 ratio = im1.divide(im2)
             
-                # 두장의 비율 이미지 Ratio에 대한 통계값 계산
-                # 히스토그램/평균/분산(최소,최대)
+                # Calculate statistics for two proportional image ratios
                 try:
                     hist = ratio.reduceRegion(ee.Reducer.fixedHistogram(0, 5, 500), aoi).get('VV').getInfo()
                 except Exception as e:
                     st.write("시작날짜 혹은 끝날짜에 해당되는 SAR위성영상이 없습니다.")
                     k=1
-                if k==0:
-                    mean = ratio.reduceRegion(ee.Reducer.mean(), aoi).get('VV').getInfo()
-                    variance = ratio.reduceRegion(ee.Reducer.variance(), aoi).get('VV').getInfo()
-                    v_min = ratio.select('VV').reduceRegion(
-                        ee.Reducer.min(), aoi).get('VV').getInfo()
-                    v_max = ratio.select('VV').reduceRegion(
-                        ee.Reducer.max(), aoi).get('VV').getInfo()
-
-                    m1 = 5 # 임의의 값
-                    # F-분포의 CDF 함수를 정의
+                if k==0: # If no exceptions have occurred, do the code below.
+                    m1 = 5 # degree of freedom
+                    # Calculate F distribution PPF(Percentile Point Function)
                     dt = f.ppf(0.0005, 2*m1, 2*m1)
 
-                    # LRT(Likelihood Ratio Test:우도비 검정) 통계량 계산
+                    # LRT(Likelihood Ratio Test) statistics.
                     q1 = im1.divide(im2)
                     q2 = im2.divide(im1)
 
-                    # Change map: 0 = 변화 없음, 1 = 강도 감소, 2 = 강도 증가
-                    c_map = im1.multiply(0).where(q2.lt(dt), 1)#먼저 0으로 다 곱하고 감소면 1
-                    c_map = c_map.where(q1.lt(dt), 2)#증가면 2
+                    # Change map with 0 = no change, 1 = decrease, 2 = increase in intensity.
+                    c_map = im1.multiply(0).where(q2.lt(dt), 1) #Change all values to zero first and the reduced parts to one.
+                    c_map = c_map.where(q1.lt(dt), 2)#The increasing parts to two.
 
-                    # 변화 없는(no change) 픽셀 마스크 처리
+                    # Mask no-change pixels.
                     c_map = c_map.updateMask(c_map.gt(0))
-
+                    # Display map with red for increase and blue for decrease in intensity.
                     location = aoi.centroid().coordinates().getInfo()[::-1]
                     mp = folium.Map(
                         location=location,
@@ -197,18 +190,18 @@ def app():
                     ).add_to(mp)
                     folium.LayerControl().add_to(m)
 
-                    # 변화 지도 레이어 추가 
+                    # Add C_map layer.
                     mp.add_ee_layer(c_map,
                                     {'min': 0, 'max': 2, 'palette': ['00000000', '#FF000080', '#0000FF80']},  # 변화 없음: 투명, 감소: 반투명 파랑, 증가: 반투명 빨강
                                     'Change Map')
                     mp.add_child(folium.LayerControl())
 
-                    # 스트림릿에 folium맵 출력
+                    # Displaying a Map in a Streamlet
                     folium_static(mp,width=970)
 
-                # ---------------------- 범례 ---------------------- 
+                # ---------------------- Legend ---------------------- 
                 st.write("")    
-                # CSS 스타일
+                # CSS style
                 css_style = """
                 <style>
                 .legend {
@@ -238,7 +231,7 @@ def app():
                 </style>
                 """
 
-                # HTML 내용
+                # HTML content
                 html_content = """
                 <div class="legend">
                 <div class="legend-item">
@@ -259,7 +252,7 @@ def app():
                 </div>
                 """
 
-                # Streamlit에 적용
+                # Apply to Streamlit
                 st.markdown(css_style, unsafe_allow_html=True)
                 st.markdown(html_content, unsafe_allow_html=True)
            
@@ -284,7 +277,7 @@ def app():
                         st.write(f"After : {im2_date}")
 
 
-                    #계산없이 이미지로 바로 볼 때는 GRD 불러오는 게 좋음
+                    #It is better to import GRD when viewed directly in an image without calculation.
                     ffa_fl = ee.Image(ee.ImageCollection('COPERNICUS/S1_GRD') 
                                             .filterBounds(aoi) 
                                             .filterDate(ee.Date(start_f), ee.Date(start_b))
@@ -298,11 +291,11 @@ def app():
                                             .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING')) 
                                             .first()) 
                     
-                    # VV 뽑기
+                    # Extract VV
                     ffa_fl = ee.Image(ffa_fl).select('VV').clip(aoi)
                     ffb_fl =ee.Image(ffb_fl).select('VV').clip(aoi)
 
-                    #영상 tile로 만들기
+                    # To create a side by side map, the value of control must be False.
                     def make_layer(ee_image_object, vis_params, name):
                         map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
                         tile_layer = folium.raster_layers.TileLayer(
@@ -322,20 +315,20 @@ def app():
                         overlay=True
                     ).add_to(mp)
                     folium.LayerControl().add_to(m)
-                    # 시각화 매개변수
+
                     vis_params = {'min': -20, 'max': 0}
 
-                    # 레이어 맹글기
+                    # Create a layer to side into the map.
                     ffa_fl_layer = make_layer(ffa_fl, vis_params, 'Image 1')
                     ffb_fl_layer = make_layer(ffb_fl, vis_params, 'Image 2')
 
-                    # Side by Side 플러그인 사용을 위해 만든 레이어 sbs에 넣고 mp2에 추가
+                    # Add layer made for side by side plug-in to sbs and add sbs to mp2.
                     sbs = folium.plugins.SideBySideLayers(ffa_fl_layer, ffb_fl_layer)
                     ffa_fl_layer.add_to(mp2)
                     ffb_fl_layer.add_to(mp2)
                     sbs.add_to(mp2)
 
-                    # 스트림릿에 folium맵 출력
+                    # Displaying a Map in a Streamlet
                     folium_static(mp2,width=970)
 
 

@@ -6,29 +6,30 @@ from io import BytesIO
 import json
 import os
 
+# Define key application functions
 def app():
-    # 페이지 레이아웃 설정
+    # Page layout settings
     empty1, col0, empty2 = st.columns([0.1,1.0, 0.1])
     with col0:
         st.title("🗺️ 지도확인")
         st.write("---" * 20)
 
-        # VWorld 지도 설정
-        vworld_key="3F753587-6509-3D99-8F79-9B82473EAAAF" # VWorld API 키
-        layer = "Satellite" # VWorld 레이어
-        tileType = "jpeg" # 타일 유형
+        # VWorld map settings
+        vworld_key="3F753587-6509-3D99-8F79-9B82473EAAAF" # VWorld API key
+        layer = "Satellite" # VWorld layer
+        tileType = "jpeg" # Tile type
 
-        # 관심영역 파일 경로 설정
+        # Setting up the path to the ROI file
         geojson_path = 'aoi.geojson'
 
-        # 관심영역 데이터 불러오기 또는 초기화
+        # Import or initialize region of interest data
         if os.path.exists(geojson_path):
             with open(geojson_path, 'r', encoding='utf-8') as f:
                 geojson_data = json.load(f)
         else:
             geojson_data = {"type": "FeatureCollection", "features": []}
 
-        # 관심영역 이름 목록 추출
+        # Extract the list of interest names
         aoi_names = [feature["properties"]["name"] for feature in geojson_data["features"]]
 
 
@@ -48,20 +49,19 @@ def app():
                             if feature["properties"]["name"] == selected_aoi_name), None)
         
         if st.button('관심 영역 조회'):
-        # 선택된 관심 지역이 있을 경우에만 해당 지역 폴리곤 표시
+        # Display the local polygon only if there is a selected AOI.
             if selected_aoi:
                 folium.GeoJson(
                     selected_aoi,
                     name=selected_aoi_name,
                     style_function=lambda x: {'fillColor': 'blue', 'color': 'blue'}
                 ).add_to(m)
-                # 지도를 선택된 폴리곤에 맞게 조정
+                # Adjust the map to fit the selected polygon.
                 m.fit_bounds(folium.GeoJson(selected_aoi).get_bounds())
 
             else:
                 st.error("선택된 관심 영역을 찾을 수 없습니다.")
-            # Streamlit 앱에 지도 표시
-
+        # Displaying a Map in a Streamlet
         folium_static(m)
 
 

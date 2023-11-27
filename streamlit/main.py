@@ -1,19 +1,19 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
 
-# 서브 페이지 임포트
+# import sub_page
 from subpage import home, timelapse, check_changes, check_ts_changes, ts_trend_analysis, aoi_revision
 
 
 def launch() :
-    # ---------------------------------- 홈 뼈대 ----------------------------------
+    # ---------------------------------- Home ----------------------------------
     st.set_page_config(page_title='국립공원공단 SAR 변화탐지 서비스', page_icon="🛰️", layout='wide', initial_sidebar_state='collapsed')
     
-        # 제목
+        # tile
     st.markdown("""
         <h1 style='text-align: center; font-size: 100px;'>🛰️ SBS SERVICE 🛰️</h1>
         """, unsafe_allow_html=True)
-    # 부제목
+    # sub_title
     st.markdown("""
         <h3 style='text-align: center; font-size: 30px;'> SAR를 활용한 블루카본 변화탐지 서비스 </h3>
         """, unsafe_allow_html=True)
@@ -21,8 +21,7 @@ def launch() :
     st.write("-------"*20)
 
 
-    # ------------------------------- 메인 네비게이터 --------------------------------
-    # 옵션 메뉴 
+    # ------------------------------- main navigator -------------------------------- 
     v_menu = ["홈", "타입랩스", "변화탐지 확인", "시계열 변화탐지 확인", "시계열 경향성 분석", "관심영역 추가"]
 
     selected = option_menu(

@@ -1,24 +1,23 @@
 import streamlit as st
 
-# 로고 설정
+# Logo settings
 def app():
-    # 섹션 나누기
+    # Dividing sections
     empty1,col1,col2,col3,col4,empty2 = st.columns([0.5,0.3,0.3,0.3,0.3,0.5], gap="small")
     
-    with col1: # 국립공원공단 로고
+    with col1: # KNPS Logo
         st.image("logo/knps_logo.png")
-    with col2: # 빅리더 로고
+    with col2: # BigLeader Logo
         st.image("logo/bigleader_logo.png")
-    with col3: # 구글 로고
+    with col3: # Google Logo
         st.image("logo/google_logo.png")
-    with col4: # 메타 로고
+    with col4: # Meta Logo
         st.image("logo/meta_logo.png")
 
 
-    # 로고 타입랩스
+    # Logo timelapse
     empty3,col5,empty4 = st.columns([0.3,0.5,0.3])
     with col5 : 
-        # 로고 타임랩스 표시
         st.image("logo/mainpage_logo_wh.gif",  use_column_width="always")
         
 
