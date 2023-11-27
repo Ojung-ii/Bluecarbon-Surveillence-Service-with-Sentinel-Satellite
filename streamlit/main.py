@@ -9,10 +9,13 @@ def launch() :
     # ---------------------------------- Home ----------------------------------
     st.set_page_config(page_title='국립공원공단 SAR 변화탐지 서비스', page_icon="🛰️", layout='wide', initial_sidebar_state='collapsed')
     
-        # tile
-    st.markdown("""
-        <h1 style='text-align: center; font-size: 100px;'>🛰️ SBS SERVICE 🛰️</h1>
-        """, unsafe_allow_html=True)
+    # tile
+    # st.markdown("""
+    #     <h1 style='text-align: center; font-size: 100px;'>🛰️ BLUE CHECK 🛰️</h1>
+    #     """, unsafe_allow_html=True)
+    empty1, title, empty2 = st.columns([0.4,0.6,0.4])
+    with title :
+        st.image("logo/bluecheck_logo.png")
     # sub_title
     st.markdown("""
         <h3 style='text-align: center; font-size: 30px;'> SAR를 활용한 블루카본 변화탐지 서비스 </h3>
