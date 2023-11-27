@@ -4,6 +4,7 @@ from streamlit_folium import folium_static
 import json
 import ts_trend_analysis_func
 import datetime
+import llm
 # VWorld 지도 설정
 vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179" # VWorld API 키
 layer = "Satellite" # VWorld 레이어
@@ -130,7 +131,8 @@ def app():
             ts_trend_analysis_func.plotly(df,forecast)
             # 시계열 결과 플로팅
             st.pyplot(fig2)
-
+            result_df, max_date, min_date, seasonal_trend = ts_trend_analysis_func.ts_analysis(forecast)
+            st.write(llm.process_llm(result_df))
         # NDVI
         with expander_ndvi:
             st.markdown("""

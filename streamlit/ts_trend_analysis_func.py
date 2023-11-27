@@ -72,6 +72,42 @@ def calculateNDVI(aoi, start_date, end_date):
     df = pd.DataFrame([feat['properties'] for feat in rvi_features])
     return df
 
+def calculateFAI(aoi, start_date, end_date):
+    # Sentinel-2 ImageCollection 필터링 및 구름 마스킹 적용
+    sentinel2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
+            .filterBounds(aoi) \
+            .filterDate(start_date, end_date)\
+            .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 30))
+    # NDVI 계산 및 시계열 데이터 생성 함수
+    def calculate_fai(image):
+        date = ee.Date(image.get('system:time_start')).format('YYYY-MM-dd')
+        lambda_nir = 832.8
+        lambda_red = 664.6
+        lambda_swir1 = 1613.7
+
+        # Sentinel-2 밴드 선택
+        red = image.select('B4')   # Red 밴드
+        nir = image.select('B8')   # NIR 밴드
+        swir1 = image.select('B11') # SWIR1 밴드
+        # FAI 계산
+        fai = nir.subtract(red).add(
+            swir1.subtract(red).multiply(
+                (lambda_nir - lambda_red) / (lambda_swir1 - lambda_red)
+            )
+        )
+        mean_fai = fai.reduceRegion(
+            reducer=ee.Reducer.mean(),
+            geometry=aoi,
+            scale=10  
+        ).get('ndvi')
+        return ee.Feature(None, {'ds': date, 'y': mean_fai})
+    time_series_ndvi = sentinel2.map(calculate_fai)
+    # 결과를 서버측 객체로 변환 (Python 클라이언트로 가져오기 위함)
+    rvi_features = time_series_ndvi.getInfo()['features']
+    # 결과를 pandas DataFrame으로 변환
+    df = pd.DataFrame([feat['properties'] for feat in rvi_features])
+    return df
+
 def calculateWAVI(aoi, start_date, end_date):
     # Sentinel-2 ImageCollection 필터링 및 구름 마스킹 적용
     sentinel2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
@@ -208,15 +244,16 @@ def plotly(df, forecast):
     # 생성된 combined_fig 그래프를 st.plotly_chart()를 사용하여 화면에 표시하기
     st.plotly_chart(combined_fig, use_container_width = True)
 
+import pandas as pd
+
 def ts_analysis(df):
     # 날짜 컬럼을 datetime 형식으로 변환
     df['ds'] = pd.to_datetime(df['ds'])
 
     # 최대값과 최소값의 일자 찾기
-    max_date = df[df['yhat'] == df['yhat'].max()]['ds']
-    min_date = df[df['yhat'] == df['yhat'].min()]['ds']
+    max_date = df[df['yhat'] == df['yhat'].max()]['ds'].iloc[0]
+    min_date = df[df['yhat'] == df['yhat'].min()]['ds'].iloc[0]
 
-    # 계절별 경향성 분석
     # 계절을 구분하기 위한 함수 정의
     def get_season(month):
         if month in [3, 4, 5]:
@@ -249,5 +286,12 @@ def ts_analysis(df):
     # 매년 평균값을 전체 평균값으로 나누어 상대적인 비율 계산
     annual_relative = annual_avg / overall_avg
 
-    return seasonal_relative, annual_relative, max_date, min_date, seasonal_trend, monthly_avg
-    # 상대적인 비율로 계절별 경향성과 매년 평균값 계산
+    # 매월 평균값을 전체 평균값으로 나누어 상대적인 비율 계산
+    monthly_relative = monthly_avg / overall_avg
+
+    result_df = pd.DataFrame({'seasonal_relative': seasonal_relative,
+                              'annual_relative': annual_relative,
+                              'monthly_relative': monthly_relative
+    })
+
+    return result_df, max_date, min_date, seasonal_trend
