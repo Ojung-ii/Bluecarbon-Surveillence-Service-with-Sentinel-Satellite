@@ -6,7 +6,7 @@ from io import BytesIO
 import json
 import os
 
-# Define key application functions
+# Define key application functions.
 def app():
     # Page layout settings
     empty1, col0, empty2 = st.columns([0.1,1.0, 0.1])
@@ -19,17 +19,17 @@ def app():
         layer = "Satellite" # VWorld layer
         tileType = "jpeg" # Tile type
 
-        # Setting up the path to the ROI file
+        # Setting up the path to the ROI file.
         geojson_path = 'aoi.geojson'
 
-        # Import or initialize region of interest data
+        # Import or initialize region of interest data.
         if os.path.exists(geojson_path):
             with open(geojson_path, 'r', encoding='utf-8') as f:
                 geojson_data = json.load(f)
         else:
             geojson_data = {"type": "FeatureCollection", "features": []}
 
-        # Extract the list of interest names
+        # Extract the list of interest names.
         aoi_names = [feature["properties"]["name"] for feature in geojson_data["features"]]
 
 
@@ -61,7 +61,7 @@ def app():
 
             else:
                 st.error("선택된 관심 영역을 찾을 수 없습니다.")
-        # Displaying a Map in a Streamlet
+        # Displaying a Map in a Streamlet.
         folium_static(m)
 
 

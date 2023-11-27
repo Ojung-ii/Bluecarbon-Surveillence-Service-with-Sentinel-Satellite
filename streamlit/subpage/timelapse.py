@@ -31,7 +31,7 @@ Sentinel-1(레이더)과 Sentinel-2(광학) 위성 데이터를 활용하여 타
     with open('aoi.geojson', 'r', encoding="utf-8") as f:
         geojson_data = json.load(f)
 
-    # Importing a list of local names from a GeoJSON file
+    # Importing a list of local names from a GeoJSON file.
     area_names = [feature['properties']['name'] for feature in geojson_data['features']]
     area_names.append("새로운 관심영역 넣기")  # 드롭다운 목록에 새 옵션 추가
 
@@ -59,22 +59,22 @@ Sentinel-1(레이더)과 Sentinel-2(광학) 위성 데이터를 활용하여 타
             frequency_label = st.selectbox('빈도 선택 : ', options=list(frequency_options.keys()))
             frequency = frequency_options[frequency_label]
 
-            # Enable file upload function when '새로운 관심영역 넣기' is selected
+            # Enable file upload function when '새로운 관심영역 넣기' is selected.
             if selected_name == "새로운 관심영역 넣기":
                 uploaded_file = st.file_uploader("GeoJSON 파일을 업로드하세요", type=['geojson'])
                 if uploaded_file is not None:
                     aoi = json.load(uploaded_file)
             else:
-                # Select an existing AOI
+                # Select an existing AOI.
                 aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
                 
                 aoi = create_ee_polygon_from_geojson(aoi)
 
-            # Use the 'strftime' function to convert the date to a format of 'YYYYMMDD' that is compatible with the gemap function
+            # Use the 'strftime' function to convert the date to a format of 'YYYYMMDD' that is compatible with the gemap function.
             formatted_start_date = start_date.strftime('%Y%m%d') # Correctly formatted as 'YYYYMMDD'
             formatted_end_date = end_date.strftime('%Y%m%d') # Correctly formatted as 'YYYYMMDD'
 
-            # Run Analysis button
+            # Run Analysis button.
             st.write("")
             proceed_button = st.form_submit_button("☑️ 타임랩스 생성")
 
@@ -86,15 +86,15 @@ Sentinel-1(레이더)과 Sentinel-2(광학) 위성 데이터를 활용하여 타
             with st.spinner('타임랩스를 생성하는 중입니다...'):
                 output_gif = './timelapse.gif'  # Path and file name to store the created timelapse
                 
-                # If Sentinel-1 is selected
+                # If Sentinel-1 is selected.
                 if dataset == 'Sentinel-1(레이더)':
-                    # create_sentinel1_timelapse 
+                    # Create_sentinel1_timelapse.
                     create_sentinel1_timelapse(aoi, formatted_start_date, formatted_end_date, frequency, output_gif)    
                     st.image(output_gif, caption=f'{dataset} 타임랩스', use_column_width=True)
                 
-                # If Sentinel-2 is selected
+                # If Sentinel-2 is selected.
                 elif dataset == 'Sentinel-2(광학)':
-                    # create_sentinel2_timelapse 
+                    # Create_sentinel2_timelapse.
                     create_sentinel2_timelapse(aoi, formatted_start_date, formatted_end_date, frequency, output_gif)
                     st.image(output_gif, caption=f'{dataset} 타임랩스', use_column_width=True ) 
 

@@ -18,7 +18,7 @@ vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179"
 layer = "Satellite" 
 tileType = "jpeg"  
 
-# Define key application functions
+# Define key application functions.
 def app():
      # Page layout settings
     empty1, col0, empty2 = st.columns([0.1,1.0, 0.1])
@@ -44,7 +44,7 @@ def app():
     with open('aoi.geojson', 'r', encoding="utf-8") as f:
         geojson_data = json.load(f)
 
-    # Importing a list of local names from a GeoJSON file
+    # Importing a list of local names from a GeoJSON file.
     area_names = [feature['properties']['name'] for feature in geojson_data['features']]
     area_names.append("새로운 관심영역 넣기")  # Add a new option to the drop-down list.
 
@@ -58,23 +58,23 @@ def app():
     with col2:
         with st.form("조건 폼"):
 
-            # Select Area of Interest
+            # Select Area of Interest.
             selected_name = st.selectbox("관심 영역을 선택하세요:", area_names)
             
-            # Enable file upload function when '새로운 관심영역 넣기' is selected
+            # Enable file upload function when '새로운 관심영역 넣기' is selected.
             if selected_name == "새로운 관심영역 넣기":
                 uploaded_file = st.file_uploader("GeoJSON 파일을 업로드하세요", type=['geojson'])
                 if uploaded_file is not None:
                     aoi = json.load(uploaded_file)
             else:
-                # Select an existing AOI
+                # Select an existing AOI.
                 aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
 
             # Date Settings
             start_date = st.date_input('시작날짜 (2015.05 ~) :',time_func.one_month_ago_f_t()) # Default: Today - one month.
             end_date = st.date_input('끝날짜 선택하세요:')# Default: Today
 
-            # Run Analysis button
+            # Run Analysis button.
             st.write("")
             proceed_button = st.form_submit_button("☑️ 분석 실행")  
         
@@ -103,7 +103,7 @@ def app():
         ).add_to(m)
         folium.LayerControl().add_to(m)
 
-        # Displaying a Map in a Streamlet
+        # Displaying a Map in a Streamlet.
         folium_static(m, width=600)
 
 # ---------------------------- Result Screen ---------------------------
@@ -182,7 +182,7 @@ def app():
                 </div>
                 """
 
-                # Apply to Streamlit
+                # Apply to Streamlit.
                 st.markdown(css_style, unsafe_allow_html=True)
                 st.markdown(html_content, unsafe_allow_html=True)
                 st.write("")
@@ -192,7 +192,7 @@ def app():
                 folium.Map.add_ee_layer = check_ts_changes_func.add_ee_layer
                 aoi = ts_trend_analysis_func.create_ee_polygon_from_geojson(aoi)
                 
-                # Calculate the date considering that the satellite(Sentinel-1) is a 12-day cycle
+                # Calculate the date considering that the satellite(Sentinel-1) is a 12-day cycle.
                 start_f = start_date - timedelta(days=6)
                 end_b = end_date + timedelta(days=6)
                 start_f = start_f.strftime('%Y-%m-%d')
@@ -214,13 +214,13 @@ def app():
                             .map(lambda d: ee.String('T').cat(ee.String(d)))
                             .getInfo())
                 
-                # Define clip function
+                # Define clip function.
                 def clip_img(img):
                     return ee.Image(img).clip(aoi)
                 im_list = im_coll.toList(im_coll.size())
                 im_list = ee.List(im_list.map(clip_img))
 
-                # VH band is rarely included. Select and output only VV band
+                # VH band is rarely included. Select and output only VV band.
                 def selectvv(current):
                     return ee.Image(current).select('VV')
 
@@ -252,7 +252,7 @@ def app():
                     mp.add_ee_layer(cmaps.select(timestamplist[i]), {'min': 0,'max': 3, 'palette': palette}, timestamplist[i])
 
                 mp.add_child(folium.LayerControl())
-                # Displaying a Map in a Streamlet
+                # Displaying a Map in a Streamlet.
                 folium_static(mp,width=970)
 
 

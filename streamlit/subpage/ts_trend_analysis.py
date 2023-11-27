@@ -36,7 +36,7 @@ def app():
     with open('aoi.geojson', 'r', encoding="utf-8") as f:
         geojson_data = json.load(f)
 
-    # Importing a list of local names from a GeoJSON file
+    # Importing a list of local names from a GeoJSON file.
     area_names = [feature['properties']['name'] for feature in geojson_data['features']]
     area_names.append("새로운 관심영역 넣기")  # 드롭다운 목록에 새 옵션 추가
 
@@ -53,7 +53,7 @@ def app():
             # Select Area of Interest
             selected_name = st.selectbox("관심영역 선택 :", area_names)
             
-            # Enable file upload function when '새로운 관심영역 넣기' is selected
+            # Enable file upload function when '새로운 관심영역 넣기' is selected.
             if selected_name == "새로운 관심영역 넣기":
                 uploaded_file = st.file_uploader("GeoJSON 파일을 업로드하세요", type=['geojson'])
                 if uploaded_file is not None:
@@ -66,7 +66,7 @@ def app():
             start_date = st.date_input('시작날짜 (2015.05 ~) :',datetime.date(2017, 1, 1)).strftime('%Y-%m-%d') 
             end_date = st.date_input('끝날짜 (~ 오늘) :').strftime('%Y-%m-%d') # 디폴트: 오늘 날짜
             
-            # Run Analysis button
+            # Run Analysis button.
             st.write("")
             proceed_button = st.form_submit_button("☑️ 분석 실행")
         
@@ -106,7 +106,7 @@ def app():
         st.write('')
         st.write('')
         
-        # Create 'Expander' to view each vegetation index result
+        # Create 'Expander' to view each vegetation index result.
         expander_rvi = st.expander("레이더 식생지수 분석결과", expanded=False)
         expander_ndvi = st.expander("광학 식생지수 분석결과(육상 특화)", expanded=False)
         # expander_wavi = st.expander("WAVI(물조정) 분석결과", expanded=False)
@@ -114,7 +114,7 @@ def app():
         expander_wevi = st.expander("광학 식생지수 분석결과(수상 특화)", expanded=False)
         # expander_wtdvi = st.expander("WTDVI 분석결과", expanded=False)
         
-        # Use Prophet to run time series analysis and visualize results
+        # Use Prophet to run time series analysis and visualize results.
         parse_aoi = ts_trend_analysis_func.create_ee_polygon_from_geojson(aoi)
 
         # RVI

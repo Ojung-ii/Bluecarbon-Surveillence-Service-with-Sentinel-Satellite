@@ -11,7 +11,7 @@ from scipy.optimize import bisect
 import ts_trend_analysis_func
 import time_func
 
-# Google Earth Engine Initialize
+# Google Earth Engine Initialization
 ee.Initialize()
 
 # VWorld map settings
@@ -19,7 +19,7 @@ vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179" # VWorld API key
 layer = "Satellite" # VWorld layer
 tileType = "jpeg" # Tile type
 
-# Define key application functions
+# Define key application functions.
 def app():
     k=0
     # Page layout settings
@@ -44,11 +44,11 @@ def app():
     with open('aoi.geojson', 'r', encoding="utf-8") as ff:
         geojson_data = json.load(ff)
 
-    # Importing a list of local names from a GeoJSON file
+    # Importing a list of local names from a GeoJSON file.
     area_names = [feature['properties']['name'] for feature in geojson_data['features']]
     area_names.append("새로운 관심영역 넣기")  # Add a new option to the drop-down list.
 
-    # Dividing sections
+    # Dividing sections.
     empty1, col1, col2, empty2 = st.columns([0.1,0.5, 0.3, 0.1])
 
     # Area Of Interest initialization
@@ -60,20 +60,20 @@ def app():
             # Select Area of Interest
             selected_name = st.selectbox("관심영역 선택 :", area_names)
             
-            # Enable file upload function when '새로운 관심영역 넣기' is selected
+            # Enable file upload function when '새로운 관심영역 넣기' is selected.
             if selected_name == "새로운 관심영역 넣기":
                 uploaded_file = st.file_uploader("GeoJSON 파일을 업로드하세요", type=['geojson'])
                 if uploaded_file is not None:
                     aoi = json.load(uploaded_file)
             else:
-                # Select an existing AOI
+                # Select an existing AOI.
                 aoi = next((feature for feature in geojson_data['features'] if feature['properties']['name'] == selected_name), None)
 
             # Date Settings
             start_date = st.date_input('시작날짜 (2015.05 ~) :',time_func.one_month_ago_f_t()) # Default: Today - one month
             end_date = st.date_input('끝날짜 (~ 오늘) :') # Default: Today
 
-            # Run Analysis button
+            # Run Analysis button.
             st.write("")
             proceed_button = st.form_submit_button("☑️ 분석 실행")
         
@@ -123,10 +123,10 @@ def app():
 
                 # Adding a Draw Plug-in to a Folium Map.
                 folium.Map.add_ee_layer = check_ts_changes_func.add_ee_layer
-                # Convert AOI extracted from GeoJSON file to Earth Engine polygon
+                # Convert AOI extracted from GeoJSON file to Earth Engine polygon.
                 aoi = ts_trend_analysis_func.create_ee_polygon_from_geojson(aoi)
 
-                # Calculate the date considering that the satellite(Sentinel-1) is a 12-day cycle
+                # Calculate the date considering that the satellite(Sentinel-1) is a 12-day cycle.
                 start_f = start_date - timedelta(days=6)
                 start_b = start_date + timedelta(days=5)
                 end_f = end_date - timedelta(days=6)
@@ -150,13 +150,13 @@ def app():
                                     .first() 
                                     .clip(aoi))
 
-                # VH band is rarely included. Select and output only VV band
+                # VH band is rarely included. Select and output only VV band.
                 im1 = ee.Image(ffa_fl).select('VV').clip(aoi)
                 im2 = ee.Image(ffb_fl).select('VV').clip(aoi)
                 
                 ratio = im1.divide(im2)
             
-                # Calculate statistics for two proportional image ratios
+                # Calculate statistics for two proportional image ratios.
                 try:
                     hist = ratio.reduceRegion(ee.Reducer.fixedHistogram(0, 5, 500), aoi).get('VV').getInfo()
                 except Exception as e:
@@ -164,10 +164,10 @@ def app():
                     k=1
                 if k==0: # If no exceptions have occurred, do the code below.
                     m1 = 5 # degree of freedom
-                    # Calculate F distribution PPF(Percentile Point Function)
+                    # Calculate F distribution PPF(Percentile Point Function).
                     dt = f.ppf(0.0005, 2*m1, 2*m1)
 
-                    # LRT(Likelihood Ratio Test) statistics.
+                    # LRT(Likelihood Ratio Test) statistics
                     q1 = im1.divide(im2)
                     q2 = im2.divide(im1)
 
@@ -196,7 +196,7 @@ def app():
                                     'Change Map')
                     mp.add_child(folium.LayerControl())
 
-                    # Displaying a Map in a Streamlet
+                    # Displaying a Map in a Streamlet.
                     folium_static(mp,width=970)
 
                 # ---------------------- Legend ---------------------- 
@@ -252,7 +252,7 @@ def app():
                 </div>
                 """
 
-                # Apply to Streamlit
+                # Apply to Streamlit.
                 st.markdown(css_style, unsafe_allow_html=True)
                 st.markdown(html_content, unsafe_allow_html=True)
            
@@ -268,7 +268,7 @@ def app():
                     st.write('')
                     
                     col4, col5 = st.columns([0.5,0.5])
-                    # Extract and display the date of image
+                    # Extract and display the date of image.
                     im1_date = ee.Image(ffa_fl).date().format('YYYY-MM-dd').getInfo()
                     im2_date = ee.Image(ffb_fl).date().format('YYYY-MM-dd').getInfo()
                     with col4:
@@ -291,7 +291,7 @@ def app():
                                             .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING')) 
                                             .first()) 
                     
-                    # Extract VV
+                    # Extract VV.
                     ffa_fl = ee.Image(ffa_fl).select('VV').clip(aoi)
                     ffb_fl =ee.Image(ffb_fl).select('VV').clip(aoi)
 
@@ -328,7 +328,7 @@ def app():
                     ffb_fl_layer.add_to(mp2)
                     sbs.add_to(mp2)
 
-                    # Displaying a Map in a Streamlet
+                    # Displaying a Map in a Streamlet.
                     folium_static(mp2,width=970)
 
 
