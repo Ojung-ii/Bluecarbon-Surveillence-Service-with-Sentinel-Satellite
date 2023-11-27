@@ -14,9 +14,9 @@ def app():
         st.write("---" * 20)
 
         # Set up VWorld Map. 
-        vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179" # VWorld API 키
-        layer = "Satellite" # VWorld 레이어
-        tileType = "jpeg" # 타일 유형
+        vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179" # VWorld API key
+        layer = "Satellite" # VWorld layer
+        tileType = "jpeg" # tile type
 
         # Set up the path to the region of interest file.
         geojson_path = 'aoi.geojson'
