@@ -131,9 +131,26 @@ def app():
             ts_trend_analysis_func.plotly(df,forecast)
             # 시계열 결과 플로팅
             st.pyplot(fig2)
-            result_df, max_date, min_date, seasonal_trend = ts_trend_analysis_func.ts_analysis(forecast)
-            st.write(llm.process_llm(result_df))
+            seasonal_relative,annual_relative,monthly_relative, max_date, min_date, seasonal_trend = ts_trend_analysis_func.ts_analysis(forecast)
+            st.write(seasonal_relative)
+            st.write(annual_relative)
+            st.write(monthly_relative)
+            st.write(max_date)
+            st.write(min_date)
+            st.write(seasonal_trend)
+            # st.write(llm.process_llm(result_df))
         # NDVI
+        with expander_ndvi:
+            st.markdown("""
+                <h3 style='text-align: center; font-size: 30px;'>광학 식생지수</h3>
+                """, unsafe_allow_html=True)
+            df2 = ts_trend_analysis_func.calculateNDVI(parse_aoi,start_date,end_date)
+            forecast2,forecast_df2,df2,m2 = ts_trend_analysis_func.prophet_process(df2)
+            fig22 = m2.plot_components(forecast2)
+            ts_trend_analysis_func.plotly(df2,forecast2)
+            
+            # 시계열 결과 플로팅
+            st.pyplot(fig22)
         with expander_ndvi:
             st.markdown("""
                 <h3 style='text-align: center; font-size: 30px;'>광학 식생지수</h3>
