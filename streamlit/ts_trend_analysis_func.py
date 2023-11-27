@@ -289,9 +289,4 @@ def ts_analysis(df):
     # 매월 평균값을 전체 평균값으로 나누어 상대적인 비율 계산
     monthly_relative = monthly_avg / overall_avg
 
-    result_df = pd.DataFrame({'seasonal_relative': seasonal_relative,
-                              'annual_relative': annual_relative,
-                              'monthly_relative': monthly_relative
-    })
-
-    return result_df, max_date, min_date, seasonal_trend
+    return seasonal_relative,annual_relative,monthly_relative, max_date, min_date, seasonal_trend
