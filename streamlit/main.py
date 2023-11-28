@@ -20,7 +20,7 @@ def launch() :
         st.image("logo/bluecheck_title_logo.png")
     # sub_title
     st.markdown("""
-        <h3 style='text-align: center; font-size: 30px;'> SAR를 활용한 블루카본 변화탐지 서비스 </h3>
+        <h3 style='text-align: center; font-size: 30px;'> 위성영상을 활용한 블루카본 변화탐지 서비스 </h3>
         """, unsafe_allow_html=True)
     
     st.write("-------"*20)
