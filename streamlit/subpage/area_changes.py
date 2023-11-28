@@ -156,16 +156,6 @@ def app():
                                         
                 col5,col6 = st.columns([0.7,0.3])
                 with col5:
-                    # col7, col8 = st.columns([0.5,0.5])
-                    # Extract and display the date of image.
-                    # im1_date = ee.Image(ffa_fl).date().format('YYYY-MM-dd').getInfo()
-                    # im2_date = ee.Image(ffb_fl).date().format('YYYY-MM-dd').getInfo()
-                    
-                    # with col7:
-                    #     st.write(f"Before : {im1_date}")
-                    # with col8 : 
-                    #     st.write(f"After : {im2_date}")
-                        
                     # side by side    
                     fai_s2_sr_sec_img = mask_for_aoi(s2_sr_sec_img, aoi)
                     fai_s2_sr_sec_img_parse = process_image(fai_s2_sr_sec_img)
@@ -204,7 +194,7 @@ def app():
                     df = pd.DataFrame({
                                 "관심영역 전체": [all_area],
                                 "첫번째 사진": [area_1 / 1_000_000],
-                                "두번째 사진)": [area_2 / 1_000_000]}, index= ["면적(km^2)"])
+                                "두번째 사진": [area_2 / 1_000_000]}, index= ["면적(km^2)"])
 
                     st.dataframe(df.T, use_container_width = True)
                     st.bar_chart(df.T, use_container_width = True)
