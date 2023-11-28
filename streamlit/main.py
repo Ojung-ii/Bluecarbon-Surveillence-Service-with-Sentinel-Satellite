@@ -31,7 +31,6 @@ def launch() :
         if auth:
             service_account = 'national-project@gunwo3442.gserviceaccount.com'
             credentials = ee.ServiceAccountCredentials(service_account, 'gunwo3442-fa3b2b566e8d.json')
-
             # Earth Engine 초기화
             ee.Initialize(credentials)
 

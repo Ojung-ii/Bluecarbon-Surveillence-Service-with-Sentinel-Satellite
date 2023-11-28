@@ -107,47 +107,34 @@ def app():
              
     # Visualization section
     with col1:
-        st.write("첫번째 사진")
         aoi = ts_trend_analysis_func.create_ee_polygon_from_geojson(aoi)
 
         s2_sr_first_img = process_cal_size_1(st_date_f_str, st_date_l_str, aoi)
-        # Folium 라이브러리의 Map 객체에 위에서 정의한 함수를 추가합니다.
-        folium.Map.add_ee_layer = add_ee_layer
-        # Create a folium map object.
-        center = aoi.centroid().coordinates().getInfo()[::-1]
-        m1 = folium.Map(location=center, zoom_start=12)
-
-        # Add layers to the folium map.
-        m1.add_ee_layer(s2_sr_first_img,
-                        {'bands': ['B4', 'B3', 'B2'], 'min': 0, 'max': 2500, 'gamma': 1.1},
-                        'S2 cloud-free mosaic')
-        # Add a layer control panel to the map.
-        m1.add_child(folium.LayerControl())
-        # Streamlit에서 지도 표시
-        plugins.Fullscreen().add_to(m1)
-        folium_static(m1, width = 400)
-        
-        
-        
-    with col2: 
-        st.write("두번째 사진")
         s2_sr_sec_img = process_cal_size_1(en_date_f_str, en_date_l_str, aoi)
         # Folium 라이브러리의 Map 객체에 위에서 정의한 함수를 추가합니다.
         folium.Map.add_ee_layer = add_ee_layer
         # Create a folium map object.
         center = aoi.centroid().coordinates().getInfo()[::-1]
-        m2 = folium.Map(location=center, zoom_start=12)
-
+        m1 = folium.Map(location=center, zoom_start=12)
+        vis_params={'bands': ['B4', 'B3', 'B2'], 'min': 0, 'max': 2500, 'gamma': 1.1}
         # Add layers to the folium map.
-        m2.add_ee_layer(s2_sr_sec_img,
-                        {'bands': ['B4', 'B3', 'B2'], 'min': 0, 'max': 2500, 'gamma': 1.1},
-                        'S2 cloud-free mosaic')
 
+        layer1 = make_layer(s2_sr_first_img,vis_params,'S2 cloud-free mosaic')
+        layer2 = make_layer(s2_sr_sec_img,vis_params,'S2 cloud-free mosaic')
+        sbs = folium.plugins.SideBySideLayers(layer1, layer2)
+
+        layer1.add_to(m1)
+        layer2.add_to(m1)
+        sbs.add_to(m1)
         # Add a layer control panel to the map.
-        m2.add_child(folium.LayerControl())
-        # Streamlit에서 지도 표시
-        plugins.Fullscreen().add_to(m2)
-        folium_static(m2, width = 400)
+        m1.add_child(folium.LayerControl())
+        plugins.Fullscreen().add_to(m1)
+        folium_static(m1, width = 650)
+
+        
+        
+        
+        
         
 
 # ---------------------------- Result Screen ---------------------------
