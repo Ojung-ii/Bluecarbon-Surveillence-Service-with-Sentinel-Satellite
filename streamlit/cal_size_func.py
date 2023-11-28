@@ -1,5 +1,6 @@
 import ee
 import pandas as pd
+
 CLOUD_FILTER = 60
 CLD_PRB_THRESH = 40
 NIR_DRK_THRESH = 0.15
@@ -12,6 +13,7 @@ def get_s2_sr_cld_col(aoi, start_date, end_date):
         .filterBounds(aoi)
         .filterDate(start_date, end_date)
         .filter(ee.Filter.lte('CLOUDY_PIXEL_PERCENTAGE', CLOUD_FILTER)))
+
 
     # Import and filter s2cloudless.
     s2_cloudless_col = (ee.ImageCollection('COPERNICUS/S2_CLOUD_PROBABILITY')
@@ -89,6 +91,10 @@ def add_cld_shdw_mask(img):
     return img_cloud_shadow.addBands(is_cld_shdw)
 
 def process_cal_size_1(start_date,end_date,aoi):
+    
+    start_date = pd.to_datetime(start_date)
+    end_date = pd.to_datetime(end_date)
+    
     dates = pd.date_range(start=start_date, end=end_date, freq='MS')  # MS는 월의 시작을 의미합니다.
 
     # 최종 이미지 컬렉션을 생성합니다.
@@ -101,6 +107,7 @@ def process_cal_size_1(start_date,end_date,aoi):
         # 최종 이미지 컬렉션에 추가
         final_image_collection = final_image_collection.merge(ee.ImageCollection(s2_sr_median))
     return final_image_collection
+
 
 def calculate_moisture(img):
     moisture = img.normalizedDifference(['B8A', 'B11'])
