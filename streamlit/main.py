@@ -2,7 +2,7 @@ import streamlit as st
 from streamlit_option_menu import option_menu
 
 # import sub_page
-from subpage import home, timelapse, check_changes, check_ts_changes, ts_trend_analysis, aoi_revision
+from subpage import home, timelapse, check_changes, check_ts_changes, ts_trend_analysis, aoi_revision, area_changes
 
 
 def launch() :
@@ -25,19 +25,19 @@ def launch() :
 
 
     # ------------------------------- main navigator -------------------------------- 
-    v_menu = ["홈", "타입랩스", "변화탐지 확인", "시계열 변화탐지 확인", "시계열 경향성 분석", "관심영역 추가"]
+    v_menu = ["홈", "타입랩스", "변화탐지 확인", "시계열 변화탐지 확인", "시계열 경향성 분석", "면적변화 확인","관심영역 추가"]
 
     selected = option_menu(
         menu_title=None,
         options=v_menu,
-        icons=['house', 'camera-video', "search","clock-history","graph-up", 'pin-map'],
+        icons=['house', 'camera-video', "search","clock-history","graph-up", "vr", 'pin-map'],
         menu_icon="menu-down",
         default_index=0,
         orientation="horizontal",
         styles={
             "container": {"padding": "1px", "border": "2px solid #f0f6fb"},
-            "icon": {"color": "navy", "font-size": "20px", "margin-right": "10px"},
-            "nav-link": {"font-size": "16px", "color": "navy", "background-color": "#f0f6fb",
+            "icon": {"color": "navy", "font-size": "18px", "margin-right": "5px"},
+            "nav-link": {"font-size": "14px", "color": "navy", "background-color": "#f0f6fb",
                          "--hover-color": "#f2f2f2",  "font-weight": "bold", "margin": "2 0px"},
             "nav-link-selected": {"background-color": "#accbea", "color": "navy", "border": "2px solid"}
         }
@@ -52,6 +52,8 @@ def launch() :
         check_ts_changes.app()
     if selected == "시계열 경향성 분석":
         ts_trend_analysis.app()
+    if selected == "면적변화 확인":
+        area_changes.app()
     if selected == "관심영역 추가":
         aoi_revision.app()               
 
