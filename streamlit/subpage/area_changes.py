@@ -9,7 +9,7 @@ import geemap
 from datetime import datetime, timedelta 
 import time_func
 import ts_trend_analysis_func
-from cal_size_func import get_s2_sr_cld_col, apply_cld_shdw_mask, add_cloud_bands, add_shadow_bands, add_cld_shdw_mask, process_cal_size_1
+from cal_size_func import process_cal_size_1, add_ee_layer, mask_for_aoi,process_image,make_layer,calculate_area,calculate_all_area
 # Define key application functions.
 def app():
 
@@ -106,64 +106,114 @@ def app():
         st.write("1번 사진 시각화")
         aoi = ts_trend_analysis_func.create_ee_polygon_from_geojson(aoi)
 
-        s2_sr_first_img = process_cal_size_1(st_date_f_str, st_date_l_str, aoi).first()
-        
-        location = aoi.centroid().coordinates().getInfo()[::-1]
-        # Folium 지도 생성 및 구성
-        folium_map = folium.Map(location=location, zoom_start=14)
-        folium_map.add_ee_layer(s2_sr_first_img, {
-                        'bands': ['B4', 'B3', 'B2'],  # RGB 밴드 선택
-                        'min': 0,  # 최소값
-                        'max': 1,  # 최대값
-                        'gamma': 1  # 대비 조절 (gamma = 1은 기본값)
-                    }, 
-                    'Processed First Image')
+        s2_sr_first_img = process_cal_size_1(st_date_f_str, st_date_l_str, aoi)
+        # Folium 라이브러리의 Map 객체에 위에서 정의한 함수를 추가합니다.
+        folium.Map.add_ee_layer = add_ee_layer
+        # Create a folium map object.
+        center = aoi.centroid().coordinates().getInfo()[::-1]
+        m1 = folium.Map(location=center, zoom_start=12)
 
+        # Add layers to the folium map.
+        m1.add_ee_layer(s2_sr_first_img,
+                        {'bands': ['B4', 'B3', 'B2'], 'min': 0, 'max': 2500, 'gamma': 1.1},
+                        'S2 cloud-free mosaic')
+
+        # Add a layer control panel to the map.
+        m1.add_child(folium.LayerControl())
         # Streamlit에서 지도 표시
-        folium_static(folium_map)
+        folium_static(m1)
         
         
         
     with col2: 
         st.write("2번 사진 시각화")
+        s2_sr_sec_img = process_cal_size_1(en_date_f_str, en_date_l_str, aoi)
+        # Folium 라이브러리의 Map 객체에 위에서 정의한 함수를 추가합니다.
+        folium.Map.add_ee_layer = add_ee_layer
+        # Create a folium map object.
+        center = aoi.centroid().coordinates().getInfo()[::-1]
+        m2 = folium.Map(location=center, zoom_start=12)
+
+        # Add layers to the folium map.
+        m2.add_ee_layer(s2_sr_sec_img,
+                        {'bands': ['B4', 'B3', 'B2'], 'min': 0, 'max': 2500, 'gamma': 1.1},
+                        'S2 cloud-free mosaic')
+
+        # Add a layer control panel to the map.
+        m2.add_child(folium.LayerControl())
+        # Streamlit에서 지도 표시
+        folium_static(m2)
+        
 
 # ---------------------------- Result Screen ---------------------------
 
 
-    # # Graph section
-    # if proceed_button:
-    #     # Page layout settings
-    #     empty1, col4, empty2 = st.columns([0.12,0.8, 0.12])
+    # Graph section
+    if proceed_button:
+        # Page layout settings
+        empty1, col4, empty2 = st.columns([0.12,0.8, 0.12])
         
-    #     with col4:
-    #         st.write("-----"*20)
-    #         st.markdown("""
-    #         <h3 style='text-align: center; font-size: 35px;'>⬇️  면적변화 결과  ⬇️</h3>
-    #         """, unsafe_allow_html=True)
-    #         st.write('')
-    #         st.write('')
-    #         with st.spinner("변화탐지 분석중"):
+        with col4:
+            st.write("-----"*20)
+            st.markdown("""
+            <h3 style='text-align: center; font-size: 35px;'>⬇️  면적변화 결과  ⬇️</h3>
+            """, unsafe_allow_html=True)
+            st.write('')
+            st.write('')
+            with st.spinner("변화탐지 분석중"):
                                         
-    #             col5,col6 = st.columns(["0.6,0.4"])
-    #             with col5:
-    #                 col7, col8 = st.columns([0.5,0.5])
-    #                 # Extract and display the date of image.
-    #                 im1_date = ee.Image(ffa_fl).date().format('YYYY-MM-dd').getInfo()
-    #                 im2_date = ee.Image(ffb_fl).date().format('YYYY-MM-dd').getInfo()
+                col5,col6 = st.columns([0.6,0.4])
+                with col5:
+                    # col7, col8 = st.columns([0.5,0.5])
+                    # Extract and display the date of image.
+                    # im1_date = ee.Image(ffa_fl).date().format('YYYY-MM-dd').getInfo()
+                    # im2_date = ee.Image(ffb_fl).date().format('YYYY-MM-dd').getInfo()
                     
-    #                 with col7:
-    #                     st.write(f"Before : {im1_date}")
-    #                 with col8 : 
-    #                     st.write(f"After : {im2_date}")
+                    # with col7:
+                    #     st.write(f"Before : {im1_date}")
+                    # with col8 : 
+                    #     st.write(f"After : {im2_date}")
                         
-    #                 # side by side    
-    #                 st.write("사이드바이 사이드로 전년 당해 보여주기")
+                    # side by side    
+                    st.write("사이드바이 사이드로 전년 당해 보여주기")
+                    fai_s2_sr_sec_img = mask_for_aoi(s2_sr_sec_img, aoi)
+                    fai_s2_sr_sec_img_parse = process_image(fai_s2_sr_sec_img)
+                    fai_s2_sr_first_img = mask_for_aoi(s2_sr_first_img, aoi)
+                    fai_s2_sr_first_img_parse = process_image(fai_s2_sr_first_img)
+                    
+                    uvi_params = {
+                        'bands': ['FAI'],  # UVI 밴드만 사용
+                        'min': -300, # 수중식물 지수의 최소값
+                        'max': 300,   # 수중식물 지수의 최대값
+                        # 'palette': ['purple', 'blue', 'green', 'yellow', 'red']  # 색상 팔레트 설정
+                        'palette': ['#ffffb2','#fecc5c','#fd8d3c','#f03b20','#bd0026']  # 색상 팔레트 설정
+                    }
+                    
+                    center = aoi.centroid().coordinates().getInfo()[::-1]
+                    m3 = folium.Map(location=center, zoom_start=12)
+
+                    # Add layers to the folium map.
+                    layer1 = make_layer(fai_s2_sr_first_img_parse,uvi_params,'S2 cloud-free mosaic')
+                    layer2 = make_layer(fai_s2_sr_sec_img_parse,uvi_params,'S2 cloud-free mosaic')
+                    sbs = folium.plugins.SideBySideLayers(layer1, layer2)
+
+                    layer1.add_to(m3)
+                    layer2.add_to(m3)
+                    sbs.add_to(m3)
+                    # Add a layer control panel to the map.
+                    m3.add_child(folium.LayerControl())
+
+                    folium_static(m3)
                 
-    #             with col6 :
-    #                 st.write("데이터프레임과 그래프")                
+                with col6 :
+                    st.write("데이터프레임과 그래프")
+                    all_area = calculate_all_area(aoi)
+                    area_1 = calculate_area(fai_s2_sr_first_img_parse,aoi)
+                    area_2 = calculate_area(fai_s2_sr_sec_img_parse,aoi)
+                    st.write("aoi 전체면적", all_area)
+                    st.write("first image area(km^)", area_1 / 1_000_000)
+                    st.write("Second image area(km^)", area_2 / 1_000_000)
 
 # launch
 if __name__  == "__main__" :
     app()
-    
-    

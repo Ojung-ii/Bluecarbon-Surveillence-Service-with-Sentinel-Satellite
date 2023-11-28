@@ -1,5 +1,6 @@
 import ee
 import pandas as pd
+import folium
 
 CLOUD_FILTER = 60
 CLD_PRB_THRESH = 40
@@ -101,13 +102,12 @@ def process_cal_size_1(start_date,end_date,aoi):
     final_image_collection = ee.ImageCollection([])
 
     for start in dates:
-        end = start + pd.offsets.MonthEnd()
+        end = start + pd.offsets.MonthEnd() + pd.offsets.MonthEnd()
         s2_sr_cld_col = get_s2_sr_cld_col(aoi, start.strftime('%Y-%m-%d'), end.strftime('%Y-%m-%d'))
         s2_sr_median = (s2_sr_cld_col.map(add_cld_shdw_mask).map(apply_cld_shdw_mask).median())
         # 최종 이미지 컬렉션에 추가
         final_image_collection = final_image_collection.merge(ee.ImageCollection(s2_sr_median))
-    return final_image_collection
-
+    return final_image_collection.first()
 
 def calculate_moisture(img):
     moisture = img.normalizedDifference(['B8A', 'B11'])
@@ -144,5 +144,53 @@ def process_image(img):
     img = calculate_moisture(img)
     img = calculate_NDWI(img)
     img = calculate_Fai(img)
-    # img = cloud_mask(img)  # 구름 마스킹은 현재 주석 처리되어 있습니다.
     return img
+
+def mask_for_aoi(img, aoi):
+    # AOI에 대한 마스크를 생성합니다.
+    aoi_mask = ee.Image.constant(1).clip(aoi)
+    # 이 마스크를 이미지에 적용합니다.
+    return img.updateMask(aoi_mask)
+
+# Earth Engine Python API의 이미지를 Folium 맵에 추가하는 함수를 정의합니다.
+def add_ee_layer(self, ee_image_object, vis_params, name):
+    map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
+    folium.raster_layers.TileLayer(
+        tiles=map_id_dict['tile_fetcher'].url_format,
+        attr='Google Earth Engine',
+        name=name,
+        overlay=True,
+        control=True
+    ).add_to(self)
+
+def make_layer(ee_image_object, vis_params, name):
+    map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
+    tile_layer = folium.raster_layers.TileLayer(
+        tiles=map_id_dict['tile_fetcher'].url_format,
+        attr='Map Data &copy; <a href="https://earthengine.google.com/">Google Earth Engine</a>',
+        name=name,
+        overlay=True,
+        control=False
+    )
+    return tile_layer
+def calculate_area(fai_s2_sr_first_img_parse,aoi):
+    fai_mask_1 = fai_s2_sr_first_img_parse.select('FAI').gt(1)
+    masked_image_1 = fai_s2_sr_first_img_parse.updateMask(fai_mask_1)
+    masked_clip_image_1 = masked_image_1.clip(aoi)
+    # 마스킹된 영역의 총 면적 계산
+    masked_area_1 = masked_clip_image_1.select('FAI').reduceRegion(
+        reducer=ee.Reducer.sum(),
+        geometry=aoi,  # 관심 지역을 지정
+        scale=10,  # Sentinel-2 픽셀 해상도
+    ).get('FAI')
+    # 면적 결과 출력 (제곱미터 단위)
+    area_sq_meters_1 = masked_area_1.getInfo()
+    return area_sq_meters_1
+
+def calculate_all_area(aoi):
+    # Calculate the area of the AOI in square meters.
+    area = aoi.area().getInfo()
+
+    # Convert the area to square kilometers (1 square kilometer = 1,000,000 square meters).
+    area_sq_km = area / 1_000_000
+    return area_sq_km
