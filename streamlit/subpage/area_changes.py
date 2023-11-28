@@ -6,6 +6,7 @@ import json
 import os
 import ee  
 import geemap
+import pandas as pd
 from datetime import datetime, timedelta 
 import time_func
 import ts_trend_analysis_func
@@ -38,7 +39,7 @@ def app():
     empty1, col0, empty2 = st.columns([0.1,1.0, 0.1])
     
     with col0:
-        st.title("🗺️ 면적변화확인") 
+        st.title("🗺️ 면적변화 확인") 
         st.write("---"*20) # A dividing line
         if st.toggle("사용설명서"):
             st.write("""
@@ -61,6 +62,8 @@ def app():
 
     # Input section
     with col3:
+        st.write("")
+        st.write("")
         with st.form("조건 폼"):
             # Select Area of Interest
             selected_name = st.selectbox("관심영역 선택 :", area_names)
@@ -103,7 +106,7 @@ def app():
              
     # Visualization section
     with col1:
-        st.write("1번 사진 시각화")
+        st.write("첫번째 사진")
         aoi = ts_trend_analysis_func.create_ee_polygon_from_geojson(aoi)
 
         s2_sr_first_img = process_cal_size_1(st_date_f_str, st_date_l_str, aoi)
@@ -121,12 +124,12 @@ def app():
         # Add a layer control panel to the map.
         m1.add_child(folium.LayerControl())
         # Streamlit에서 지도 표시
-        folium_static(m1)
+        folium_static(m1, width = 400)
         
         
         
     with col2: 
-        st.write("2번 사진 시각화")
+        st.write("두번째 사진")
         s2_sr_sec_img = process_cal_size_1(en_date_f_str, en_date_l_str, aoi)
         # Folium 라이브러리의 Map 객체에 위에서 정의한 함수를 추가합니다.
         folium.Map.add_ee_layer = add_ee_layer
@@ -142,7 +145,7 @@ def app():
         # Add a layer control panel to the map.
         m2.add_child(folium.LayerControl())
         # Streamlit에서 지도 표시
-        folium_static(m2)
+        folium_static(m2, width = 400)
         
 
 # ---------------------------- Result Screen ---------------------------
@@ -162,7 +165,7 @@ def app():
             st.write('')
             with st.spinner("변화탐지 분석중"):
                                         
-                col5,col6 = st.columns([0.6,0.4])
+                col5,col6 = st.columns([0.7,0.3])
                 with col5:
                     # col7, col8 = st.columns([0.5,0.5])
                     # Extract and display the date of image.
@@ -175,7 +178,6 @@ def app():
                     #     st.write(f"After : {im2_date}")
                         
                     # side by side    
-                    st.write("사이드바이 사이드로 전년 당해 보여주기")
                     fai_s2_sr_sec_img = mask_for_aoi(s2_sr_sec_img, aoi)
                     fai_s2_sr_sec_img_parse = process_image(fai_s2_sr_sec_img)
                     fai_s2_sr_first_img = mask_for_aoi(s2_sr_first_img, aoi)
@@ -190,7 +192,7 @@ def app():
                     }
                     
                     center = aoi.centroid().coordinates().getInfo()[::-1]
-                    m3 = folium.Map(location=center, zoom_start=12)
+                    m3 = folium.Map(location=center, zoom_start=13)
 
                     # Add layers to the folium map.
                     layer1 = make_layer(fai_s2_sr_first_img_parse,uvi_params,'S2 cloud-free mosaic')
@@ -203,16 +205,20 @@ def app():
                     # Add a layer control panel to the map.
                     m3.add_child(folium.LayerControl())
 
-                    folium_static(m3)
+                    folium_static(m3, width = 650)
                 
                 with col6 :
-                    st.write("데이터프레임과 그래프")
                     all_area = calculate_all_area(aoi)
                     area_1 = calculate_area(fai_s2_sr_first_img_parse,aoi)
                     area_2 = calculate_area(fai_s2_sr_sec_img_parse,aoi)
-                    st.write("aoi 전체면적", all_area)
-                    st.write("first image area(km^)", area_1 / 1_000_000)
-                    st.write("Second image area(km^)", area_2 / 1_000_000)
+                    
+                    df = pd.DataFrame({
+                                "관심영역 전체": [all_area],
+                                "첫번째 사진": [area_1 / 1_000_000],
+                                "두번째 사진)": [area_2 / 1_000_000]}, index= ["면적(km^2)"])
+
+                    st.dataframe(df.T, use_container_width = True)
+                    st.bar_chart(df.T, use_container_width = True)
 
 # launch
 if __name__  == "__main__" :

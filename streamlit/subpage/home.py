@@ -18,7 +18,7 @@ def app():
     # Logo timelapse
     empty3,col5,empty4 = st.columns([0.3,0.5,0.3])
     with col5 : 
-        st.image("logo/mainpage_logo_wh.gif",  use_column_width="always")
+        st.image("logo/bluecheck_mainpage_logo.gif",  use_column_width="always")
         
 
 # launch
