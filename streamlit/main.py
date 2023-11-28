@@ -3,6 +3,8 @@ from streamlit_option_menu import option_menu
 import ee
 # import sub_page
 from subpage import home, timelapse, check_changes, check_ts_changes, ts_trend_analysis, aoi_revision, area_changes
+import ee
+from google.auth import compute_engine
 
 
 def launch() :
@@ -27,7 +29,11 @@ def launch() :
         st.write("아래버튼을 클릭하여 Google Earth Engine 인증을 갱신해주세요.")
         auth = st.button('Google Earth Engine 인증 갱신버튼')
         if auth:
-            ee.Authenticate()
+            service_account = 'national-project@gunwo3442.gserviceaccount.com'
+            credentials = ee.ServiceAccountCredentials(service_account, 'gunwo3442-fa3b2b566e8d.json')
+
+            # Earth Engine 초기화
+            ee.Initialize(credentials)
 
 
     # ------------------------------- main navigator -------------------------------- 

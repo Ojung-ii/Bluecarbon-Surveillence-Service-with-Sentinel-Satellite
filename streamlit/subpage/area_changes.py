@@ -1,6 +1,7 @@
 import streamlit as st
 from streamlit_folium import folium_static
 import folium
+from folium import plugins
 from io import BytesIO
 import json
 import os
@@ -120,10 +121,10 @@ def app():
         m1.add_ee_layer(s2_sr_first_img,
                         {'bands': ['B4', 'B3', 'B2'], 'min': 0, 'max': 2500, 'gamma': 1.1},
                         'S2 cloud-free mosaic')
-
         # Add a layer control panel to the map.
         m1.add_child(folium.LayerControl())
         # Streamlit에서 지도 표시
+        plugins.Fullscreen().add_to(m1)
         folium_static(m1, width = 400)
         
         
@@ -145,6 +146,7 @@ def app():
         # Add a layer control panel to the map.
         m2.add_child(folium.LayerControl())
         # Streamlit에서 지도 표시
+        plugins.Fullscreen().add_to(m2)
         folium_static(m2, width = 400)
         
 
@@ -204,7 +206,7 @@ def app():
                     sbs.add_to(m3)
                     # Add a layer control panel to the map.
                     m3.add_child(folium.LayerControl())
-
+                    plugins.Fullscreen().add_to(m3)
                     folium_static(m3, width = 650)
                 
                 with col6 :
