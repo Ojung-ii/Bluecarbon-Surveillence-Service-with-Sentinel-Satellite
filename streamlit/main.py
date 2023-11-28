@@ -1,6 +1,6 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
-
+import ee
 # import sub_page
 from subpage import home, timelapse, check_changes, check_ts_changes, ts_trend_analysis, aoi_revision, area_changes
 
@@ -22,6 +22,12 @@ def launch() :
         """, unsafe_allow_html=True)
     
     st.write("-------"*20)
+    
+    with st.sidebar: 
+        st.write("아래버튼을 클릭하여 Google Earth Engine 인증을 갱신해주세요.")
+        auth = st.button('Google Earth Engine 인증버튼')
+        if auth:
+            ee.Authenticate()
 
 
     # ------------------------------- main navigator -------------------------------- 
@@ -57,6 +63,9 @@ def launch() :
     if selected == "관심영역 추가":
         aoi_revision.app()               
 
+
+
+        
 
 # launch
 if __name__  == "__main__" :

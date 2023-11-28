@@ -19,9 +19,6 @@ def app():
     empty3,col5,empty4 = st.columns([0.3,0.5,0.3])
     with col5 : 
         st.image("logo/bluecheck_mainpage_logo.gif",  use_column_width="always")
-        auth = st.button('Authenticate')
-        if auth:
-            ee.Authenticate()
 
 # launch
 if __name__  == "__main__" :
