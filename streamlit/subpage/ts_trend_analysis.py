@@ -129,12 +129,12 @@ def app():
             # Visualization
             st.pyplot(fig2)
             seasonal_relative,annual_relative,monthly_relative, max_date, min_date, seasonal_trend = ts_trend_analysis_func.ts_analysis(forecast)
-            st.write(seasonal_relative)
-            st.write(annual_relative)
-            st.write(monthly_relative)
-            st.write(max_date)
-            st.write(min_date)
-            st.write(seasonal_trend)
+            # st.write(seasonal_relative)
+            # st.write(annual_relative)
+            # st.write(monthly_relative)
+            # st.write(max_date)
+            # st.write(min_date)
+            # st.write(seasonal_trend)
             # st.write(llm.process_llm(result_df))
         # NDVI
         with expander_ndvi:
