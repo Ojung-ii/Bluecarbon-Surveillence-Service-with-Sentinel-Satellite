@@ -25,7 +25,7 @@ def launch() :
     
     with st.sidebar: 
         st.write("아래버튼을 클릭하여 Google Earth Engine 인증을 갱신해주세요.")
-        auth = st.button('Google Earth Engine 인증버튼')
+        auth = st.button('Google Earth Engine 인증 갱신버튼')
         if auth:
             ee.Authenticate()
 
