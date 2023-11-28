@@ -307,7 +307,7 @@ def app():
                         )
                         return tile_layer
                     
-                    mp2 = folium.Map(location=location, zoom_start=14, tiles= tiles, attr = attr)
+                    mp2 = folium.Map(location=location, zoom_start=14, tiles= tiles, attr = attr).Fullscreen
                     folium.TileLayer(
                         tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
                         attr='VWorld Hybrid',

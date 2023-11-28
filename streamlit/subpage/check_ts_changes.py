@@ -1,5 +1,6 @@
 import streamlit as st 
 import folium 
+from folium import plugins
 from streamlit_folium import folium_static 
 from scipy.stats import norm, gamma, f, chi2
 import json  
@@ -101,7 +102,7 @@ def app():
             overlay=True
         ).add_to(m)
         folium.LayerControl().add_to(m)
-
+        plugins.Fullscreen().add_to(m)
         # Displaying a Map in a Streamlet.
         folium_static(m, width=600)
 
@@ -252,6 +253,7 @@ def app():
 
                 mp.add_child(folium.LayerControl())
                 # Displaying a Map in a Streamlet.
+                plugins.Fullscreen().add_to(mp)
                 folium_static(mp,width=970)
 
 

@@ -1,5 +1,6 @@
 import streamlit as st
 import folium
+from folium import plugins
 from streamlit_folium import folium_static
 import json
 import ts_trend_analysis_func
@@ -94,6 +95,7 @@ def app():
             overlay=True
         ).add_to(m)
         folium.LayerControl().add_to(m)
+        plugins.Fullscreen().add_to(m)
         folium_static(m, width=600)
 
 # -------------------------- Result Screen ------------------------------
