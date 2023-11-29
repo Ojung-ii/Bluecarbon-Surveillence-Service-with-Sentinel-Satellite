@@ -1,7 +1,9 @@
-# SBS SERVICE
-### Sar-Bluecarbon-Service
+# Blue Check SERVICE
+### Bluecarbon-Check-Service
 
-![Main Page Logo](streamlit/logo/mainpage_logo_bk.gif)
+<p align="center">
+  <img src="streamlit/logo/bluecheck_mainpage_logo.gif" alt="mainpage_logo"/>
+</p>
 
 # 프로젝트 소개
 <br>
