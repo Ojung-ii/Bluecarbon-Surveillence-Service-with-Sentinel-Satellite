@@ -56,13 +56,13 @@ def app():
     area_names.append("새로운 관심영역 넣기")  # Add a new option to the drop-down list.
 
     # Dividing sections.
-    empty1, col1, col2, col3,empty2 = st.columns([0.1,0.4,0.4, 0.2, 0.1])
+    empty1, col1, col2, empty2 = st.columns([0.1,0.7, 0.3, 0.1])
 
     # Area Of Interest initialization
     aoi = None
 
     # Input section
-    with col3:
+    with col2:
         st.write("")
         st.write("")
         with st.form("조건 폼"):
@@ -129,7 +129,7 @@ def app():
         # Add a layer control panel to the map.
         m1.add_child(folium.LayerControl())
         plugins.Fullscreen().add_to(m1)
-        folium_static(m1, width = 650)
+        folium_static(m1, width = 720)
 
         
         

@@ -106,7 +106,7 @@ def app():
         # Displaying a Map in a Streamlet.
         folium_static(m, width=600)
 
-# ---------------------------- Result Screen ---------------------------
+# ---------------------------- Result Screen ----------------------------
     # Page layout settings
     empty1, col3, empty2 = st.columns([0.12,0.8, 0.12])
     
