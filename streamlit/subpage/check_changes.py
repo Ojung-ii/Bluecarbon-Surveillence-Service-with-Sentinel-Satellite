@@ -21,11 +21,25 @@ tileType = "jpeg" # Tile type
 
 # Define key application functions.
 def app():
+    
+    # File download function
+    def get_download_url(image, vis_params, region):
+        download_url = image.getDownloadURL({
+            'scale': 30,  # 해상도 설정
+            'crs': 'EPSG:4326',
+            'region': region.getInfo() if isinstance(region, ee.Geometry) else region,
+            **vis_params
+        })
+        return download_url
+    
     k=0
     # Page layout settings
     empty1, col0, empty2 = st.columns([0.1,1.0, 0.1])
     with col0:
         st.title("🔍 변화탐지 확인") 
+        st.markdown("""
+            <h3 style='text-align: left; font-size: 22px;'>( sentinel-1 : 레이더 위성영상 활용 )</h3>
+            """, unsafe_allow_html=True)
         st.write("---"*20) # A dividing line
         if st.toggle("사용설명서"):
             st.write("""
@@ -76,7 +90,7 @@ def app():
             # Run Analysis button.
             st.write("")
             proceed_button = st.form_submit_button("☑️ 분석 실행")
-        
+            
        
     # Visualization section
     with col1:
@@ -110,7 +124,7 @@ def app():
     empty1, col3, empty2 = st.columns([0.12,0.8, 0.12])
 
     # Graph section
-    if proceed_button:
+    if proceed_button : 
         k=0
         with col3:
             st.write("-----"*20)
@@ -119,9 +133,9 @@ def app():
             """, unsafe_allow_html=True)
             st.write('')
             st.write('')
+            
             with st.spinner("변화탐지 분석중"):
                 
-
                 # Adding a Draw Plug-in to a Folium Map.
                 folium.Map.add_ee_layer = check_ts_changes_func.add_ee_layer
                 # Convert AOI extracted from GeoJSON file to Earth Engine polygon.
@@ -163,6 +177,7 @@ def app():
                 except Exception as e:
                     st.write("시작날짜 혹은 끝날짜에 해당되는 SAR위성영상이 없습니다.")
                     k=1
+                    
                 if k==0: # If no exceptions have occurred, do the code below.
                     m1 = 5 # degree of freedom
                     # Calculate F distribution PPF(Percentile Point Function).
@@ -178,6 +193,8 @@ def app():
 
                     # Mask no-change pixels.
                     c_map = c_map.updateMask(c_map.gt(0))
+                                                   
+                    
                     # Display map with red for increase and blue for decrease in intensity.
                     location = aoi.centroid().coordinates().getInfo()[::-1]
                     mp = folium.Map(
@@ -200,6 +217,7 @@ def app():
                     # Displaying a Map in a Streamlet.
                     folium_static(mp,width=970)
 
+                    
                 # ---------------------- Legend ---------------------- 
                 st.write("")    
                 # CSS style
@@ -256,7 +274,8 @@ def app():
                 # Apply to Streamlit.
                 st.markdown(css_style, unsafe_allow_html=True)
                 st.markdown(html_content, unsafe_allow_html=True)
-           
+
+
        
                 # ------------- side by side map -------------------------
                 if k==0:
@@ -308,7 +327,7 @@ def app():
                         )
                         return tile_layer
                     
-                    mp2 = folium.Map(location=location, zoom_start=14, tiles= tiles, attr = attr).Fullscreen
+                    mp2 = folium.Map(location=location, zoom_start=14, tiles= tiles, attr = attr)
                     folium.TileLayer(
                         tiles=f'http://api.vworld.kr/req/wmts/1.0.0/{vworld_key}/Hybrid/{{z}}/{{y}}/{{x}}.png',
                         attr='VWorld Hybrid',
@@ -328,7 +347,7 @@ def app():
                     ffa_fl_layer.add_to(mp2)
                     ffb_fl_layer.add_to(mp2)
                     sbs.add_to(mp2)
-
+                    plugins.Fullscreen().add_to(mp2)
                     # Displaying a Map in a Streamlet.
                     folium_static(mp2,width=970)
 

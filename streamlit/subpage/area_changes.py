@@ -40,7 +40,11 @@ def app():
     empty1, col0, empty2 = st.columns([0.1,1.0, 0.1])
     
     with col0:
-        st.title("🗺️ 면적변화 확인") 
+        st.title("🗺️ 면적변화 확인")
+        st.markdown("""
+            <h3 style='text-align: left; font-size: 22px;'>( sentinel-2 : 광학 위성영상 활용 )</h3>
+            """, unsafe_allow_html=True)
+        
         st.write("---"*20) # A dividing line
         if st.toggle("사용설명서"):
             st.write("""
