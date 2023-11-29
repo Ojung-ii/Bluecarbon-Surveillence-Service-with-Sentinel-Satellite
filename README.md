@@ -1,5 +1,5 @@
 # Blue Check SERVICE
-### Bluecarbon-Check-Service
+### Bluecarbon Surveillence Service with Sentinel Satellite
 
 <p align="center">
   <img src="streamlit/logo/bluecheck_mainpage_logo.gif" alt="mainpage_logo"/>
@@ -65,7 +65,10 @@ dd
 
 # Requirements
 <br>
-d
+
+```bash
+pip install -r requirements.txt
+```
 
 # Reference
 <br>
