@@ -1,27 +1,27 @@
-# SBS SERVICE
-### Sar-Bluecarbon-Service
+# Blue Check SERVICE
+### Bluecarbon Surveillence Service with Sentinel Satellite
 
-![Main Page Logo](streamlit/logo/mainpage_logo_bk.gif)
+<p align="center">
+  <img src="streamlit/logo/bluecheck_mainpage_logo.gif" alt="mainpage_logo"/>
+</p>
 
-# 프로젝트 소개
+# Introductions
 <br>
-### 위성영상을 활용한 변화탐지 서비스
-1. 
-2. 
-3. 
-4. 
-5. 
+
+### Detecting changes in Sentinel Imagery
+
+   
 
 # Tool
 <br>
 <img width="1226" alt="스크린샷 2023-11-29 오전 10 57 31" src="https://github.com/gunwoda/SAR-Bluecarbon-Service/assets/38150072/e8be5914-3a77-4e15-b14d-8b150681b07e">
 
 
-# 개발 기간
+# Development Period
 <br>
 dd
 
-# 멤버 구성
+# Contributor
 <br>
 
 <table>
@@ -62,13 +62,15 @@ dd
 
 # Requirements
 <br>
-d
+
+```bash
+pip install -r requirements.txt
+```
 
 # Reference
 <br>
+
 1. Earth Engine Documentation: https://developers.google.com/earth-engine/apidocs
-
 2. Google Earth Engine community: https://developers.google.com/earth-engine/tutorials
-
 3. Streamlit Documentation: https://docs.streamlit.ioGoogle
 

@@ -96,16 +96,16 @@ def process_cal_size_1(start_date,end_date,aoi):
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
     
-    dates = pd.date_range(start=start_date, end=end_date, freq='MS')  # MS는 월의 시작을 의미합니다.
+    dates = pd.date_range(start=start_date, end=end_date, freq='MS')  # MS is start date of month
 
-    # 최종 이미지 컬렉션을 생성합니다.
+    # Create final image collection
     final_image_collection = ee.ImageCollection([])
 
     for start in dates:
         end = start + pd.offsets.MonthEnd() + pd.offsets.MonthEnd()
         s2_sr_cld_col = get_s2_sr_cld_col(aoi, start.strftime('%Y-%m-%d'), end.strftime('%Y-%m-%d'))
         s2_sr_median = (s2_sr_cld_col.map(add_cld_shdw_mask).map(apply_cld_shdw_mask).median())
-        # 최종 이미지 컬렉션에 추가
+        # add final image collection
         final_image_collection = final_image_collection.merge(ee.ImageCollection(s2_sr_median))
     return final_image_collection.first()
 
@@ -147,12 +147,12 @@ def process_image(img):
     return img
 
 def mask_for_aoi(img, aoi):
-    # AOI에 대한 마스크를 생성합니다.
+    # create mask with aoi
     aoi_mask = ee.Image.constant(1).clip(aoi)
-    # 이 마스크를 이미지에 적용합니다.
+    # update mask 
     return img.updateMask(aoi_mask)
 
-# Earth Engine Python API의 이미지를 Folium 맵에 추가하는 함수를 정의합니다.
+# add layer function
 def add_ee_layer(self, ee_image_object, vis_params, name):
     map_id_dict = ee.Image(ee_image_object).getMapId(vis_params)
     folium.raster_layers.TileLayer(
@@ -189,30 +189,30 @@ def make_layer(ee_image_object, vis_params, name):
 #     return area_sq_meters_1
 
 def calculate_area(fai_s2_sr_first_img_parse, aoi,threshold=1):
-    # FAI 값이 1을 초과하는 픽셀에 대한 마스크 생성
+    # create mask : FAI > threshold
     fai_mask = fai_s2_sr_first_img_parse.select('FAI').gt(threshold)
 
-    # 마스크를 적용하고 관심 지역으로 클리핑
+    # update mask and cliping
     masked_image = fai_s2_sr_first_img_parse.updateMask(fai_mask).clip(aoi)
 
-    # 면적의 합계 계산
+    # calculate total area
     total_area = masked_image.reduceRegion(
         reducer=ee.Reducer.count(),
         geometry=aoi,
-        scale=10,  # Sentinel-2 픽셀 해상도
+        scale=10,  # Sentinel-2 pixel
         maxPixels=1e10
     ).get('FAI')
 
-    # 면적 결과 출력 (제곱미터 단위)
+    # area result
     area_sq_meters = total_area.getInfo()/10000
     return area_sq_meters
 
 
 def calculate_all_area(fai_s2_sr_first_img_parse,aoi):
-    # 마스크를 적용하고 관심 지역으로 클리핑
+    # update mask and cliping
     masked_image = fai_s2_sr_first_img_parse.clip(aoi)
 
-    # 면적의 합계 계산
+    # calculate total area
     total_area = masked_image.reduceRegion(
         reducer=ee.Reducer.count(),
         geometry=aoi,
@@ -220,12 +220,12 @@ def calculate_all_area(fai_s2_sr_first_img_parse,aoi):
         maxPixels=1e10
     ).get('FAI')
 
-    # 면적 결과 출력 (제곱미터 단위)
+    # area result
     area_sq_meters = total_area.getInfo()/10000
     return area_sq_meters
 
 def define_threshold(fai_s2_sr_first_img_parse,aoi):
-    # FAI 값 추출
+    # extract FAI
     masked_image = fai_s2_sr_first_img_parse.clip(aoi)
     fai_values = masked_image.select('FAI').reduceRegion(
         reducer=ee.Reducer.toList(),
@@ -234,13 +234,13 @@ def define_threshold(fai_s2_sr_first_img_parse,aoi):
         maxPixels=1e9
     ).get('FAI')
 
-    # 추출된 FAI 값들을 Python 리스트로 변환
+    # FAI to list
     fai_values_list = fai_values.getInfo()
 
-    # 리스트를 DataFrame으로 변환
+    # list to df
     df = pd.DataFrame(fai_values_list, columns=['Values'])
 
-    # 기술통계 요약 출력
+    # describe
     descriptive_stats = df.describe()
 
     return descriptive_stats
