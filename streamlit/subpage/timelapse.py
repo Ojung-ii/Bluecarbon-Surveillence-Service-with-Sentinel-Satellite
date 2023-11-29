@@ -36,7 +36,7 @@ def app():
 
     # Importing a list of local names from a GeoJSON file.
     area_names = [feature['properties']['name'] for feature in geojson_data['features']]
-    area_names.append("새로운 관심영역 넣기")  # 드롭다운 목록에 새 옵션 추가
+    area_names.append("새로운 관심영역 넣기")  # using new aoi 
 
     # Dividing sections
     empty1, col1, col2, empty2 = st.columns([0.1,0.5, 0.3, 0.1])

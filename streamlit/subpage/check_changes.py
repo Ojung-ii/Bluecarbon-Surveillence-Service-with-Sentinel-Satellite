@@ -210,7 +210,7 @@ def app():
 
                     # Add C_map layer.
                     mp.add_ee_layer(c_map,
-                                    {'min': 0, 'max': 2, 'palette': ['00000000', '#FF000080', '#0000FF80']},  # 변화 없음: 투명, 감소: 반투명 파랑, 증가: 반투명 빨강
+                                    {'min': 0, 'max': 2, 'palette': ['00000000', '#FF000080', '#0000FF80']},  
                                     'Change Map')
                     mp.add_child(folium.LayerControl())
 
