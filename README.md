@@ -70,11 +70,16 @@
 
 
 
-# Requirements
+# How to run
 <br>
 
 ```bash
 pip install -r requirements.txt
+```
+
+```bash
+cd streamlit
+streamlit run main.py
 ```
 
 # Reference
