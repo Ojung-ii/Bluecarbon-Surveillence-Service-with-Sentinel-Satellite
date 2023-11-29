@@ -98,7 +98,13 @@ def app():
                     create_sentinel2_timelapse(aoi, formatted_start_date, formatted_end_date, frequency, output_gif)
                     st.image(output_gif, caption=f'{dataset} 타임랩스', use_column_width=True ) 
 
-                download_button = st.form_submit
+                # 파일을 다운로드 버튼으로 제공
+                st.download_button(
+                    label="타임랩스 다운로드",
+                    data=output_gif,
+                    file_name='output_gif',
+                    mime="image/gif"
+                )
 
 # launch
 if __name__  == "__main__" :
