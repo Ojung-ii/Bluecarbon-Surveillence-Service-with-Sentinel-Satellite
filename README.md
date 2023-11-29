@@ -24,7 +24,10 @@
 
 # Development Period
 <br>
-dd
+
+#### Version1: 2023.10.23 ~ 2023.11.29
+#### Version2(Add LLM, more AOI, and new skill): 2023.12.01 ~ 2023.12.31
+#### Version3: 2024.01.01 ~
 
 # Contributor
 <br>
