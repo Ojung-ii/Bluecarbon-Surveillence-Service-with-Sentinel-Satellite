@@ -25,8 +25,7 @@ d
 
 # Reference
 <br>
-1. Streamlit Documentation: https://docs.streamlit.ioGoogle
+1. Earth Engine Documentation: https://developers.google.com/earth-engine/apidocs
+2. Google Earth Engine community: https://developers.google.com/earth-engine/tutorials
+3. Streamlit Documentation: https://docs.streamlit.ioGoogle
 
-2. Earth Engine Documentation: https://developers.google.com/earth-engine/apidocs
-
-3. Google Earth Engine community: https://developers.google.com/earth-engine/tutorials  
