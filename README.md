@@ -8,12 +8,9 @@
 # Introductions
 <br>
 
-### 위성영상을 활용한 변화탐지 서비스
-1. 
-2. 
-3. 
-4. 
-5. 
+### Detecting changes in Sentinel Imagery
+
+   
 
 # Tool
 <br>
