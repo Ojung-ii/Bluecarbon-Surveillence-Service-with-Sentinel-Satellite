@@ -84,4 +84,3 @@ pip install -r requirements.txt
 2. Google Earth Engine community: https://developers.google.com/earth-engine/tutorials
 3. Streamlit Documentation: https://docs.streamlit.ioGoogle
 4. Vegetation Index: https://www.mdpi.com/2072-4292/10/7/1140, https://ieeexplore.ieee.org/abstract/document/10068770
-
