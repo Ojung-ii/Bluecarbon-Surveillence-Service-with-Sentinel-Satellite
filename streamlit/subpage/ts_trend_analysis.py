@@ -3,11 +3,9 @@ import folium
 from folium import plugins
 from streamlit_folium import folium_static
 import matplotlib.pyplot as plt
-
 import json
 import ts_trend_analysis_func
 import datetime
-import llm
 # VWorld map settings
 vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179" # VWorld API key
 layer = "Satellite" # VWorld layer
@@ -130,10 +128,10 @@ def app():
                 """, unsafe_allow_html=True)
             df = ts_trend_analysis_func.calculateRVI(parse_aoi,start_date,end_date)
             forecast,forecast_df,df,m = ts_trend_analysis_func.prophet_process(df)
+            plt.rcParams.update({'font.size': 7})
             fig2 = m.plot_components(forecast)
             ts_trend_analysis_func.plotly(df,forecast)
             # Visualization
-            plt.rcParams.update({'font.size': 7})
             st.pyplot(fig2)
             seasonal_relative,annual_relative,monthly_relative, max_date, min_date, seasonal_trend = ts_trend_analysis_func.ts_analysis(forecast)
             # st.write(seasonal_relative)

@@ -192,8 +192,9 @@ def app():
                     plugins.Fullscreen().add_to(m3)
                     folium_static(m3, width = 650)
                 
-                with col6 :
-                    try:
+                try : 
+                    with col6 :
+                        
                         all_area = calculate_all_area(fai_s2_sr_first_img_parse,aoi)
                         area_1 = calculate_area(fai_s2_sr_first_img_parse,aoi,number)
                         area_2 = calculate_area(fai_s2_sr_sec_img_parse,aoi,number)
@@ -205,10 +206,11 @@ def app():
 
                         st.dataframe(df.T, use_container_width = True)
                         st.bar_chart(df.T, use_container_width = True)
+                            
+                    st.write('FAI지수 통계')
+                    st.dataframe(define_threshold(fai_s2_sr_sec_img_parse,aoi).T, use_container_width = True)
 
-                        st.write('FAI지수 통계')
-                        st.dataframe(define_threshold(fai_s2_sr_sec_img_parse,aoi), use_container_width = True)
-                    except:
+                except:
                         st.write('면적이 너무 커서 계산을 할 수 없습니다.')
 
 # launch
