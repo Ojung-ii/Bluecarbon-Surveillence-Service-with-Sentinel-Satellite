@@ -11,7 +11,7 @@
 ### Detecting changes in Sentinel Imagery
 
 1. Timelapse
-2. Chnage Detection
+2. Change Detection
 3. Bitemporl Change Detection
 4. Time-Series Trend Analisis
 5. Extent Change Detection
