@@ -107,47 +107,34 @@ def app():
              
     # Visualization section
     with col1:
-        st.write("첫번째 사진")
         aoi = ts_trend_analysis_func.create_ee_polygon_from_geojson(aoi)
 
         s2_sr_first_img = process_cal_size_1(st_date_f_str, st_date_l_str, aoi)
-        # Folium 라이브러리의 Map 객체에 위에서 정의한 함수를 추가합니다.
-        folium.Map.add_ee_layer = add_ee_layer
-        # Create a folium map object.
-        center = aoi.centroid().coordinates().getInfo()[::-1]
-        m1 = folium.Map(location=center, zoom_start=12)
-
-        # Add layers to the folium map.
-        m1.add_ee_layer(s2_sr_first_img,
-                        {'bands': ['B4', 'B3', 'B2'], 'min': 0, 'max': 2500, 'gamma': 1.1},
-                        'S2 cloud-free mosaic')
-        # Add a layer control panel to the map.
-        m1.add_child(folium.LayerControl())
-        # Streamlit에서 지도 표시
-        plugins.Fullscreen().add_to(m1)
-        folium_static(m1, width = 400)
-        
-        
-        
-    with col2: 
-        st.write("두번째 사진")
         s2_sr_sec_img = process_cal_size_1(en_date_f_str, en_date_l_str, aoi)
         # Folium 라이브러리의 Map 객체에 위에서 정의한 함수를 추가합니다.
         folium.Map.add_ee_layer = add_ee_layer
         # Create a folium map object.
         center = aoi.centroid().coordinates().getInfo()[::-1]
-        m2 = folium.Map(location=center, zoom_start=12)
-
+        m1 = folium.Map(location=center, zoom_start=12)
+        vis_params={'bands': ['B4', 'B3', 'B2'], 'min': 0, 'max': 2500, 'gamma': 1.1}
         # Add layers to the folium map.
-        m2.add_ee_layer(s2_sr_sec_img,
-                        {'bands': ['B4', 'B3', 'B2'], 'min': 0, 'max': 2500, 'gamma': 1.1},
-                        'S2 cloud-free mosaic')
 
+        layer1 = make_layer(s2_sr_first_img,vis_params,'S2 cloud-free mosaic')
+        layer2 = make_layer(s2_sr_sec_img,vis_params,'S2 cloud-free mosaic')
+        sbs = folium.plugins.SideBySideLayers(layer1, layer2)
+
+        layer1.add_to(m1)
+        layer2.add_to(m1)
+        sbs.add_to(m1)
         # Add a layer control panel to the map.
-        m2.add_child(folium.LayerControl())
-        # Streamlit에서 지도 표시
-        plugins.Fullscreen().add_to(m2)
-        folium_static(m2, width = 400)
+        m1.add_child(folium.LayerControl())
+        plugins.Fullscreen().add_to(m1)
+        folium_static(m1, width = 650)
+
+        
+        
+        
+        
         
 
 # ---------------------------- Result Screen ---------------------------
@@ -169,16 +156,6 @@ def app():
                                         
                 col5,col6 = st.columns([0.7,0.3])
                 with col5:
-                    # col7, col8 = st.columns([0.5,0.5])
-                    # Extract and display the date of image.
-                    # im1_date = ee.Image(ffa_fl).date().format('YYYY-MM-dd').getInfo()
-                    # im2_date = ee.Image(ffb_fl).date().format('YYYY-MM-dd').getInfo()
-                    
-                    # with col7:
-                    #     st.write(f"Before : {im1_date}")
-                    # with col8 : 
-                    #     st.write(f"After : {im2_date}")
-                        
                     # side by side    
                     fai_s2_sr_sec_img = mask_for_aoi(s2_sr_sec_img, aoi)
                     fai_s2_sr_sec_img_parse = process_image(fai_s2_sr_sec_img)
@@ -217,7 +194,7 @@ def app():
                     df = pd.DataFrame({
                                 "관심영역 전체": [all_area],
                                 "첫번째 사진": [area_1 / 1_000_000],
-                                "두번째 사진)": [area_2 / 1_000_000]}, index= ["면적(km^2)"])
+                                "두번째 사진": [area_2 / 1_000_000]}, index= ["면적(km^2)"])
 
                     st.dataframe(df.T, use_container_width = True)
                     st.bar_chart(df.T, use_container_width = True)
