@@ -31,28 +31,28 @@ dd
 
 <table>
   <tr>
-    <!-- 첫 번째 멤버 -->
+    <!-- first -->
     <td align="center">
       <a href="https://github.com/Mujae">
         <img src="https://github.com/Mujae.png" width="100px;" alt="박무재"/><br />
         <sub><b>박무재</b></sub>
       </a>
     </td>
-    <!-- 두 번째 멤버 -->
+    <!-- second -->
     <td align="center">
       <a href="https://github.com/Ojung-ii">
         <img src="https://github.com/Ojung-ii.png" width="100px;" alt="오정현"/><br />
         <sub><b>오정현</b></sub>
       </a>
     </td>
-    <!-- 세 번째 멤버 -->
+    <!-- third -->
     <td align="center">
       <a href="https://github.com/gunwoda">
         <img src="https://github.com/gunwoda.png" width="100px;" alt="김건우"/><br />
         <sub><b>김건우</b></sub>
       </a>
     </td>
-    <!-- 네 번째 멤버 -->
+    <!-- fourth -->
     <td align="center">
       <a href="https://github.com/damii1207">
         <img src="https://github.com/damii1207.png" width="100px;" alt="류다미"/><br />
