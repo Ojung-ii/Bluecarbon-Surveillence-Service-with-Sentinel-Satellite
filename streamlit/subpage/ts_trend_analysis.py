@@ -2,6 +2,8 @@ import streamlit as st
 import folium
 from folium import plugins
 from streamlit_folium import folium_static
+import matplotlib.pyplot as plt
+
 import json
 import ts_trend_analysis_func
 import datetime
@@ -16,6 +18,9 @@ def app():
     empty1, col0, empty2 = st.columns([0.1,1.0, 0.1])
     with col0:
         st.title("📈 식생지수 시계열 경향성 분석") 
+        st.markdown("""
+            <h3 style='text-align: left; font-size: 22px;'>( sentinel-1 & 2 : 레이더 및 광학 위성영상 활용 )</h3>
+            """, unsafe_allow_html=True)
         st.write("---"*20)
         on =  st.toggle('사용설명서')
 
@@ -109,11 +114,11 @@ def app():
         st.write('')
         
         # Create 'Expander' to view each vegetation index result.
-        expander_rvi = st.expander("레이더 식생지수 분석결과", expanded=False)
-        expander_ndvi = st.expander("광학 식생지수 분석결과(육상 특화)", expanded=False)
+        expander_rvi = st.expander("RVI : 레이더 식생지수 분석결과", expanded=False)
+        expander_ndvi = st.expander("NDVI :  육상 특화 광학 식생지수 분석결과", expanded=False)
         # expander_wavi = st.expander("WAVI(물조정) 분석결과", expanded=False)
         # expander_diff_bg = st.expander("DIFF_BG 분석결과", expanded=False)
-        expander_fai = st.expander("광학 식생지수 분석결과(수상 특화)", expanded=False)
+        expander_fai = st.expander("FAI : 광학 식생지수 분석결과(수상 특화)", expanded=False)
         # expander_wtdvi = st.expander("WTDVI 분석결과", expanded=False)
         
         # Use Prophet to run time series analysis and visualize results.
@@ -122,13 +127,14 @@ def app():
         # RVI
         with expander_rvi:
             st.markdown("""
-                <h3 style='text-align: center; font-size: 30px;'>레이더 식생지수</h3>
+                <h3 style='text-align: center; font-size: 30px;'>Radar Vegetation Index</h3>
                 """, unsafe_allow_html=True)
             df = ts_trend_analysis_func.calculateRVI(parse_aoi,start_date,end_date)
             forecast,forecast_df,df,m = ts_trend_analysis_func.prophet_process(df)
             fig2 = m.plot_components(forecast)
             ts_trend_analysis_func.plotly(df,forecast)
             # Visualization
+            plt.rcParams.update({'font.size': 7})
             st.pyplot(fig2)
             seasonal_relative,annual_relative,monthly_relative, max_date, min_date, seasonal_trend = ts_trend_analysis_func.ts_analysis(forecast)
             # st.write(seasonal_relative)
@@ -141,10 +147,11 @@ def app():
         # NDVI
         with expander_ndvi:
             st.markdown("""
-                <h3 style='text-align: center; font-size: 30px;'>광학 식생지수</h3>
+                <h3 style='text-align: center; font-size: 30px;'>Normalized Difference Vegetation Index</h3>
                 """, unsafe_allow_html=True)
             df2 = ts_trend_analysis_func.calculateNDVI(parse_aoi,start_date,end_date)
             forecast2,forecast_df2,df2,m2 = ts_trend_analysis_func.prophet_process(df2)
+            plt.rcParams.update({'font.size': 7})
             fig22 = m2.plot_components(forecast2)
             ts_trend_analysis_func.plotly(df2,forecast2)
             
@@ -179,7 +186,7 @@ def app():
         # WEVI
         with expander_fai:
             st.markdown("""
-                <h3 style='text-align: center; font-size: 30px;'>광학 식생지수(물 특화)</h3>
+                <h3 style='text-align: center; font-size: 30px;'>Floating Algae Index</h3>
                 """, unsafe_allow_html=True)
             df5 = ts_trend_analysis_func.calculateFAI(parse_aoi,start_date,end_date)
             forecast5,forecast_df3,df5,m5 = ts_trend_analysis_func.prophet_process(df5)
@@ -193,7 +200,9 @@ def app():
             # st.write(lst[4])
             # st.write(lst[5])
 
-            # 시계열 결과 플로팅
+
+           # 시계열 결과 플로팅
+            plt.rcParams.update({'font.size': 7})
             st.pyplot(fig5)
 
         # # WTDVI

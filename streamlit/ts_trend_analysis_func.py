@@ -249,6 +249,10 @@ def plotly(df, forecast):
     # Add observational data as scatter plot on the same graph
     combined_fig.add_trace(px.scatter(df, x='Period', y='Index', title='Observations', color_discrete_sequence=['red']).data[0])
     
+    combined_fig.update_layout(
+                title=dict(text="Total Analysis", font=dict(size=25), automargin=True, yref='paper'),
+                font=dict(size= 40, color='black'))
+    
     # Display the combined figure using Streamlit's plotly_chart function
     st.plotly_chart(combined_fig, use_container_width=True)
 

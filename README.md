@@ -5,14 +5,14 @@
 
 # 프로젝트 소개
 <br>
+### 위성영상을 활용한 변화탐지 서비스
+1. 
+2. 
+3. 
+4. 
+5. 
 
-
-
-# 핵심 기능
-<br>
-<img width="1175" alt="스크린샷 2023-11-29 오전 11 01 45" src="https://github.com/gunwoda/SAR-Bluecarbon-Service/assets/38150072/de43de48-2dc9-4dec-8131-9d4eb3a2dd87">
-
-# 툴
+# Tool
 <br>
 <img width="1226" alt="스크린샷 2023-11-29 오전 10 57 31" src="https://github.com/gunwoda/SAR-Bluecarbon-Service/assets/38150072/e8be5914-3a77-4e15-b14d-8b150681b07e">
 
@@ -23,7 +23,42 @@ dd
 
 # 멤버 구성
 <br>
-dd 
+
+<table>
+  <tr>
+    <!-- 첫 번째 멤버 -->
+    <td align="center">
+      <a href="https://github.com/Mujae">
+        <img src="https://github.com/Mujae.png" width="100px;" alt="박무재"/><br />
+        <sub><b>박무재</b></sub>
+      </a>
+    </td>
+    <!-- 두 번째 멤버 -->
+    <td align="center">
+      <a href="https://github.com/Ojung-ii">
+        <img src="https://github.com/Ojung-ii.png" width="100px;" alt="오정현"/><br />
+        <sub><b>오정현</b></sub>
+      </a>
+    </td>
+    <!-- 세 번째 멤버 -->
+    <td align="center">
+      <a href="https://github.com/gunwoda">
+        <img src="https://github.com/gunwoda.png" width="100px;" alt="김건우"/><br />
+        <sub><b>김건우</b></sub>
+      </a>
+    </td>
+    <!-- 네 번째 멤버 -->
+    <td align="center">
+      <a href="https://github.com/damii1207">
+        <img src="https://github.com/damii1207.png" width="100px;" alt="류다미"/><br />
+        <sub><b>류다미</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
+
+
+
 
 # Requirements
 <br>
