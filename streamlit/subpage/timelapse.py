@@ -98,7 +98,6 @@ def app():
                     create_sentinel2_timelapse(aoi, formatted_start_date, formatted_end_date, frequency, output_gif)
                     st.image(output_gif, caption=f'{dataset} 타임랩스', use_column_width=True ) 
 
-                download_button = st.form_submit
 
 # launch
 if __name__  == "__main__" :
