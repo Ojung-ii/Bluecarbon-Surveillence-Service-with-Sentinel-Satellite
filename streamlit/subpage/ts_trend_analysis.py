@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 import json
 import ts_trend_analysis_func
 import datetime
-import llm
 # VWorld map settings
 vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179" # VWorld API key
 layer = "Satellite" # VWorld layer
@@ -44,7 +43,8 @@ def app():
 
     # Importing a list of local names from a GeoJSON file.
     area_names = [feature['properties']['name'] for feature in geojson_data['features']]
-    area_names.append("새로운 관심영역 넣기")  # using new aoi
+    area_names.append("새로운 관심영역 넣기")  # 드롭다운 목록에 새 옵션 추가
+
     # Dividing sections
     empty1, col1, col2, empty2 = st.columns([0.1,0.5, 0.3, 0.1])
 
