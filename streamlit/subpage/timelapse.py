@@ -97,18 +97,18 @@ def app():
                     # Create_sentinel2_timelapse.
                     create_sentinel2_timelapse(aoi, formatted_start_date, formatted_end_date, frequency, output_gif)
                     st.image(output_gif, caption=f'{dataset} 타임랩스', use_column_width=True ) 
+                # GIF 파일 로드 함수
+                def load_gif(gif_path):
+                    with open(gif_path, "rb") as file:
+                        return file.read()
 
-<<<<<<< HEAD
                 # 파일을 다운로드 버튼으로 제공
                 st.download_button(
                     label="타임랩스 다운로드",
-                    data=output_gif,
-                    file_name='output_gif',
+                    data=load_gif('./timelapse.gif'),
+                    file_name='timelapse.gif',
                     mime="image/gif"
                 )
-=======
->>>>>>> 81399545482050b11f872c57110305a73e6f4e10
-
 # launch
 if __name__  == "__main__" :
     app()

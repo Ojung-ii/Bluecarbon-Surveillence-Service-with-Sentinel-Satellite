@@ -11,7 +11,7 @@ import pandas as pd
 from datetime import datetime, timedelta 
 import time_func
 import ts_trend_analysis_func
-from cal_size_func import process_cal_size_1, add_ee_layer, mask_for_aoi,process_image,make_layer,calculate_area,calculate_all_area
+from area_changes_func import process_cal_size_1, add_ee_layer, mask_for_aoi,process_image,make_layer,calculate_area,calculate_all_area
 # Define key application functions.
 def app():
 

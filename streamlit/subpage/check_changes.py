@@ -10,7 +10,7 @@ import check_ts_changes_func
 from scipy.optimize import bisect 
 import ts_trend_analysis_func
 import time_func
-
+from folium import plugins
 # Google Earth Engine Initialization
 ee.Initialize()
 
@@ -102,6 +102,7 @@ def app():
             overlay=True
         ).add_to(m)
         folium.LayerControl().add_to(m)
+        plugins.Fullscreen().add_to(m)
         folium_static(m, width=600)
 
 # ---------------------------- Result Screen ---------------------------
