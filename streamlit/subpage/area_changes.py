@@ -187,14 +187,14 @@ def app():
                     folium_static(m3, width = 650)
                 
                 with col6 :
-                    all_area = calculate_all_area(aoi)
+                    all_area = calculate_all_area(fai_s2_sr_first_img_parse,aoi)
                     area_1 = calculate_area(fai_s2_sr_first_img_parse,aoi)
                     area_2 = calculate_area(fai_s2_sr_sec_img_parse,aoi)
                     
                     df = pd.DataFrame({
                                 "관심영역 전체": [all_area],
-                                "첫번째 사진": [area_1 / 1_000_000],
-                                "두번째 사진": [area_2 / 1_000_000]}, index= ["면적(km^2)"])
+                                "첫번째 사진": [area_1],
+                                "두번째 사진": [area_2]}, index= ["면적(km^2)"])
 
                     st.dataframe(df.T, use_container_width = True)
                     st.bar_chart(df.T, use_container_width = True)

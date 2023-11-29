@@ -173,24 +173,53 @@ def make_layer(ee_image_object, vis_params, name):
         control=False
     )
     return tile_layer
-def calculate_area(fai_s2_sr_first_img_parse,aoi):
-    fai_mask_1 = fai_s2_sr_first_img_parse.select('FAI').gt(1)
-    masked_image_1 = fai_s2_sr_first_img_parse.updateMask(fai_mask_1)
-    masked_clip_image_1 = masked_image_1.clip(aoi)
-    # 마스킹된 영역의 총 면적 계산
-    masked_area_1 = masked_clip_image_1.select('FAI').reduceRegion(
-        reducer=ee.Reducer.sum(),
-        geometry=aoi,  # 관심 지역을 지정
+
+# def calculate_area(fai_s2_sr_first_img_parse,aoi):
+#     fai_mask_1 = fai_s2_sr_first_img_parse.select('FAI').gt(1)
+#     masked_image_1 = fai_s2_sr_first_img_parse.updateMask(fai_mask_1)
+#     masked_clip_image_1 = masked_image_1.clip(aoi)
+#     # 마스킹된 영역의 총 면적 계산
+#     masked_area_1 = masked_clip_image_1.select('FAI').reduceRegion(
+#         reducer=ee.Reducer.sum(),
+#         geometry=aoi,  # 관심 지역을 지정
+#         scale=10,  # Sentinel-2 픽셀 해상도
+#     ).get('FAI')
+#     # 면적 결과 출력 (제곱미터 단위)
+#     area_sq_meters_1 = masked_area_1.getInfo()
+#     return area_sq_meters_1
+
+def calculate_area(fai_s2_sr_first_img_parse, aoi):
+    # FAI 값이 1을 초과하는 픽셀에 대한 마스크 생성
+    fai_mask = fai_s2_sr_first_img_parse.select('FAI').gt(1)
+
+    # 마스크를 적용하고 관심 지역으로 클리핑
+    masked_image = fai_s2_sr_first_img_parse.updateMask(fai_mask).clip(aoi)
+
+    # 면적의 합계 계산
+    total_area = masked_image.reduceRegion(
+        reducer=ee.Reducer.count(),
+        geometry=aoi,
         scale=10,  # Sentinel-2 픽셀 해상도
+        maxPixels=1e10
     ).get('FAI')
+
     # 면적 결과 출력 (제곱미터 단위)
-    area_sq_meters_1 = masked_area_1.getInfo()
-    return area_sq_meters_1
+    area_sq_meters = total_area.getInfo()/100
+    return area_sq_meters
 
-def calculate_all_area(aoi):
-    # Calculate the area of the AOI in square meters.
-    area = aoi.area().getInfo()
 
-    # Convert the area to square kilometers (1 square kilometer = 1,000,000 square meters).
-    area_sq_km = area / 1_000_000
-    return area_sq_km
+def calculate_all_area(fai_s2_sr_first_img_parse,aoi):
+    # 마스크를 적용하고 관심 지역으로 클리핑
+    masked_image = fai_s2_sr_first_img_parse.clip(aoi)
+
+    # 면적의 합계 계산
+    total_area = masked_image.reduceRegion(
+        reducer=ee.Reducer.count(),
+        geometry=aoi,
+        scale=10,  # Sentinel-2 픽셀 해상도
+        maxPixels=1e10
+    ).get('FAI')
+
+    # 면적 결과 출력 (제곱미터 단위)
+    area_sq_meters = total_area.getInfo()/100
+    return area_sq_meters
