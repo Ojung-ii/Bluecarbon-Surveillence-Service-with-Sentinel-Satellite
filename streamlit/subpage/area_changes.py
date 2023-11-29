@@ -11,7 +11,7 @@ import pandas as pd
 from datetime import datetime, timedelta 
 import time_func
 import ts_trend_analysis_func
-from area_changes_func import process_cal_size_1, add_ee_layer, mask_for_aoi,process_image,make_layer,calculate_area,calculate_all_area
+from area_changes_func import process_cal_size_1, add_ee_layer, mask_for_aoi,process_image,make_layer,calculate_area,calculate_all_area,define_threshold
 # Define key application functions.
 def app():
 
@@ -85,6 +85,8 @@ def app():
             # select start_data and end_date
             start_date = st.date_input('시작날짜 (2015.05 ~) :',time_func.one_year_ago_f_t()) # Default: Today - one month
             end_date = st.date_input('끝날짜 (~ 오늘) :')
+
+            number = st.number_input('임계값 설정(기본값:1)', value=1)
         
             # 입력된 날짜에서 연월 추출
             st_year = start_date.year
@@ -191,17 +193,20 @@ def app():
                     folium_static(m3, width = 650)
                 
                 with col6 :
-                    all_area = calculate_all_area(aoi)
-                    area_1 = calculate_area(fai_s2_sr_first_img_parse,aoi)
-                    area_2 = calculate_area(fai_s2_sr_sec_img_parse,aoi)
+                    all_area = calculate_all_area(fai_s2_sr_first_img_parse,aoi)
+                    area_1 = calculate_area(fai_s2_sr_first_img_parse,aoi,number)
+                    area_2 = calculate_area(fai_s2_sr_sec_img_parse,aoi,number)
                     
                     df = pd.DataFrame({
                                 "관심영역 전체": [all_area],
-                                "첫번째 사진": [area_1 / 1_000_000],
-                                "두번째 사진": [area_2 / 1_000_000]}, index= ["면적(km^2)"])
+                                "첫번째 사진": [area_1],
+                                "두번째 사진": [area_2]}, index= ["면적(km^2)"])
 
                     st.dataframe(df.T, use_container_width = True)
                     st.bar_chart(df.T, use_container_width = True)
+
+                    st.write('FAI지수 통계')
+                    st.dataframe(define_threshold(fai_s2_sr_sec_img_parse,aoi), use_container_width = True)
 
 # launch
 if __name__  == "__main__" :
