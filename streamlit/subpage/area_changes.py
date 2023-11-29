@@ -166,8 +166,8 @@ def app():
                     
                     uvi_params = {
                         'bands': ['FAI'],  # UVI 밴드만 사용
-                        'min': -300, # 수중식물 지수의 최소값
-                        'max': 300,   # 수중식물 지수의 최대값
+                        'min': -500, # 수중식물 지수의 최소값
+                        'max': 500,   # 수중식물 지수의 최대값
                         # 'palette': ['purple', 'blue', 'green', 'yellow', 'red']  # 색상 팔레트 설정
                         'palette': ['#ffffb2','#fecc5c','#fd8d3c','#f03b20','#bd0026']  # 색상 팔레트 설정
                     }
@@ -189,20 +189,23 @@ def app():
                     folium_static(m3, width = 650)
                 
                 with col6 :
-                    all_area = calculate_all_area(fai_s2_sr_first_img_parse,aoi)
-                    area_1 = calculate_area(fai_s2_sr_first_img_parse,aoi,number)
-                    area_2 = calculate_area(fai_s2_sr_sec_img_parse,aoi,number)
-                    
-                    df = pd.DataFrame({
-                                "관심영역 전체": [all_area],
-                                "첫번째 사진": [area_1],
-                                "두번째 사진": [area_2]}, index= ["면적(km^2)"])
+                    try:
+                        all_area = calculate_all_area(fai_s2_sr_first_img_parse,aoi)
+                        area_1 = calculate_area(fai_s2_sr_first_img_parse,aoi,number)
+                        area_2 = calculate_area(fai_s2_sr_sec_img_parse,aoi,number)
+                        
+                        df = pd.DataFrame({
+                                    "관심영역 전체": [all_area],
+                                    "첫번째 사진": [area_1],
+                                    "두번째 사진": [area_2]}, index= ["면적(km^2)"])
 
-                    st.dataframe(df.T, use_container_width = True)
-                    st.bar_chart(df.T, use_container_width = True)
+                        st.dataframe(df.T, use_container_width = True)
+                        st.bar_chart(df.T, use_container_width = True)
 
-                    st.write('FAI지수 통계')
-                    st.dataframe(define_threshold(fai_s2_sr_sec_img_parse,aoi), use_container_width = True)
+                        st.write('FAI지수 통계')
+                        st.dataframe(define_threshold(fai_s2_sr_sec_img_parse,aoi), use_container_width = True)
+                    except:
+                        st.write('면적이 너무 커서 계산을 할 수 없습니다.')
 
 # launch
 if __name__  == "__main__" :
