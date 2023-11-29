@@ -188,9 +188,9 @@ def make_layer(ee_image_object, vis_params, name):
 #     area_sq_meters_1 = masked_area_1.getInfo()
 #     return area_sq_meters_1
 
-def calculate_area(fai_s2_sr_first_img_parse, aoi):
+def calculate_area(fai_s2_sr_first_img_parse, aoi,threshold=1):
     # FAI 값이 1을 초과하는 픽셀에 대한 마스크 생성
-    fai_mask = fai_s2_sr_first_img_parse.select('FAI').gt(1)
+    fai_mask = fai_s2_sr_first_img_parse.select('FAI').gt(threshold)
 
     # 마스크를 적용하고 관심 지역으로 클리핑
     masked_image = fai_s2_sr_first_img_parse.updateMask(fai_mask).clip(aoi)
@@ -204,7 +204,7 @@ def calculate_area(fai_s2_sr_first_img_parse, aoi):
     ).get('FAI')
 
     # 면적 결과 출력 (제곱미터 단위)
-    area_sq_meters = total_area.getInfo()/100
+    area_sq_meters = total_area.getInfo()/10000
     return area_sq_meters
 
 
@@ -221,5 +221,26 @@ def calculate_all_area(fai_s2_sr_first_img_parse,aoi):
     ).get('FAI')
 
     # 면적 결과 출력 (제곱미터 단위)
-    area_sq_meters = total_area.getInfo()/100
+    area_sq_meters = total_area.getInfo()/10000
     return area_sq_meters
+
+def define_threshold(fai_s2_sr_first_img_parse,aoi):
+    # FAI 값 추출
+    masked_image = fai_s2_sr_first_img_parse.clip(aoi)
+    fai_values = masked_image.select('FAI').reduceRegion(
+        reducer=ee.Reducer.toList(),
+        geometry=aoi,
+        scale=10,
+        maxPixels=1e9
+    ).get('FAI')
+
+    # 추출된 FAI 값들을 Python 리스트로 변환
+    fai_values_list = fai_values.getInfo()
+
+    # 리스트를 DataFrame으로 변환
+    df = pd.DataFrame(fai_values_list, columns=['Values'])
+
+    # 기술통계 요약 출력
+    descriptive_stats = df.describe()
+
+    return descriptive_stats
