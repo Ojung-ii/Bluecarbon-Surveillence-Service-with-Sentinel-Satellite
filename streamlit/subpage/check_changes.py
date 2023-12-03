@@ -131,8 +131,62 @@ def app():
             st.markdown("""
             <h3 style='text-align: center; font-size: 35px;'>⬇️  변화탐지 결과  ⬇️</h3>
             """, unsafe_allow_html=True)
-            st.write('')
-            st.write('')
+            # ---------------------- Legend ---------------------- 
+            st.write("")    
+            # CSS style
+            css_style = """
+            <style>
+            .legend {
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f9f9f9;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: space-evenly;
+            }
+
+            .legend-item {
+            display: flex;
+            align-items: center;
+            }
+
+            .color-box {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+            border: 1px solid #000;
+            }
+
+            .description {
+            font-size: 15px;
+            }
+            </style>
+            """
+
+            # HTML content
+            html_content = """
+            <div class="legend">
+            <div class="legend-item">
+                <span class="color-box" style="background-color: red;"></span>
+                <span class="description">
+                <strong>반사율 증가:</strong><br>
+                구조물 또는 식생 증가,<br>
+                물 면적 감소
+                </span>
+            </div>
+            <div class="legend-item">
+                <span class="color-box" style="background-color: blue;"></span>
+                <span class="description">
+                <strong>반사율 감소:</strong><br>
+                구조물 또는 식생 감소, <br>
+                물 면적 증가
+                </span>
+            </div>
+            """
+
+            # Apply to Streamlit.
+            st.markdown(css_style, unsafe_allow_html=True)
+            st.markdown(html_content, unsafe_allow_html=True)
             
             with st.spinner("변화탐지 분석중"):
                 
@@ -217,65 +271,37 @@ def app():
                     # Displaying a Map in a Streamlet.
                     folium_static(mp,width=970)
 
+
                     
-                # ---------------------- Legend ---------------------- 
-                st.write("")    
-                # CSS style
-                css_style = """
-                <style>
-                .legend {
-                border: 1px solid #ddd;
-                padding: 10px;
-                background-color: #f9f9f9;
-                font-family: Arial, sans-serif;
-                display: flex;
-                justify-content: space-evenly;
-                }
-
-                .legend-item {
-                display: flex;
-                align-items: center;
-                }
-
-                .color-box {
-                width: 30px;
-                height: 30px;
-                margin-right: 10px;
-                border: 1px solid #000;
-                }
-
-                .description {
-                font-size: 15px;
-                }
-                </style>
-                """
-
-                # HTML content
-                html_content = """
-                <div class="legend">
-                <div class="legend-item">
-                    <span class="color-box" style="background-color: red;"></span>
-                    <span class="description">
-                    <strong>반사율 증가:</strong><br>
-                    구조물 또는 식생 증가,<br>
-                    물 면적 감소
-                    </span>
-                </div>
-                <div class="legend-item">
-                    <span class="color-box" style="background-color: blue;"></span>
-                    <span class="description">
-                    <strong>반사율 감소:</strong><br>
-                    구조물 또는 식생 감소, <br>
-                    물 면적 증가
-                    </span>
-                </div>
-                """
-
-                # Apply to Streamlit.
-                st.markdown(css_style, unsafe_allow_html=True)
-                st.markdown(html_content, unsafe_allow_html=True)
+                    
 
 
+                    
+                
+
+                total_area = ee.Image.pixelArea().clip(aoi).reduceRegion(
+                        reducer=ee.Reducer.sum(),
+                        geometry=aoi,
+                        scale=10  # Sentinel-1의 해상도
+                ).getInfo()['area']
+
+                decreased_area = c_map.eq(1).multiply(ee.Image.pixelArea()).reduceRegion(
+                    reducer=ee.Reducer.sum(),
+                    geometry=aoi,
+                    scale=10  # Sentinel-1의 해상도
+                ).getInfo()['VV']
+
+                # 증가한 영역(빨간색)의 면적 계산
+                increased_area = c_map.eq(2).multiply(ee.Image.pixelArea()).reduceRegion(
+                    reducer=ee.Reducer.sum(),
+                    geometry=aoi,
+                    scale=10  # Sentinel-1의 해상도
+                ).getInfo()['VV']
+
+
+                st.write(f"전체 면적: {round(total_area,1)}m^2")
+                st.write(f"파란색(감소) 영역 면적: {round(decreased_area,1)}m^2")
+                st.write(f"빨간색(증가) 영역 면적: {round(increased_area,1)}m^2")
        
                 # ------------- side by side map -------------------------
                 if k==0:
