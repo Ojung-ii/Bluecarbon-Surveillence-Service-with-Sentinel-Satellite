@@ -94,11 +94,19 @@ def app():
             en_year = end_date.year
             en_month = end_date.month
             
-            # 해당 월의 첫째 날과 마지막 날 계산
             st_date_f = datetime(st_year, st_month, 1)
-            st_date_l = datetime(st_year, st_month + 1, 1) - timedelta(days=1)
             en_date_f = datetime(en_year, en_month, 1)
-            en_date_l = datetime(en_year, en_month + 1, 1) - timedelta(days=1)
+            # 해당 월의 첫째 날과 마지막 날 계산
+            if st_month == 12:
+                st_date_l = datetime(st_year + 1, 1, 1) - timedelta(days=1)
+            else:
+                st_date_l = datetime(st_year, st_month + 1, 1) - timedelta(days=1)
+
+            if en_month == 12:
+                en_date_l = datetime(en_year + 1, 1, 1) - timedelta(days=1)
+            else:
+                en_date_l = datetime(en_year, en_month + 1, 1) - timedelta(days=1)
+
 
             # 일자 범위를 문자열 형식으로 변환
             st_date_f_str = st_date_f.strftime('%Y-%m-%d')
@@ -117,7 +125,7 @@ def app():
 
         s2_sr_first_img = process_cal_size_1(st_date_f_str, st_date_l_str, aoi)
         s2_sr_sec_img = process_cal_size_1(en_date_f_str, en_date_l_str, aoi)
-        # Folium 라이브러리의 Map 객체에 위에서 정의한 함수를 추가합니다.
+        # Folium 라이브러리의 Map 객체에 위에서 정의한 함수를 추가합니다.1
         folium.Map.add_ee_layer = add_ee_layer
         # Create a folium map object.
         center = aoi.centroid().coordinates().getInfo()[::-1]
