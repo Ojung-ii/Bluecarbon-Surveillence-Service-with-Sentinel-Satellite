@@ -75,7 +75,7 @@ def app():
 
             # Date Settings
             start_date = st.date_input('시작날짜 (2015.05 ~) :',time_func.one_month_ago_f_t()) # Default: Today - one month.
-            end_date = st.date_input('끝날짜 선택하세요:')# Default: Today
+            end_date = st.date_input('끝날짜 선택하세요:',time_func.one_week_ago_t())# Default: Today
 
             # Run Analysis button.
             st.write("")
