@@ -264,7 +264,7 @@ def app():
 
                     # Add C_map layer.
                     mp.add_ee_layer(c_map,
-                                    {'min': 0, 'max': 2, 'palette': ['00000000', '#FF000080', '#0000FF80']},  
+                                    {'min': 0, 'max': 2, 'palette': ['black', 'blue', 'red']},  
                                     'Change Map')
                     mp.add_child(folium.LayerControl())
 
