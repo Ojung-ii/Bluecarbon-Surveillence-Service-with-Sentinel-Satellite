@@ -3,7 +3,7 @@ import folium
 from folium import plugins
 from streamlit_folium import folium_static
 import matplotlib.pyplot as plt
-
+import pandas as pd
 import json
 import ts_trend_analysis_func
 import datetime
@@ -28,15 +28,21 @@ def app():
                     식생지수 시계열 경향성 분석 기능 사용설명서
 
                         1. 관심 영역 설정
-                        2. 분석 기간 설정
+                        2. 날짜 설정
                         3. 분석 실행
                         4. 식생지수 선택 및 분석 결과 확인
-                            각 식생지수(RVI, NDVI, WAVI, DIFF_BG, WEVI, WTDVI)에 대한 탭을 클릭하여 해당 지수의 분석 결과를 확인합니다.
-                            그래프: 선택한 식생지수의 시계열 데이터와 Prophet에 의한 예측 결과를 그래프로 확인합니다.
-                            최대값 및 최소값: 해당 지수의 최대값과 최소값이 발생한 날짜를 확인합니다.
-                            계절별 및 연간 경향성: 계절별 및 연간 식생지수의 평균값을 확인하여 시간에 따른 변화를 파악합니다.
+                            각 식생지수(RVI, NDVI, FAI)에 대한 탭을 클릭하여 해당 지수의 분석 결과를 확인합니다.
+                            - 그래프: 선택한 식생지수의 시계열 데이터와 Prophet에 의한 예측 결과를 그래프로 확인합니다.
+                            - 최대값 및 최소값: 해당 지수의 최대값과 최소값이 발생한 날짜를 확인합니다.
+                            - 계절별 및 연간 경향성: 계절별 및 연간 식생지수의 평균값을 확인하여 시간에 따른 변화를 파악합니다.
+                            
                     """)
-
+            
+            df = pd.DataFrame({"RVI" : ["육상의 식생지수 경향성 확인에 유용"],
+                               "NDVI" : ["육상의 식생지수 경향성 확인에 유용, 날씨의 영향 있음"],
+                                "FAI" : ["수상 내 잘피 등의 식생지수 경향성 확인에 유용"]}, index= ["특징"])
+            st.dataframe(df, use_container_width = True)
+            
     # 'aoi.geojson' file load
     with open('aoi.geojson', 'r', encoding="utf-8") as f:
         geojson_data = json.load(f)
