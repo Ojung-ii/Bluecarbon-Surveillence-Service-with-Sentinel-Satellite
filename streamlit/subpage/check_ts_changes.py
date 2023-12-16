@@ -163,7 +163,7 @@ def app():
                     <span class="color-box" style="background-color: red;"></span>
                     <span class="description">
                     <strong>반사율 증가:</strong><br>
-                    구조물 또는 식생 증가,<br>
+                    식생 증가,<br>
                     물 면적 감소
                     </span>
                 </div>
