@@ -48,7 +48,18 @@ def app():
         st.write("---"*20) # A dividing line
         if st.toggle("사용설명서"):
             st.write("""
-     dfsdfasdfasdf
+                    면적변화 확인 기능 사용설명서
+
+                        1. 관심 영역 설정
+                        2. 날짜 설정
+                        3. 임계값 설정 (기본값 1로 설정)
+                        4. 분석 실행
+                        5. 2개의 side by side 지도 확인
+                            1) 2달간의 데이터를 이용하여 구름없는 이미지로 만든 지도
+                            2) FAI를 활용하여 잘피가 있는 지역을 색상으로 표현한 지도
+                        6. 분석결과 오른쪽의 변화된 면적 수치와 그래프를 통한 확인
+                        
+                        * 분석결과 맨아래의 FAI지수 통계를 활용하여 임계값 설정에 도움을 받을 수 있습니다.
                      """)
 
     # 'aoi.geojson' file load
@@ -166,7 +177,7 @@ def app():
             """, unsafe_allow_html=True)
             st.write('')
             st.write('')
-            with st.spinner("변화탐지 분석중"):
+            with st.spinner("면적변화 분석중"):
                                         
                 col5,col6 = st.columns([0.7,0.3])
                 with col5:
@@ -200,27 +211,25 @@ def app():
                     plugins.Fullscreen().add_to(m3)
                     folium_static(m3, width = 650)
                 
-                try : 
-                    with col6 :
-                        
+                with col6 :
+                    try:
                         all_area = calculate_all_area(fai_s2_sr_first_img_parse,aoi)
                         area_1 = calculate_area(fai_s2_sr_first_img_parse,aoi,number)
                         area_2 = calculate_area(fai_s2_sr_sec_img_parse,aoi,number)
                         
                         df = pd.DataFrame({
-                                    "관심영역 전체": [all_area],
-                                    "첫번째 사진": [area_1],
-                                    "두번째 사진": [area_2]}, index= ["면적(km^2)"])
+                            "면적(km^2)": [all_area, area_1, area_2]
+                        }, index=["관심영역 전체", "첫번째 사진", "두번째 사진"])
 
                         st.dataframe(df.T, use_container_width = True)
                         st.bar_chart(df.T, use_container_width = True)
-                            
-                    st.write('FAI지수 통계')
-                    st.dataframe(define_threshold(fai_s2_sr_sec_img_parse,aoi).T, use_container_width = True)
 
-                except:
+                        st.write('FAI지수 통계')
+                        st.dataframe(define_threshold(fai_s2_sr_sec_img_parse,aoi), use_container_width = True)
+                    except:
                         st.write('면적이 너무 커서 계산을 할 수 없습니다.')
 
 # launch
 if __name__  == "__main__" :
     app()
+    

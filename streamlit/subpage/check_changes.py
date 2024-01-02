@@ -44,7 +44,9 @@ def app():
         if st.toggle("사용설명서"):
             st.write("""
                 변화탐지 기능 사용설명서
-                
+                    
+                    - 맹꽁이 서식지와 같은 습지와 침수지역 등의 변화를 확인하는데 유용합니다.
+                    
                     1. 관심 영역 설정
                     2. 날짜 설정
                     3. 변화탐지 분석 실행
@@ -131,62 +133,8 @@ def app():
             st.markdown("""
             <h3 style='text-align: center; font-size: 35px;'>⬇️  변화탐지 결과  ⬇️</h3>
             """, unsafe_allow_html=True)
-            # ---------------------- Legend ---------------------- 
             st.write("")    
-            # CSS style
-            css_style = """
-            <style>
-            .legend {
-            border: 1px solid #ddd;
-            padding: 10px;
-            background-color: #f9f9f9;
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: space-evenly;
-            }
 
-            .legend-item {
-            display: flex;
-            align-items: center;
-            }
-
-            .color-box {
-            width: 30px;
-            height: 30px;
-            margin-right: 10px;
-            border: 1px solid #000;
-            }
-
-            .description {
-            font-size: 15px;
-            }
-            </style>
-            """
-
-            # HTML content
-            html_content = """
-            <div class="legend">
-            <div class="legend-item">
-                <span class="color-box" style="background-color: red;"></span>
-                <span class="description">
-                <strong>반사율 증가:</strong><br>
-                구조물 또는 식생 증가,<br>
-                물 면적 감소
-                </span>
-            </div>
-            <div class="legend-item">
-                <span class="color-box" style="background-color: blue;"></span>
-                <span class="description">
-                <strong>반사율 감소:</strong><br>
-                구조물 또는 식생 감소, <br>
-                물 면적 증가
-                </span>
-            </div>
-            """
-
-            # Apply to Streamlit.
-            st.markdown(css_style, unsafe_allow_html=True)
-            st.markdown(html_content, unsafe_allow_html=True)
             
             with st.spinner("변화탐지 분석중"):
                 
@@ -264,7 +212,7 @@ def app():
 
                     # Add C_map layer.
                     mp.add_ee_layer(c_map,
-                                    {'min': 0, 'max': 2, 'palette': ['00000000', '#FF000080', '#0000FF80']},  
+                                    {'min': 0, 'max': 2, 'palette': ['black', 'blue', 'red']},  
                                     'Change Map')
                     mp.add_child(folium.LayerControl())
 
@@ -272,13 +220,66 @@ def app():
                     folium_static(mp,width=970)
 
 
-                    
-                    
+                # ---------------------- Legend ---------------------- 
+                st.write("")    
+                # CSS style
+                css_style = """
+                <style>
+                .legend {
+                border: 1px solid #ddd;
+                padding: 10px;
+                background-color: #f9f9f9;
+                font-family: Arial, sans-serif;
+                display: flex;
+                justify-content: space-evenly;
+                }
 
+                .legend-item {
+                display: flex;
+                align-items: center;
+                }
 
+                .color-box {
+                width: 30px;
+                height: 30px;
+                margin-right: 10px;
+                border: 1px solid #000;
+                }
+
+                .description {
+                font-size: 15px;
+                }
+                </style>
+                """
+
+                # HTML content
+                html_content = """
+                <div class="legend">
+                <div class="legend-item">
+                    <span class="color-box" style="background-color: red;"></span>
+                    <span class="description">
+                    <strong>반사율 증가:</strong><br>
+                    식생 증가,<br>
+                    물 면적 감소
+                    </span>
+                </div>
+                <div class="legend-item">
+                    <span class="color-box" style="background-color: blue;"></span>
+                    <span class="description">
+                    <strong>반사율 감소:</strong><br>
+                    식생 감소, <br>
+                    물 면적 증가
+                    </span>
+                </div>
+                """
+
+                # Apply to Streamlit.
+                st.markdown(css_style, unsafe_allow_html=True)
+                st.markdown(html_content, unsafe_allow_html=True)
+                        
                     
-                
-
+               # --------------- calculated area values --------------------------------
+               
                 total_area = ee.Image.pixelArea().clip(aoi).reduceRegion(
                         reducer=ee.Reducer.sum(),
                         geometry=aoi,
