@@ -8,7 +8,11 @@ from google.auth import compute_engine
 
 
 def launch() :
-    # ---------------------------------- Home ----------------------------------
+    service_account = 'gunwo3442@gunwo3442.iam.gserviceaccount.com'
+    credentials = ee.ServiceAccountCredentials(service_account, 'gunwo3442-fa3b2b566e8d.json')
+    # Earth Engine 초기화
+    ee.Initialize(credentials)
+# ---------------------------------- Home ----------------------------------
     st.set_page_config(page_title='국립공원공단 SAR 변화탐지 서비스', page_icon="🛰️", layout='wide', initial_sidebar_state='collapsed')
     
     # tile
@@ -28,11 +32,7 @@ def launch() :
     with st.sidebar: 
         st.write("아래버튼을 클릭하여 Google Earth Engine 인증을 갱신해주세요.")
         auth = st.button('Google Earth Engine 인증 갱신버튼')
-        if auth:
-            service_account = 'national-project@gunwo3442.gserviceaccount.com'
-            credentials = ee.ServiceAccountCredentials(service_account, 'gunwo3442-fa3b2b566e8d.json')
-            # Earth Engine 초기화
-            ee.Initialize(credentials)
+        
 
 
     # ------------------------------- main navigator -------------------------------- 
