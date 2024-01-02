@@ -8,7 +8,7 @@ from plotly.subplots import make_subplots
 import folium
 
 # Earth Engine API initialization
-ee.Initialize()
+# ee.Initialize()
 
 # Set up AOI using GeoJSON structure
 def create_ee_polygon_from_geojson(gjson):
