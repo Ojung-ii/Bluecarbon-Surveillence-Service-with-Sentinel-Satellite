@@ -9,7 +9,7 @@ from google.auth import compute_engine
 
 def launch() :
     service_account = 'gunwo3442@gunwo3442.iam.gserviceaccount.com'
-    credentials = ee.ServiceAccountCredentials(service_account, 'gunwo3442-fa3b2b566e8d.json')
+    credentials = ee.ServiceAccountCredentials(service_account, '.gunwo3442-fa3b2b566e8d.json')
     # Earth Engine 초기화
     ee.Initialize(credentials)
 # ---------------------------------- Home ----------------------------------
