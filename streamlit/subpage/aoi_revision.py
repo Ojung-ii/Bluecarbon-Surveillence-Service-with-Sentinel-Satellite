@@ -19,7 +19,7 @@ def app():
         tileType = "jpeg" # tile type
 
         # Set up the path to the region of interest file.
-        geojson_path = 'aoi.geojson'
+        geojson_path = 'streamlit/aoi.geojson'
 
         # Importing or initializing region of interest data.
         if os.path.exists(geojson_path):
