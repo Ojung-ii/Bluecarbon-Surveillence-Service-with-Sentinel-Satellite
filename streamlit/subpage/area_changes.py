@@ -16,7 +16,7 @@ from area_changes_func import process_cal_size_1, add_ee_layer, mask_for_aoi,pro
 def app():
 
     # Google Earth Engine Initialization
-    ee.Initialize()
+    # ee.Initialize()
 
     # VWorld map settings
     vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179" # VWorld API key

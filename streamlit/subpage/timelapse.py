@@ -7,7 +7,7 @@ from ts_trend_analysis_func import create_ee_polygon_from_geojson
 import datetime
 import time_func
 # Google Earth Engine initialization
-ee.Initialize()
+# ee.Initialize()
 
 def app():
      # Page layout settings
