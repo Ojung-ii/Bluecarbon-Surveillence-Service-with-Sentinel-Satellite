@@ -12,7 +12,7 @@ import ts_trend_analysis_func
 import time_func
 from folium import plugins
 # Google Earth Engine Initialization
-ee.Initialize()
+# ee.Initialize()
 
 # VWorld map settings
 vworld_key="74C1313D-E1E1-3B8D-BCB8-000EEB21C179" # VWorld API key
