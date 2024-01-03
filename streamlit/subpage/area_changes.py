@@ -63,7 +63,7 @@ def app():
                      """)
 
     # 'aoi.geojson' file load
-    with open('streamlit/aoi.geojson', 'r', encoding="utf-8") as ff:
+    with open('aoi.geojson', 'r', encoding="utf-8") as ff:
         geojson_data = json.load(ff)
 
     # Importing a list of local names from a GeoJSON file.
