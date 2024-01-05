@@ -5,13 +5,18 @@ import ee
 from subpage import home, timelapse, check_changes, check_ts_changes, ts_trend_analysis, aoi_revision, area_changes
 import ee
 from google.auth import compute_engine
+from google.oauth2 import service_account
 import geemap
 
 def launch() :
-    # service_account = 'gunwo3442@gunwo3442.iam.gserviceaccount.com'
-    # credentials = ee.ServiceAccountCredentials(service_account, '.gunwo3442-fa3b2b566e8d.json')
-    # # Earth Engine 초기화
-    geemap.ee_initialize()
+    service_account_json = '.gunwo3442-fa3b2b566e8d.json'
+    credentials = service_account.Credentials.from_service_account_file(
+        service_account_json,
+        scopes=['https://www.googleapis.com/auth/cloud-platform']
+    )
+
+    # Earth Engine 초기화
+    ee.Initialize(credentials)
 # ---------------------------------- Home ----------------------------------
     st.set_page_config(page_title='국립공원공단 SAR 변화탐지 서비스', page_icon="🛰️", layout='wide', initial_sidebar_state='collapsed')
     
@@ -21,7 +26,7 @@ def launch() :
     #     """, unsafe_allow_html=True)
     empty1, title, empty2 = st.columns([0.4,0.6,0.4])
     with title :
-        st.image("streamlit/logo/bluecheck_title_logo.png")
+        st.image("logo/bluecheck_title_logo.png")
     # sub_title
     st.markdown("""
         <h3 style='text-align: center; font-size: 30px;'> 위성영상을 활용한 블루카본 변화탐지 서비스 </h3>
