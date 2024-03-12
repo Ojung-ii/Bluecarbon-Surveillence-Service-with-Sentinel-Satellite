@@ -199,18 +199,21 @@ def app():
                     m3 = folium.Map(location=center, zoom_start=13)
 
                     # Add layers to the folium map.
-                    layer1 = make_layer(fai_s2_sr_first_img_parse,uvi_params,'S2 cloud-free mosaic')
-                    layer2 = make_layer(fai_s2_sr_sec_img_parse,uvi_params,'S2 cloud-free mosaic')
-                    sbs = folium.plugins.SideBySideLayers(layer1, layer2)
+                    try:
+                        layer1 = make_layer(fai_s2_sr_first_img_parse,uvi_params,'S2 cloud-free mosaic')
+                        layer2 = make_layer(fai_s2_sr_sec_img_parse,uvi_params,'S2 cloud-free mosaic')
+                        sbs = folium.plugins.SideBySideLayers(layer1, layer2)
 
-                    layer1.add_to(m3)
-                    layer2.add_to(m3)
-                    sbs.add_to(m3)
-                    # Add a layer control panel to the map.
-                    m3.add_child(folium.LayerControl())
-                    plugins.Fullscreen().add_to(m3)
-                    folium_static(m3, width = 650)
-                
+                        layer1.add_to(m3)
+                        layer2.add_to(m3)
+                        sbs.add_to(m3)
+                        # Add a layer control panel to the map.
+                        m3.add_child(folium.LayerControl())
+                        plugins.Fullscreen().add_to(m3)
+                        folium_static(m3, width = 650)
+                    except:
+                        st.write('해당일자에 해당하는 위성영상이 없습니다.')
+                    
                 with col6 :
                     try:
                         all_area = calculate_all_area(fai_s2_sr_first_img_parse,aoi)
